@@ -32,7 +32,6 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@iconify/icons-cryptocurrency": "^1.2.5",
-    "@kiroboio/fct-sdk": "^0.1.15",
     "@next/font": "13.3.0",
     "connectkit": "^1.2.2",
     "dayjs": "^1.11.7",
@@ -60,12 +59,12 @@
     "eslint-config-next": "13.3.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "fs": "^0.0.1-security",
     "husky": "^8.0.3",
     "lint-staged": "^13.2.1",
-    "prettier": "^2.8.7",
-    "typescript": "5.0.4",
-    "fs": "^0.0.1-security",
     "os": "^0.1.2",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "prettier": "^2.8.7",
+    "typescript": "5.0.4"
   }
 }
