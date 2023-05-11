@@ -84,7 +84,7 @@ export default function LimitForm() {
 
   useEffect(() => {
     if (inputAmount && exchangeRate) {
-      setOutputAmount((inputAmount * exchangeRate).toFixed(2))
+      setOutputAmount(+(inputAmount * exchangeRate).toFixed(2))
     } else {
       setOutputAmount(0)
     }
