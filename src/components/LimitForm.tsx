@@ -1,9 +1,7 @@
-//@ts-nocheck
 import {
   Button,
   Card,
   CardBody,
-  Container,
   Divider,
   FormControl,
   FormHelperText,
@@ -27,7 +25,6 @@ import {
   ModalBody,
   LinkBox,
   LinkOverlay,
-  Avatar,
   Box,
   useColorModeValue,
 } from '@chakra-ui/react'
@@ -37,7 +34,15 @@ import { FiChevronDown } from 'react-icons/fi'
 import { IoSearch } from 'react-icons/io5'
 import { CheckCircleIcon } from '@chakra-ui/icons'
 
-const TokenBox = ({ symbol, name, amount, price = 0, isSelected }) => (
+interface TokenBoxProps {
+  symbol: string
+  name: string
+  amount: number
+  price?: number
+  isSelected?: boolean
+}
+
+const TokenBox: React.FC<TokenBoxProps> = ({ symbol, name, amount, price = 0, isSelected }) => (
   <LinkBox py={1} _hover={{ background: useColorModeValue('gray.100', 'gray.900') }}>
     <LinkOverlay href="#">
       <HStack px={6} py={1} spacing={3} justifyContent="space-between">
@@ -60,7 +65,7 @@ const TokenBox = ({ symbol, name, amount, price = 0, isSelected }) => (
             {amount}
           </Text>
           <Text fontSize="xs" color="gray.500">
-            ${(parseFloat(price) * parseFloat(amount)).toFixed(2)}
+            ${(price * amount).toFixed(2)}
           </Text>
         </Box>
       </HStack>
@@ -72,9 +77,9 @@ export default function LimitForm() {
   const [searchText, setSearchText] = useState('')
   const [outputToken, setOutputToken] = useState('')
   const [inputToken, setInputToken] = useState('')
-  const [inputAmount, setInputAmount] = useState(0)
-  const [outputAmount, setOutputAmount] = useState(0)
-  const [exchangeRate, setExchangeRate] = useState(0)
+  const [inputAmount, setInputAmount] = useState<number>(0)
+  const [outputAmount, setOutputAmount] = useState<number>(0)
+  const [exchangeRate, setExchangeRate] = useState<number>(0)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
@@ -86,7 +91,7 @@ export default function LimitForm() {
   }, [inputAmount, exchangeRate])
   return (
     <>
-      <Card minW="320px">
+      <Card minW="330px">
         <CardBody>
           <Stack>
             <Heading fontSize="2xl">Limit</Heading>
@@ -101,7 +106,7 @@ export default function LimitForm() {
               </HStack>
               <InputGroup mt={2}>
                 <NumberInput defaultValue={inputAmount} flex={1}>
-                  <NumberInputField onChange={(e) => setInputAmount(e.target.value)} />
+                  <NumberInputField onChange={(e) => setInputAmount(+e.target.value)} />
                   <InputRightElement w="6rem" ml="auto">
                     <Button w="full" mr={1} size="sm" rightIcon={<FiChevronDown />} onClick={() => setIsModalOpen(true)}>
                       USDC
@@ -116,7 +121,7 @@ export default function LimitForm() {
                 <InputLeftAddon fontSize="sm" fontWeight="bold">
                   1 USDC =
                 </InputLeftAddon>
-                <Input defaultValue={exchangeRate} onChange={(e) => setExchangeRate(e.target.value)} />
+                <Input defaultValue={exchangeRate} onChange={(e) => setExchangeRate(+e.target.value)} />
                 <InputRightElement w="6rem" ml="auto">
                   <Button w="full" mr={1} size="sm" rightIcon={<FiChevronDown />} onClick={() => setIsModalOpen(true)}>
                     DAI
@@ -159,9 +164,9 @@ export default function LimitForm() {
           <ModalCloseButton />
           <ModalBody pt={0} px={0} pb={4} maxH="400px" overflowY="auto">
             <Stack spacing={0}>
-              <TokenBox name="USDC Coin" symbol="USDC" amount="0.00" price="1.00" isSelected />
-              <TokenBox name="Dai Stablecoin" symbol="DAI" amount="0.00" price="1.00" isSelected />
-              <TokenBox name="Ethereum" symbol="ETH" amount="0.00" price="1,800.00" />
+              <TokenBox name="USDC Coin" symbol="USDC" amount={0.0} price={1.0} isSelected />
+              <TokenBox name="Dai Stablecoin" symbol="DAI" amount={0.0} price={1.0} isSelected />
+              <TokenBox name="Ethereum" symbol="ETH" amount={0.0} price={1800.0} />
             </Stack>
           </ModalBody>
         </ModalContent>
