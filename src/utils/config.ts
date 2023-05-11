@@ -1,8 +1,8 @@
 import { ThemingProps } from '@chakra-ui/react'
 import { mainnet, goerli, sepolia, polygon, optimism, arbitrum } from '@wagmi/chains'
 
-export const KI_KEY = 'kirobo'
-export const KI_SECRET = 'kirobodev'
+export const KI_KEY = 'dev'
+export const KI_SECRET = 'sdk'
 
 export const SITE_NAME = 'Kirobo SDK starter kit'
 export const SITE_DESCRIPTION = 'Quickly ship Web3 apps using Next.js and Kirobo FCTs ⚡'

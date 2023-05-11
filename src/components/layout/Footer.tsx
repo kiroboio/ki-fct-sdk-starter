@@ -12,16 +12,7 @@ export function Footer(props: Props) {
   const className = props.className ?? ''
 
   return (
-    <Flex
-      as="footer"
-      position="fixed"
-      w="full"
-      bottom={0}
-      className={className}
-      flexDirection="column"
-      justifyContent="center"
-      alignItems="center"
-      py={8}>
+    <Flex as="footer" className={className} flexDirection="column" justifyContent="center" alignItems="center" py={8}>
       <Text fontSize="sm">
         Powered by{' '}
         <Link href="https://kirobo.io" isExternal>
