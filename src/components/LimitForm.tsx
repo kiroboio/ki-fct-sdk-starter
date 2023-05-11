@@ -11,6 +11,7 @@ import {
   Heading,
   Input,
   InputGroup,
+  InputLeftElement,
   InputRightElement,
   NumberInput,
   NumberInputField,
@@ -24,17 +25,53 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalBody,
-  Alert,
-  AlertIcon,
-  Flex,
+  LinkBox,
+  LinkOverlay,
+  Avatar,
   Box,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
+import { Icon } from '@iconify/react'
 import { FiChevronDown } from 'react-icons/fi'
+import { IoSearch } from 'react-icons/io5'
+import { CheckCircleIcon } from '@chakra-ui/icons'
+
+const TokenBox = ({ symbol, name, amount, price = 0, isSelected }) => (
+  <LinkBox py={1} _hover={{ background: useColorModeValue('gray.100', 'gray.900') }}>
+    <LinkOverlay href="#">
+      <HStack px={6} py={1} spacing={3} justifyContent="space-between">
+        <HStack>
+          <Icon icon={`cryptocurrency-color:${symbol.toLowerCase()}`} width={28} />
+          <Stack spacing={0}>
+            <HStack>
+              <Text fontSize="sm" fontWeight="bold">
+                {symbol}
+              </Text>
+              {isSelected && <CheckCircleIcon ml="auto" color="green.500" />}
+            </HStack>
+            <Text fontSize="xs" color="gray.500">
+              {name}
+            </Text>
+          </Stack>
+        </HStack>
+        <Box textAlign="right">
+          <Text fontSize="sm" fontWeight="bold">
+            {amount}
+          </Text>
+          <Text fontSize="xs" color="gray.500">
+            ${(parseFloat(price) * parseFloat(amount)).toFixed(2)}
+          </Text>
+        </Box>
+      </HStack>
+    </LinkOverlay>
+  </LinkBox>
+)
 
 export default function LimitForm() {
-  const [inputToken, setInputToken] = useState('')
+  const [searchText, setSearchText] = useState('')
   const [outputToken, setOutputToken] = useState('')
+  const [inputToken, setInputToken] = useState('')
   const [inputAmount, setInputAmount] = useState(0)
   const [outputAmount, setOutputAmount] = useState(0)
   const [exchangeRate, setExchangeRate] = useState(0)
@@ -67,7 +104,7 @@ export default function LimitForm() {
                   <NumberInputField onChange={(e) => setInputAmount(e.target.value)} />
                   <InputRightElement w="6rem" ml="auto">
                     <Button w="full" mr={1} size="sm" rightIcon={<FiChevronDown />} onClick={() => setIsModalOpen(true)}>
-                      KIRO
+                      USDC
                     </Button>
                   </InputRightElement>
                 </NumberInput>
@@ -77,12 +114,12 @@ export default function LimitForm() {
               <Text fontWeight="bold">Limit Price</Text>
               <InputGroup mt={2}>
                 <InputLeftAddon fontSize="sm" fontWeight="bold">
-                  1 KIRO =
+                  1 USDC =
                 </InputLeftAddon>
                 <Input defaultValue={exchangeRate} onChange={(e) => setExchangeRate(e.target.value)} />
                 <InputRightElement w="6rem" ml="auto">
-                  <Button w="full" mr={1} size="sm" rightIcon={<FiChevronDown />}>
-                    USDC
+                  <Button w="full" mr={1} size="sm" rightIcon={<FiChevronDown />} onClick={() => setIsModalOpen(true)}>
+                    DAI
                   </Button>
                 </InputRightElement>
               </InputGroup>
@@ -95,7 +132,7 @@ export default function LimitForm() {
               <InputGroup mt={2}>
                 <Input value={outputAmount} readOnly />
                 <InputRightAddon fontSize="sm" fontWeight="bold">
-                  USDC
+                  DAI
                 </InputRightAddon>
               </InputGroup>
             </FormControl>
@@ -103,12 +140,30 @@ export default function LimitForm() {
           </Stack>
         </CardBody>
       </Card>
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader textAlign="center">Select a token</ModalHeader>
+      <Modal size="xs" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <ModalOverlay backdropFilter="auto" backdropBlur="2px" />
+        <ModalContent rounded="2xl" p={0}>
+          <ModalHeader textAlign="center">
+            Select a token
+            <FormControl my={4}>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <IoSearch />
+                </InputLeftElement>
+                <Input placeholder="Search by name" rounded="xl" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+              </InputGroup>
+            </FormControl>
+            <Divider />
+          </ModalHeader>
+
           <ModalCloseButton />
-          <ModalBody></ModalBody>
+          <ModalBody pt={0} px={0} pb={4} maxH="400px" overflowY="auto">
+            <Stack spacing={0}>
+              <TokenBox name="USDC Coin" symbol="USDC" amount="0.00" price="1.00" isSelected />
+              <TokenBox name="Dai Stablecoin" symbol="DAI" amount="0.00" price="1.00" isSelected />
+              <TokenBox name="Ethereum" symbol="ETH" amount="0.00" price="1,800.00" />
+            </Stack>
+          </ModalBody>
         </ModalContent>
       </Modal>
     </>
