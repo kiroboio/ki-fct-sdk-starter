@@ -1,10 +1,14 @@
 //@ts-nocheck
-import React, { useEffect, useRef } from 'react'
+import React, { useContext, useEffect, useRef } from 'react'
 import { useColorMode } from '@chakra-ui/react'
+import { TokenContext } from 'providers/Token'
+
 let tvScriptLoadingPromise: Promise<any>
 
-export default function TradingViewWidget({ from, to }) {
+export default function TradingViewWidget() {
   const { colorMode, toggleColorMode } = useColorMode()
+  const { inputToken, outputToken } = useContext(TokenContext)
+
   const onLoadScriptRef = useRef()
 
   useEffect(() => {
@@ -30,7 +34,7 @@ export default function TradingViewWidget({ from, to }) {
       if (document.getElementById('tradingview_7bd1a') && 'TradingView' in window) {
         new window.TradingView.widget({
           autosize: true,
-          symbol: `${from}${to}`,
+          symbol: `${inputToken}${outputToken}`,
           interval: 'D',
           timezone: 'Etc/UTC',
           theme: colorMode,
@@ -43,7 +47,7 @@ export default function TradingViewWidget({ from, to }) {
         })
       }
     }
-  }, [from, to, colorMode])
+  }, [inputToken, outputToken, colorMode])
 
-  return <div id="tradingview_7bd1a" style={{ minWidth: '550px', height: '528px' }} />
+  return <div id="tradingview_7bd1a" style={{ minWidth: '550px', height: '502px' }} />
 }
