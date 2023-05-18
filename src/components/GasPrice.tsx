@@ -3,7 +3,7 @@ import { Icon } from '@iconify/react'
 import { service, useComputed } from '@kiroboio/fct-sdk'
 
 export default function GasPrice() {
-  const gasPrice = useComputed(() => (+service.network.raw.value.gasPrice / 1e9).toFixed(2) + ' Gwei')
+  const gasPrice = useComputed(() => (+service.network.data.raw.value.gasPrice / 1e9).toFixed(2) + ' Gwei')
   return (
     <Tag ml={3} colorScheme="red">
       <Icon icon="ic:round-local-gas-station" width="16px" height="16px" />
