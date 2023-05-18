@@ -2,14 +2,9 @@ import {
   Card,
   CardBody,
   Button,
-  Box,
-  Center,
   Spinner,
-  Stack,
   Tooltip,
   Text,
-  Fade,
-  Heading,
   IconButton,
   ButtonGroup,
   Td,
@@ -20,11 +15,15 @@ import {
   Tbody,
   Th,
   Thead,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
 } from '@chakra-ui/react'
 import { service, useComputed } from '@kiroboio/fct-sdk'
 import { removeFCT, signFCT3, runCreateFCT } from 'utils/fct'
 import { RefObject, createRef, memo } from 'react'
 import { FiTrash } from 'react-icons/fi'
+import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 
 const refs: Record<string, RefObject<unknown>> = {}
 
@@ -34,8 +33,6 @@ function ActiveRow({ id }: { id: string }) {
   const healthItem = useComputed(() => JSON.stringify(items.value[id]?.health))
   const name = useComputed(() => items.value[id]?.data?.typedData?.message?.meta?.name)
   const createdAt = useComputed(() => item.value.createdAt)
-  const fromDate = useComputed(() => items.value[id]?.valid_from)
-  const toDate = useComputed(() => items.value[id]?.expires_at)
   const maxGasPrice = useComputed(() => items.value[id]?.gas_price_limit || '0')
   const isRemoving = useComputed(() => service.fct.active.remove.isRunning(id).value)
   const isSigning = useComputed(() => service.fct.active.addSignature.isRunning(id).value)
@@ -46,18 +43,18 @@ function ActiveRow({ id }: { id: string }) {
         <div key={item[0]}>{`${item[0]}:${item[1] ? ' ok' : ' bad'}`}</div>
       ))}>
       {Object.values(JSON.parse(healthItem.value)).some((value) => !value) ? (
-        <Text color="black" background="tan">
-          health: bad
-        </Text>
+        <Tag colorScheme="red">
+          <TagLeftIcon boxSize="12px" as={WarningTwoIcon} />
+          <TagLabel>BAD</TagLabel>
+        </Tag>
       ) : (
-        <Text color="black" background="greenyellow">
-          health: ok
-        </Text>
+        <Tag colorScheme="green">
+          <TagLeftIcon boxSize="12px" as={CheckCircleIcon} />
+          <TagLabel>OK</TagLabel>
+        </Tag>
       )}
     </Tooltip>
   ))
-
-  const timeFrame = useComputed(() => `Valid between ${fromDate}-${toDate}`)
 
   const removeButton = useComputed(() =>
     isRemoving.value || isSigning.value ? (
@@ -72,13 +69,14 @@ function ActiveRow({ id }: { id: string }) {
       <Td fontWeight="bold">
         <>{name}</>
       </Td>
-      <Td isNumeric>N/A</Td>
-      <Td isNumeric>N/A</Td>
-      <Td isNumeric>N/A</Td>
+
+      <Td>
+        <>{health}</>
+      </Td>
       <Td>
         <>{maxGasPrice} Gwai</>
       </Td>
-      <Td>
+      <Td fontStyle="italic">
         <>{createdAt}</>
       </Td>
       <Td>
@@ -108,16 +106,6 @@ function ActiveList() {
     </>
   ))
 
-  const isPublishRunning = useComputed(() => service.fct.active.publish.isRunning().value)
-
-  const isPublishing = useComputed(() => {
-    const state = service.fct.active.publish.state('limit-order').value
-    return state.status === 'running' && state.stage === 'publishing'
-  })
-
-  const isApproveRunning = useComputed(() => service.wallet.approve.isRunning().value)
-  const approveStage = useComputed(() => service.wallet.approve.state('approve').value.stage)
-
   return <>{activeList}</>
 }
 
@@ -133,9 +121,7 @@ export default function FCTList() {
             <Thead>
               <Tr>
                 <Th>FCT Name</Th>
-                <Th isNumeric>Sent</Th>
-                <Th isNumeric>Receive</Th>
-                <Th isNumeric>Rate</Th>
+                <Th>Health</Th>
                 <Th>Gas Price</Th>
                 <Th>Created at</Th>
                 <Th></Th>
