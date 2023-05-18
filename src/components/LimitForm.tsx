@@ -188,7 +188,7 @@ export default function LimitForm() {
                   name: 'testActiveList_' + service.fct.active.data.raw.list.value.length,
                   from: service.vault.data.raw.value.address,
                   netId: service.network.data.raw.value.netId,
-                  autoSign: 'late',
+                  autoSign: 'early',
                 })
               }>
               Create limite order

@@ -1,8 +1,6 @@
-import { RefObject } from 'react'
 import { service, core, plugins, cmd } from '@kiroboio/fct-sdk'
 
 const active = service.fct.active
-const refs: Record<string, RefObject<unknown>> = {}
 const isRunning = () => active.publish.isRunning().value
 
 type LimitOrderParams = {
