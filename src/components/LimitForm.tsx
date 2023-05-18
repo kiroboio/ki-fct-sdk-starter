@@ -30,13 +30,15 @@ import {
   useColorModeValue,
   Avatar,
 } from '@chakra-ui/react'
-import { RefObject, SetStateAction, useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { FiChevronDown } from 'react-icons/fi'
 import { IoSearch } from 'react-icons/io5'
 import { CheckCircleIcon } from '@chakra-ui/icons'
-import { service, useComputed, core, plugins } from '@kiroboio/fct-sdk'
+import { service, useComputed } from '@kiroboio/fct-sdk'
 import { TokenContext } from 'providers/Token'
+
+import { publishLimitOrder } from 'utils/fct'
 interface TokenBoxProps {
   symbol: string
   name: string
@@ -45,118 +47,6 @@ interface TokenBoxProps {
   price?: number
   isSelected?: boolean
   onSelect: (symbol: string, amount: number) => void
-}
-
-type LimitOrderParams = {
-  tokenIn: { address: string; amount: string }
-  tokensOut: { address: string; amount: string; path?: string[] }[]
-  netId: string
-  name: string
-  autoSign?: 'early' | 'late'
-}
-
-const active = service.fct.active
-const refs: Record<string, RefObject<unknown>> = {}
-const isRunning = () => active.publish.isRunning().value
-
-const createLimitOrder = async (params: LimitOrderParams) => {
-  if (isRunning()) {
-    throw new Error('running')
-  }
-  const chainId = params.netId === 'goerli' ? '5' : '1'
-
-  const fct = new core.engines.BatchMultiSigCall({ chainId })
-  fct.setOptions({
-    name: params.name,
-    maxGasPrice: service.network.raw.value.gasPrice,
-  })
-
-  const WALLET = service.wallet.raw.value.address
-  const VAULT = service.vault.raw.value.address
-  const AMOUNT_IN = params.tokenIn.amount
-  const TOKEN_IN = params.tokenIn.address
-
-  console.log(WALLET, VAULT, AMOUNT_IN, TOKEN_IN)
-
-  // Transfer tokens from wallet to vault
-  await fct.create({
-    from: VAULT,
-    plugin: new plugins.ERC20.actions.TransferFrom({
-      chainId,
-      initParams: {
-        to: TOKEN_IN,
-        methodParams: {
-          from: WALLET,
-          to: VAULT,
-          amount: AMOUNT_IN,
-        },
-      },
-    }),
-  })
-
-  for (let i = 0; i < params.tokensOut.length; ++i) {
-    const tokenOut = params.tokensOut[i]
-    const TOKEN_OUT = tokenOut.address
-    const AMOUNT_OUT = tokenOut.amount
-    const PATH = tokenOut.path || [TOKEN_IN, tokenOut.address]
-
-    const swapPlugin = new plugins.Uniswap.actions.UniswapV2SwapExactTokensForTokens({
-      chainId,
-      initParams: {
-        methodParams: {
-          to: WALLET,
-          amountIn: AMOUNT_IN,
-          amountOutMin: '0',
-          deadline: core.variables.globalVariables.blockTimestamp,
-          path: PATH,
-        },
-      },
-    })
-
-    await fct.create({
-      from: VAULT,
-      plugin: new plugins.ERC20.actions.Approve({
-        chainId,
-        initParams: {
-          to: params.tokensOut[i].address,
-          methodParams: {
-            spender: swapPlugin.input.params.to.value?.toString() || '',
-            amount: AMOUNT_IN,
-          },
-        },
-      }),
-    })
-
-    // Swap tokens on UniswapV2 and send to wallet
-    await fct.create({
-      from: VAULT,
-      plugin: swapPlugin,
-    })
-
-    // Ensure that the amount of tokens meets the minimum limit order treashold
-    await fct.create({
-      from: VAULT,
-      plugin: new plugins.Validator.getters.GreaterEqual({
-        chainId,
-        initParams: {
-          methodParams: {
-            // value1: FCT.constants.getFDBack({ callIndex: 1, innerIndex: 0 }),
-            value1: fct.variables.getOutputVariable({ index: 3 + 3 * i, innerIndex: -1 }),
-            value2: AMOUNT_OUT,
-          },
-        },
-      }),
-      options: {
-        flow: i === params.tokensOut.length ? core.constants.Flow.OK_CONT_FAIL_REVERT : core.constants.Flow.OK_STOP_FAIL_CONT,
-      },
-    })
-  }
-
-  return { params: { data: fct.exportFCT(), autoSign: params.autoSign, id: 'limit-order' } } // , signatures: [], sign: true })
-}
-
-const publishLimitOrder = async (params: LimitOrderParams) => {
-  await active.publish.execute('limit-order-test', async () => await createLimitOrder(params)) // , signatures: [], sign: true })
 }
 
 const TokenBox: React.FC<TokenBoxProps> = ({ symbol, name, logo, amount, price = 0, isSelected, onSelect }) => (
@@ -206,8 +96,6 @@ export default function LimitForm() {
   const tokens = useComputed(() => service.tokens.wallet.fmt.list.value)
   const filteredTokens = tokens.value.filter((token) => token.name.toLowerCase().includes(searchText.toLowerCase()))
 
-  console.log(tokens.value)
-
   const handleTokenSelect = (symbol: any, amount: any) => {
     if (currentToken == inputToken) {
       setInputToken(symbol)
@@ -237,7 +125,7 @@ export default function LimitForm() {
           <Stack spacing={6}>
             <FormControl>
               <HStack justify="space-between" alignContent="center">
-                <Text fontWeight="bold">You Send</Text>
+                <Text fontWeight="bold">You Sell</Text>
                 <FormHelperText>Balance: {balance}</FormHelperText>
               </HStack>
               <InputGroup mt={2}>
@@ -284,7 +172,7 @@ export default function LimitForm() {
             <Divider />
             <FormControl>
               <HStack justify="space-between" alignContent="center">
-                <Text fontWeight="bold">You Get</Text>
+                <Text fontWeight="bold">You receive at least</Text>
               </HStack>
               <InputGroup mt={2}>
                 <Input value={outputAmount} readOnly />

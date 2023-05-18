@@ -38,15 +38,8 @@ export function Header(props: Props) {
           <Logo />
         </Heading>
       </LinkComponent>
-      <Tag ml={3} colorScheme="red">
-        <Icon icon="ic:round-local-gas-station" width="16px" height="16px" />
-        <TagLabel fontSize="xs" ml={1} bgGradient="linear(to-l, rgb(255, 132, 51), rgb(243, 32, 45))" bgClip="text" fontWeight="extrabold">
-          <GasPrice />
-        </TagLabel>
-      </Tag>
-
+      <GasPrice />
       <Spacer />
-
       <Flex alignItems="center" gap={4}>
         <ConnectKitButton />
         {address && <LoginButton />}
