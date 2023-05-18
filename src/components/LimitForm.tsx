@@ -93,7 +93,7 @@ export default function LimitForm() {
   const [exchangeRate, setExchangeRate] = useState<number>(0)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const tokens = useComputed(() => service.tokens.wallet.fmt.list.value)
+  const tokens = useComputed(() => service.tokens.wallet.data.fmt.list.value)
   const filteredTokens = tokens.value.filter((token) => token.name.toLowerCase().includes(searchText.toLowerCase()))
 
   const handleTokenSelect = (symbol: any, amount: any) => {
