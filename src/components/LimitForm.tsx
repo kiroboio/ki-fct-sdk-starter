@@ -38,7 +38,7 @@ import { CheckCircleIcon } from '@chakra-ui/icons'
 import { service, useComputed } from '@kiroboio/fct-sdk'
 import { TokenContext } from 'providers/Token'
 
-import { publishLimitOrder } from 'utils/fct'
+import { runCreateFCT } from 'utils/fct'
 interface TokenBoxProps {
   symbol: string
   name: string
@@ -184,11 +184,11 @@ export default function LimitForm() {
             <Button
               colorScheme="messenger"
               onClick={() =>
-                publishLimitOrder({
-                  tokenIn: { address: inputToken, amount: inputAmount },
-                  tokensOut: [{ address: outputToken, amount: outputAmount }],
-                  netId: 'goerli',
-                  name: 'limit-order-test',
+                runCreateFCT({
+                  name: 'testActiveList_' + service.fct.active.data.raw.list.value.length,
+                  from: service.vault.data.raw.value.address,
+                  netId: service.network.data.raw.value.netId,
+                  autoSign: 'late',
                 })
               }>
               Create limite order
