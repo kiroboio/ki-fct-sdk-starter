@@ -34,7 +34,7 @@ export default function TradingViewWidget() {
       if (document.getElementById('tradingview_7bd1a') && 'TradingView' in window) {
         new window.TradingView.widget({
           autosize: true,
-          symbol: `${inputToken}${outputToken}`,
+          symbol: `${inputToken.symbol}${outputToken.symbol}`,
           interval: 'D',
           timezone: 'Etc/UTC',
           theme: colorMode,

@@ -31,30 +31,30 @@ import {
   Avatar,
 } from '@chakra-ui/react'
 import { useContext, useEffect, useState } from 'react'
-import { Icon } from '@iconify/react'
 import { FiChevronDown } from 'react-icons/fi'
 import { IoSearch } from 'react-icons/io5'
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { service, useComputed } from '@kiroboio/fct-sdk'
 import { TokenContext } from 'providers/Token'
 
-import { runCreateFCT } from 'utils/fct'
+import { publishLimitOrder } from 'utils/fct'
 interface TokenBoxProps {
   symbol: string
   name: string
+  address: string
   logo: string
   amount: number
   price?: number
   isSelected?: boolean
-  onSelect: (symbol: string, amount: number) => void
+  onSelect: (symbol: string, address: string, amount: number) => void
 }
 
-const TokenBox: React.FC<TokenBoxProps> = ({ symbol, name, logo, amount, price = 0, isSelected, onSelect }) => (
+const TokenBox: React.FC<TokenBoxProps> = ({ symbol, name, logo, amount, price = 0, address, isSelected, onSelect }) => (
   <LinkBox py={1} _hover={{ background: useColorModeValue('gray.100', 'gray.900') }}>
     <LinkOverlay
       href="#"
       onClick={() => {
-        isSelected ? undefined : onSelect(symbol, amount)
+        isSelected ? undefined : onSelect(symbol, address, amount)
       }}>
       <HStack px={6} py={1} spacing={3} justifyContent="space-between">
         <HStack>
@@ -96,12 +96,13 @@ export default function LimitForm() {
   const tokens = useComputed(() => service.tokens.wallet.data.fmt.list.value)
   const filteredTokens = tokens.value.filter((token) => token.name.toLowerCase().includes(searchText.toLowerCase()))
 
-  const handleTokenSelect = (symbol: any, amount: any) => {
+  const handleTokenSelect = (symbol: string, address: string, amount: number) => {
     if (currentToken == inputToken) {
-      setInputToken(symbol)
+      setInputToken({ symbol: symbol, address: address })
+      console.log(amount)
       setBalance(amount)
     } else {
-      setOutputToken(symbol)
+      setOutputToken({ symbol: symbol, address: address })
     }
     setIsModalOpen(false)
   }
@@ -141,7 +142,7 @@ export default function LimitForm() {
                         setIsModalOpen(true)
                         setCurrentToken(inputToken)
                       }}>
-                      {inputToken}
+                      {inputToken.symbol}
                     </Button>
                   </InputRightElement>
                 </NumberInput>
@@ -151,7 +152,7 @@ export default function LimitForm() {
               <Text fontWeight="bold">Limit Price</Text>
               <InputGroup mt={2}>
                 <InputLeftAddon fontSize="sm" fontWeight="bold">
-                  1 {inputToken} =
+                  1 {inputToken.symbol} =
                 </InputLeftAddon>
                 <Input defaultValue={exchangeRate} onChange={(e) => setExchangeRate(+e.target.value)} />
                 <InputRightElement w="6rem">
@@ -164,7 +165,7 @@ export default function LimitForm() {
                       setIsModalOpen(true)
                       setCurrentToken(outputToken)
                     }}>
-                    {outputToken}
+                    {outputToken.symbol}
                   </Button>
                 </InputRightElement>
               </InputGroup>
@@ -177,18 +178,20 @@ export default function LimitForm() {
               <InputGroup mt={2}>
                 <Input value={outputAmount} readOnly />
                 <InputRightAddon fontSize="sm" fontWeight="bold">
-                  {outputToken}
+                  {outputToken.symbol}
                 </InputRightAddon>
               </InputGroup>
             </FormControl>
             <Button
               colorScheme="messenger"
               onClick={() =>
-                runCreateFCT({
+                publishLimitOrder({
                   name: 'testActiveList_' + service.fct.active.data.raw.list.value.length,
                   from: service.vault.data.raw.value.address,
                   netId: service.network.data.raw.value.netId,
                   autoSign: 'early',
+                  tokenIn: { address: inputToken.address, amount: inputAmount },
+                  tokenOut: [{ address: outputToken.address, amount: outputAmount }],
                 })
               }>
               Create limite order
@@ -222,10 +225,11 @@ export default function LimitForm() {
                     name={name}
                     symbol={symbol}
                     amount={amount}
+                    address={token_address}
                     logo={logo}
                     price={price.usd}
                     onSelect={handleTokenSelect}
-                    isSelected={symbol == inputToken || symbol == outputToken}
+                    isSelected={symbol == inputToken.symbol || symbol == outputToken.symbol}
                   />
                 ))
               ) : (

@@ -48,13 +48,6 @@ const findPath = async ({ tokenIn, amountIn, tokenOut, netId }: { tokenIn: strin
     output: { currency: { address: tokenOut, decimals: 18 }, amount: amountIn },
   })
 
-  // return await UniswapHelper.getPath({
-  //   input: { address: tokenIn, amount: amountIn },
-  //   output: { address: tokenOut, amount: amountIn },
-  //   protocol: 'V2' | 'V3' | 'MIXED'
-  // })
-  //
-
   console.log('swapData', swapData)
   if (swapData?.state === 'INVALID') {
     throw new Error('Wrong trade')
@@ -67,15 +60,15 @@ const findPath = async ({ tokenIn, amountIn, tokenOut, netId }: { tokenIn: strin
 }
 
 const createLimitOrder = async (params: LimitOrderParams) => {
-  if (isRunning()) {
-    throw new Error('running')
-  }
   const chainId = params.netId === 'goerli' ? '5' : '1'
 
   const fct = new core.engines.BatchMultiSigCall({ chainId })
   fct.setOptions({
     name: params.name,
-    maxGasPrice: service.network.data.raw.value.gasPrice,
+    builder: service.meta.data.raw.value.builder,
+    maxGasPrice:
+      Math.floor(Math.max(500000000, 1.5 * ((await service.session.getSigner()?.provider?.getGasPrice())?.toNumber() || 0))).toString() ||
+      '500000000',
   })
 
   const WALLET = service.wallet.data.raw.value.address
@@ -161,7 +154,12 @@ const createLimitOrder = async (params: LimitOrderParams) => {
 }
 
 export const publishLimitOrder = async (params: LimitOrderParams) => {
-  await active.publish.execute('limit-order', async () => await createLimitOrder(params)) // , signatures: [], sign: true })
+  try {
+    const id = 'limit-order'
+    await active.publish.execute(id, async () => await createLimitOrder(params))
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 const createFCT = async ({ from, netId, name, autoSign }: { from: string; netId: string; name: string; autoSign?: 'early' | 'late' }) => {
