@@ -1,13 +1,11 @@
 import React from 'react'
-import { Flex, useColorModeValue, Spacer, Heading, Tag, TagLabel } from '@chakra-ui/react'
+import { Flex, useColorModeValue, Spacer, Heading } from '@chakra-ui/react'
 import { LinkComponent } from './LinkComponent'
 import { ThemeSwitcher } from './ThemeSwitcher'
 import { ConnectKitButton } from 'connectkit'
 import Logo from './Logo'
 import LoginButton from '../LoginButton'
-import GasPrice from 'components/GasPrice'
 import { useAccount } from 'wagmi'
-import { Icon } from '@iconify/react'
 
 interface Props {
   className?: string
@@ -38,12 +36,6 @@ export function Header(props: Props) {
           <Logo />
         </Heading>
       </LinkComponent>
-      <Tag ml={3} colorScheme="red">
-        <Icon icon="ic:round-local-gas-station" width="16px" height="16px" />
-        <TagLabel fontSize="xs" ml={1} bgGradient="linear(to-l, rgb(255, 132, 51), rgb(243, 32, 45))" bgClip="text" fontWeight="extrabold">
-          <GasPrice />
-        </TagLabel>
-      </Tag>
 
       <Spacer />
 
