@@ -26,7 +26,6 @@ import {
   DrawerFooter,
 } from '@chakra-ui/react'
 import { Icon } from '@iconify/react'
-import { useRef } from 'react'
 
 const TOKENS = [
   { symbol: 'ETH', balance: '0', usd: '$0.00' },
@@ -96,7 +95,8 @@ const TokenCard = (props: TokenProps) => {
   )
 }
 
-const TokensTab = (tokens: TokenProps[]) => {
+const TokensTab = (props: { tokens: TokenProps[] }) => {
+  const { tokens } = props
   return (
     <>
       {tokens.length === 0 && (
@@ -144,7 +144,7 @@ const FCTsTab = () => {
           <AlertTitle mt={4} mb={1} fontSize="lg">
             No FCTs yet
           </AlertTitle>
-          <AlertDescription maxWidth="xs">Create a new FCT using Kirobo's UI Builder to get started.</AlertDescription>
+          <AlertDescription maxWidth="xs">Create a new FCT using Kirobo UI Builder to get started.</AlertDescription>
         </Alert>
       )}
     </>
@@ -189,14 +189,13 @@ const NetworkTag = () => (
 
 export default function LoginButton() {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const btnRef = useRef()
 
   return (
     <>
-      <Button colorScheme="messenger" rounded="xl" fontWeight="normal" ref={btnRef} onClick={onOpen}>
+      <Button colorScheme="messenger" rounded="xl" fontWeight="normal" onClick={onOpen}>
         Login with Kirobo
       </Button>
-      <Drawer size="sm" placement="right" isOpen={isOpen} onClose={onClose} finalFocusRef={btnRef}>
+      <Drawer size="sm" placement="right" isOpen={isOpen} onClose={onClose}>
         <DrawerOverlay backdropFilter="auto" backdropBlur="4px" />
         <DrawerContent m={4} rounded="lg" border="1px solid" borderColor="gray.600">
           <DrawerCloseButton />
