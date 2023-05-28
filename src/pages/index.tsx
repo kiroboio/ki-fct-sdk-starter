@@ -51,10 +51,10 @@ export default function Home() {
             <LimitForm />
           </Box>
           <Box w="full">
-            <TradingViewWidget from="USDC" to="DAI" />
+            {/* <TradingViewWidget from="USDC" to="DAI" /> */}
+            <FCTList />
           </Box>
         </Flex>
-        <FCTList />
       </Container>
     </>
   )
