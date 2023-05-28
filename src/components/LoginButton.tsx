@@ -229,8 +229,8 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
         <DrawerBody>
           <Stack spacing={8}>
             <HStack justify="space-between">
-              <WalletCard address={wallet} usd="$5,380.19" title="My Vault" icon="fluent:cube-32-filled" isSelect />
-              <WalletCard address={vault} usd="$7,129.07" title="My Wallet" icon="fluent:wallet-32-filled" />
+              <WalletCard address={vault} usd="$5,380.19" title="My Vault" icon="fluent:cube-32-filled" isSelect />
+              <WalletCard address={wallet} usd="$7,129.07" title="My Wallet" icon="fluent:wallet-32-filled" />
             </HStack>
 
             <Tabs isFitted>
