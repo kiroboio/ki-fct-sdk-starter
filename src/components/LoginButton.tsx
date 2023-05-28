@@ -1,4 +1,3 @@
-import { CopyIcon } from '@chakra-ui/icons'
 import {
   Button,
   Drawer,
@@ -22,10 +21,14 @@ import {
   AlertDescription,
   AlertTitle,
   IconButton,
-  Divider,
   DrawerFooter,
+  TagLabel,
+  Tag,
+  Avatar,
 } from '@chakra-ui/react'
+import { CopyIcon } from '@chakra-ui/icons'
 import { Icon } from '@iconify/react'
+import { service, useComputed } from '@kiroboio/fct-sdk'
 
 const TOKENS = [
   { symbol: 'ETH', balance: '0', usd: '$0.00' },
@@ -38,7 +41,7 @@ const FCTS = []
 
 type WalletProps = {
   title: string
-  address: string
+  address: any
   usd: string
   icon: string
   isSelect?: boolean
@@ -46,21 +49,25 @@ type WalletProps = {
 
 type TokenProps = {
   symbol: string
-  balance: string
-  usd: string
+  amount: string
+  logo: string
+  price: {
+    usd: number
+    protocol: string
+  }
 }
 
 const WalletCard = (props: WalletProps) => {
   const { isSelect, title, address, usd, icon } = props
   return (
-    <Card w="full" variant={props.isSelect ? 'filled' : 'outline'}>
+    <Card w="full" variant={isSelect ? 'outline' : 'solid'} cursor={isSelect ? 'auto' : 'pointer'}>
       <CardBody>
         <Text fontSize="md" fontWeight="bold">
           {title}
         </Text>
         <HStack spacing={1}>
           <Text fontSize="sm" color="gray.500">
-            {address}
+            <>{address}</>
           </Text>
           <IconButton size="xs" rounded="full" aria-label="Copy Address" icon={<CopyIcon />} />
         </HStack>
@@ -74,19 +81,19 @@ const WalletCard = (props: WalletProps) => {
 }
 
 const TokenCard = (props: TokenProps) => {
-  const { symbol, balance, usd } = props
+  const { symbol, amount, price, logo } = props
   return (
     <Card size="sm" variant="outline" rounded="md">
-      <CardBody px={4}>
+      <CardBody px={5}>
         <HStack justify="space-between">
           <HStack>
-            <Icon icon={`cryptocurrency-color:${symbol.toLowerCase()}`} width={24} />
+            <Avatar size="xs" src={logo} />
             <Text fontWeight="bold">{symbol}</Text>
           </HStack>
           <Stack spacing={-1} textAlign="right">
-            <Text fontWeight="bold">{balance}</Text>
+            <Text fontWeight="bold">{amount}</Text>
             <Text fontSize="sm" color="gray.500">
-              {usd}
+              {price.usd}
             </Text>
           </Stack>
         </HStack>
@@ -95,7 +102,7 @@ const TokenCard = (props: TokenProps) => {
   )
 }
 
-const TokensTab = (props: { tokens: TokenProps[] }) => {
+const TokensTab = (props: { tokens: any }) => {
   const { tokens } = props
   return (
     <>
@@ -127,10 +134,11 @@ const TokensTab = (props: { tokens: TokenProps[] }) => {
   )
 }
 
-const FCTsTab = () => {
+const FCTsTab = (props: { fcts: any }) => {
+  const { fcts } = props
   return (
     <>
-      {FCTS.length === 0 && (
+      {fcts.length === 0 && (
         <Alert
           status="info"
           variant="subtle"
@@ -147,6 +155,15 @@ const FCTsTab = () => {
           <AlertDescription maxWidth="xs">Create a new FCT using Kirobo UI Builder to get started.</AlertDescription>
         </Alert>
       )}
+      <Stack spacing={3}>
+        {fcts &&
+          fcts.map((fct: any, index: number) => (
+            <Stack key={index}>
+              <Text>{fct.id}</Text>
+              <Text>{fct.createdAt}</Text>
+            </Stack>
+          ))}
+      </Stack>
     </>
   )
 }
@@ -175,68 +192,116 @@ const NFTsTab = () => {
   )
 }
 
-const NetworkTag = () => (
-  <HStack>
-    <Icon icon={`uis:chart`} width={24} />
-    <Text fontWeight="semibold">
-      <Text display="inline" color="gray.500" fontWeight="normal">
-        Network:
-      </Text>{' '}
-      96.97 gwei
-    </Text>
-  </HStack>
-)
+const NetworkTag = () => {
+  const gasPrice = useComputed(() => (+service.network.data.raw.value.gasPrice / 1e9).toFixed(2) + ' Gwei')
+  return (
+    <HStack>
+      <Icon icon={`uis:chart`} width={24} />
+      <Text fontWeight="semibold">
+        <Text display="inline" color="gray.500" fontWeight="normal">
+          Network:
+        </Text>{' '}
+        <>{gasPrice}</>
+      </Text>
+    </HStack>
+  )
+}
+const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
+  const wallet = useComputed(() => service.wallet.data.fmt.value.address)
+  const vault = useComputed(() => service.vault.data.fmt.value.address)
+  const vTokens = useComputed(() => service.tokens.vault.data.fmt.list.value)
+  const vNFTS = useComputed(() => service.nfts.vault.data.fmt.list.value)
+  const vFTCs = useComputed(() => service.fct.active.data.fmt.list.value)
+
+  console.log(vFTCs.value)
+
+  return (
+    <Drawer size="sm" placement="right" isOpen={isOpen} onClose={onClose}>
+      <DrawerOverlay backdropFilter="auto" backdropBlur="4px" />
+      <DrawerContent m={4} rounded="lg">
+        <DrawerCloseButton />
+        <DrawerHeader>
+          <Stack spacing={8}>
+            <Text>Account</Text>
+          </Stack>
+        </DrawerHeader>
+
+        <DrawerBody>
+          <Stack spacing={8}>
+            <HStack justify="space-between">
+              <WalletCard address={wallet} usd="$5,380.19" title="My Vault" icon="fluent:cube-32-filled" isSelect />
+              <WalletCard address={vault} usd="$7,129.07" title="My Wallet" icon="fluent:wallet-32-filled" />
+            </HStack>
+
+            <Tabs isFitted>
+              <TabList>
+                <Tab gap={2}>
+                  <Text>Tokens</Text>
+                  <Tag variant="solid">
+                    <TagLabel>{vTokens.value.length}</TagLabel>
+                  </Tag>
+                </Tab>
+                <Tab gap={2}>
+                  <Text>NFTs</Text>
+                  <Tag variant="solid">
+                    <TagLabel>{vNFTS.value.length}</TagLabel>
+                  </Tag>
+                </Tab>
+                <Tab gap={2}>
+                  <Text>FCTs</Text>
+                  <Tag variant="solid">
+                    <TagLabel>{vFTCs.value.length}</TagLabel>
+                  </Tag>
+                </Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel px={0}>
+                  <TokensTab tokens={vTokens.value} />
+                </TabPanel>
+                <TabPanel px={0}>
+                  <NFTsTab />
+                </TabPanel>
+                <TabPanel px={0}>
+                  <FCTsTab fcts={vFTCs.value} />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </Stack>
+        </DrawerBody>
+        <DrawerFooter>
+          <NetworkTag />
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  )
+}
+const KiroButton = ({ onOpen }: { onOpen: any }) => {
+  const loggedInLabel = useComputed(() =>
+    service.session.status.value === 'loggingIn' ? 'Please wait...' : service.session.status.value === 'loggedIn' ? 'My account' : 'Login'
+  )
+  const handleClick = () => {
+    if (service.session.state.value !== 'authorized' || service.session.status.value === 'loggingIn') {
+      return
+    }
+    if (service.session.status.value === 'loggedIn') {
+      onOpen()
+    } else {
+      service.session.login()
+    }
+  }
+  return (
+    <Button colorScheme="messenger" rounded="xl" fontWeight="normal" onClick={handleClick}>
+      <>{loggedInLabel}</>
+    </Button>
+  )
+}
 
 export default function LoginButton() {
   const { isOpen, onOpen, onClose } = useDisclosure()
-
   return (
     <>
-      <Button colorScheme="messenger" rounded="xl" fontWeight="normal" onClick={onOpen}>
-        Login with Kirobo
-      </Button>
-      <Drawer size="sm" placement="right" isOpen={isOpen} onClose={onClose}>
-        <DrawerOverlay backdropFilter="auto" backdropBlur="4px" />
-        <DrawerContent m={4} rounded="lg" border="1px solid" borderColor="gray.600">
-          <DrawerCloseButton />
-          <DrawerHeader>
-            <Stack spacing={8}>
-              <Text>Account</Text>
-            </Stack>
-          </DrawerHeader>
-
-          <DrawerBody>
-            <Stack spacing={8}>
-              <HStack justify="space-between">
-                <WalletCard address="0x692F...dA58" usd="$5,380.19" title="My Vault" icon="fluent:cube-32-filled" isSelect />
-                <WalletCard address="0x41ed...be66" usd="$7,129.07" title="My Wallet" icon="fluent:wallet-32-filled" />
-              </HStack>
-              <Divider />
-              <Tabs variant="solid-rounded" isFitted>
-                <TabList>
-                  <Tab>Tokens</Tab>
-                  <Tab>NFTs</Tab>
-                  <Tab>FCTs</Tab>
-                </TabList>
-                <TabPanels>
-                  <TabPanel px={0}>
-                    <TokensTab tokens={TOKENS} />
-                  </TabPanel>
-                  <TabPanel px={0}>
-                    <FCTsTab />
-                  </TabPanel>
-                  <TabPanel px={0}>
-                    <NFTsTab />
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-            </Stack>
-          </DrawerBody>
-          <DrawerFooter>
-            <NetworkTag />
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+      <KiroButton onOpen={onOpen} />
+      <AccountPage isOpen={isOpen} onClose={onClose} />
     </>
   )
 }
