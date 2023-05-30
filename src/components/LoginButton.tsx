@@ -27,7 +27,6 @@ import {
   Avatar,
   Box,
   Table,
-  TableCaption,
   TableContainer,
   Tbody,
   Td,
@@ -35,8 +34,9 @@ import {
   Th,
   Thead,
   Tr,
+  useClipboard,
 } from '@chakra-ui/react'
-import { CopyIcon } from '@chakra-ui/icons'
+import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
 import { Icon } from '@iconify/react'
 import { service, useComputed } from '@kiroboio/fct-sdk'
 import { useState } from 'react'
@@ -64,8 +64,15 @@ type TokenProps = {
 
 const WalletCard = (props: WalletProps) => {
   const { isSelect, onClick, title, address, usd, icon } = props
+  const { onCopy, hasCopied } = useClipboard(address)
   return (
-    <Card w="full" variant={isSelect ? 'outline' : 'solid'} onClick={onClick} cursor="pointer">
+    <Card
+      w="full"
+      variant={isSelect ? 'outline' : 'solid'}
+      borderColor={isSelect ? 'messenger.500' : 'blackAlpha.200'}
+      borderWidth={3}
+      onClick={onClick}
+      cursor="pointer">
       <CardBody>
         <Text fontSize="md" fontWeight="bold">
           {title}
@@ -74,7 +81,7 @@ const WalletCard = (props: WalletProps) => {
           <Text fontSize="sm" color="gray.500">
             <>{address}</>
           </Text>
-          <IconButton size="xs" rounded="full" aria-label="Copy Address" icon={<CopyIcon />} />
+          <IconButton size="xs" rounded="full" aria-label="Copy Address" icon={hasCopied ? <CheckIcon /> : <CopyIcon />} onClick={onCopy} />
         </HStack>
         <HStack mt={3}>
           <Icon icon={icon} width="24px" height="24px" />
