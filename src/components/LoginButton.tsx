@@ -25,19 +25,23 @@ import {
   TagLabel,
   Tag,
   Avatar,
+  Box,
+  Table,
+  TableCaption,
+  TableContainer,
+  Tbody,
+  Td,
+  Tfoot,
+  Th,
+  Thead,
+  Tr,
 } from '@chakra-ui/react'
 import { CopyIcon } from '@chakra-ui/icons'
 import { Icon } from '@iconify/react'
 import { service, useComputed } from '@kiroboio/fct-sdk'
+import { useState } from 'react'
 
-const TOKENS = [
-  { symbol: 'ETH', balance: '0', usd: '$0.00' },
-  { symbol: 'BTC', balance: '0', usd: '$0.00' },
-  { symbol: 'USDT', balance: '0', usd: '$0.00' },
-  { symbol: 'USDC', balance: '0', usd: '$0.00' },
-]
 const NFTS = []
-const FCTS = []
 
 type WalletProps = {
   title: string
@@ -45,6 +49,7 @@ type WalletProps = {
   usd: string
   icon: string
   isSelect?: boolean
+  onClick?: () => any
 }
 
 type TokenProps = {
@@ -58,9 +63,9 @@ type TokenProps = {
 }
 
 const WalletCard = (props: WalletProps) => {
-  const { isSelect, title, address, usd, icon } = props
+  const { isSelect, onClick, title, address, usd, icon } = props
   return (
-    <Card w="full" variant={isSelect ? 'outline' : 'solid'} cursor={isSelect ? 'auto' : 'pointer'}>
+    <Card w="full" variant={isSelect ? 'outline' : 'solid'} onClick={onClick} cursor="pointer">
       <CardBody>
         <Text fontSize="md" fontWeight="bold">
           {title}
@@ -93,7 +98,7 @@ const TokenCard = (props: TokenProps) => {
           <Stack spacing={-1} textAlign="right">
             <Text fontWeight="bold">{amount}</Text>
             <Text fontSize="sm" color="gray.500">
-              {price.usd}
+              ${(price.usd * +amount.replace(/,/g, '')).toFixed(2)}
             </Text>
           </Stack>
         </HStack>
@@ -156,13 +161,40 @@ const FCTsTab = (props: { fcts: any }) => {
         </Alert>
       )}
       <Stack spacing={3}>
-        {fcts &&
-          fcts.map((fct: any, index: number) => (
-            <Stack key={index}>
-              <Text>{fct.id}</Text>
-              <Text>{fct.createdAt}</Text>
-            </Stack>
-          ))}
+        <TableContainer>
+          <Table variant="striped" size="sm">
+            <Thead>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Created at</Th>
+                <Th>Gas Price</Th>
+                <Th>Status</Th>
+                <Th>Stage</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {fcts &&
+                fcts.map((fct: any, index: number) => (
+                  <Tr key={index}>
+                    <Td>Untitled #{index}</Td>
+                    <Td>{fct.createdAt}</Td>
+                    <Td>{fct.gas_price_limit} gwei</Td>
+                    <Td>{fct.status}</Td>
+                    <Td>{fct.stage}</Td>
+                  </Tr>
+                ))}
+            </Tbody>
+            <Tfoot>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Created at</Th>
+                <Th>Gas Price</Th>
+                <Th>Status</Th>
+                <Th>Stage</Th>
+              </Tr>
+            </Tfoot>
+          </Table>
+        </TableContainer>
       </Stack>
     </>
   )
@@ -197,12 +229,12 @@ const NetworkTag = () => {
   return (
     <HStack>
       <Icon icon={`uis:chart`} width={24} />
-      <Text fontWeight="semibold">
+      <Box fontWeight="semibold">
         <Text display="inline" color="gray.500" fontWeight="normal">
           Network:
         </Text>{' '}
         <>{gasPrice}</>
-      </Text>
+      </Box>
     </HStack>
   )
 }
@@ -211,68 +243,86 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
   const vault = useComputed(() => service.vault.data.fmt.value.address)
   const vTokens = useComputed(() => service.tokens.vault.data.fmt.list.value)
   const vNFTS = useComputed(() => service.nfts.vault.data.fmt.list.value)
-  const vFTCs = useComputed(() => service.fct.active.data.fmt.list.value)
+  const FCTS = useComputed(() => service.fct.active.data.fmt.list.value)
+  const wTokens = useComputed(() => service.tokens.wallet.data.fmt.list.value)
+  const wNFTS = useComputed(() => service.nfts.wallet.data.fmt.list.value)
 
-  console.log(vFTCs.value)
+  const vBalance = vTokens.value.reduce((prev, current) => prev + +current.price.usd * +current.amount.replace(/,/g, ''), 0).toFixed(2)
+  const wBalance = wTokens.value.reduce((prev, current) => prev + +current.price.usd * +current.amount.replace(/,/g, ''), 0).toFixed(2)
+
+  const [tab, setTab] = useState(0)
 
   return (
-    <Drawer size="sm" placement="right" isOpen={isOpen} onClose={onClose}>
-      <DrawerOverlay backdropFilter="auto" backdropBlur="4px" />
-      <DrawerContent m={4} rounded="lg">
-        <DrawerCloseButton />
-        <DrawerHeader>
-          <Stack spacing={8}>
-            <Text>Account</Text>
-          </Stack>
-        </DrawerHeader>
-
-        <DrawerBody>
-          <Stack spacing={8}>
-            <HStack justify="space-between">
-              <WalletCard address={vault} usd="$5,380.19" title="My Vault" icon="fluent:cube-32-filled" isSelect />
-              <WalletCard address={wallet} usd="$7,129.07" title="My Wallet" icon="fluent:wallet-32-filled" />
-            </HStack>
-
-            <Tabs isFitted>
+    <Tabs isFitted>
+      <Drawer size="sm" placement="right" isOpen={isOpen} onClose={onClose}>
+        <DrawerOverlay backdropFilter="auto" backdropBlur="4px" />
+        <DrawerContent m={4} rounded="lg">
+          <DrawerCloseButton />
+          <DrawerHeader>
+            <Stack spacing={8}>
+              <Text>Account</Text>
+              <HStack justify="space-between">
+                <WalletCard
+                  onClick={() => setTab(0)}
+                  address={vault}
+                  usd={`$${vBalance}`}
+                  title="My Vault"
+                  icon="fluent:cube-32-filled"
+                  isSelect={tab === 0}
+                />
+                <WalletCard
+                  onClick={() => setTab(1)}
+                  address={wallet}
+                  usd={`$${wBalance}`}
+                  title="My Wallet"
+                  icon="fluent:wallet-32-filled"
+                  isSelect={tab === 1}
+                />
+              </HStack>
               <TabList>
                 <Tab gap={2}>
                   <Text>Tokens</Text>
                   <Tag variant="solid">
-                    <TagLabel>{vTokens.value.length}</TagLabel>
+                    <TagLabel>{tab === 0 ? vTokens.value.length : wTokens.value.length}</TagLabel>
                   </Tag>
                 </Tab>
                 <Tab gap={2}>
                   <Text>NFTs</Text>
                   <Tag variant="solid">
-                    <TagLabel>{vNFTS.value.length}</TagLabel>
+                    <TagLabel>{tab === 0 ? vNFTS.value.length : wNFTS.value.length}</TagLabel>
                   </Tag>
                 </Tab>
                 <Tab gap={2}>
                   <Text>FCTs</Text>
                   <Tag variant="solid">
-                    <TagLabel>{vFTCs.value.length}</TagLabel>
+                    <TagLabel>{FCTS.value.length}</TagLabel>
                   </Tag>
                 </Tab>
               </TabList>
+            </Stack>
+          </DrawerHeader>
+
+          <DrawerBody>
+            <Stack spacing={8}>
               <TabPanels>
                 <TabPanel px={0}>
-                  <TokensTab tokens={vTokens.value} />
+                  <TokensTab tokens={tab === 0 ? vTokens.value : wTokens.value} />
                 </TabPanel>
                 <TabPanel px={0}>
                   <NFTsTab />
                 </TabPanel>
                 <TabPanel px={0}>
-                  <FCTsTab fcts={vFTCs.value} />
+                  <FCTsTab fcts={FCTS.value} />
                 </TabPanel>
               </TabPanels>
-            </Tabs>
-          </Stack>
-        </DrawerBody>
-        <DrawerFooter>
-          <NetworkTag />
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+            </Stack>
+          </DrawerBody>
+          <DrawerFooter>
+            <NetworkTag />
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    </Tabs>
   )
 }
 const KiroButton = ({ onOpen }: { onOpen: any }) => {
