@@ -303,8 +303,6 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
   const wTokensRaw = useComputed(() => service.tokens.wallet.data.raw.list.value)
   const wNFTS = useComputed(() => service.nfts.wallet.data.fmt.list.value)
 
-  console.log(wNFTS.value)
-
   const vBalance = vTokens.value.reduce((prev, current) => prev + +current.price.usd * +current.amount.replace(/,/g, ''), 0).toFixed(2)
   const wBalance = wTokens.value.reduce((prev, current) => prev + +current.price.usd * +current.amount.replace(/,/g, ''), 0).toFixed(2)
 
