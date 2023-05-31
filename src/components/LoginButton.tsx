@@ -130,17 +130,17 @@ const TokenCard = (props: TokenProps) => {
 }
 
 const NFTCard = (props: NFTProps) => {
-  const { name, symbol, token_id } = props
+  const { name, symbol, token_id, metadata } = props
   return (
     <Card variant="outline" shadow="sm" p={0} m={0}>
       <CardBody p={0} m={0}>
         <Stack spacing={2}>
-          <AspectRatio maxW="400px" ratio={4 / 3}>
-            <Image src="https://bit.ly/naruto-sage" alt="naruto" roundedTop="md" />
+          <AspectRatio ratio={1}>
+            <Image src={JSON.parse(metadata).image} alt="naruto" roundedTop="md" />
           </AspectRatio>
           <Stack spacing={1} py={2} px={3}>
-            <Heading fontSize="md">{name}</Heading>
-            <HStack fontSize="sm" justify="space-between" color="gray.500">
+            <Heading fontSize="sm">{name}</Heading>
+            <HStack fontSize="xs" justify="space-between" color="gray.500">
               <Text>{symbol}</Text>
               <Text>{token_id}</Text>
             </HStack>
@@ -204,7 +204,7 @@ const FCTsTab = (props: { fcts: any }) => {
           <AlertDescription maxWidth="xs">Create a new FCT using Kirobo UI Builder to get started.</AlertDescription>
         </Alert>
       )}
-      {fcts && (
+      {fcts.length > 0 && (
         <Stack spacing={3}>
           <TableContainer>
             <Table variant="striped" size="sm">
@@ -267,7 +267,7 @@ const NFTsTab = (props: { nfts: any }) => {
         </Alert>
       )}
       {nfts && (
-        <SimpleGrid columns={2} spacing={3}>
+        <SimpleGrid columns={3} spacing={3}>
           {nfts.map((nft: any, index: number) => (
             <NFTCard key={index} {...nft} />
           ))}
@@ -302,6 +302,8 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
   const wTokens = useComputed(() => service.tokens.wallet.data.fmt.list.value)
   const wTokensRaw = useComputed(() => service.tokens.wallet.data.raw.list.value)
   const wNFTS = useComputed(() => service.nfts.wallet.data.fmt.list.value)
+
+  console.log(wNFTS.value)
 
   const vBalance = vTokens.value.reduce((prev, current) => prev + +current.price.usd * +current.amount.replace(/,/g, ''), 0).toFixed(2)
   const wBalance = wTokens.value.reduce((prev, current) => prev + +current.price.usd * +current.amount.replace(/,/g, ''), 0).toFixed(2)
