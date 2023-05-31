@@ -35,13 +35,15 @@ import {
   Thead,
   Tr,
   useClipboard,
+  SimpleGrid,
+  Heading,
+  AspectRatio,
+  Image,
 } from '@chakra-ui/react'
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
 import { Icon } from '@iconify/react'
 import { service, useComputed } from '@kiroboio/fct-sdk'
 import { useState } from 'react'
-
-const NFTS = []
 
 type WalletProps = {
   title: string
@@ -56,10 +58,18 @@ type TokenProps = {
   symbol: string
   amount: string
   logo: string
+  name: string
   price: {
     usd: number
     protocol: string
   }
+}
+
+type NFTProps = {
+  name: string
+  symbol: string
+  token_id: string
+  metadata?: any
 }
 
 const WalletCard = (props: WalletProps) => {
@@ -93,14 +103,19 @@ const WalletCard = (props: WalletProps) => {
 }
 
 const TokenCard = (props: TokenProps) => {
-  const { symbol, amount, price, logo } = props
+  const { symbol, amount, price, logo, name } = props
   return (
-    <Card size="sm" variant="outline" rounded="md">
+    <Card size="sm" variant="outline" rounded="md" shadow="sm">
       <CardBody px={5}>
         <HStack justify="space-between">
           <HStack>
             <Avatar size="xs" src={logo} />
-            <Text fontWeight="bold">{symbol}</Text>
+            <Stack spacing={-1}>
+              <Text fontWeight="bold">{symbol}</Text>
+              <Text fontSize="sm" color="gray.500">
+                {name}
+              </Text>
+            </Stack>
           </HStack>
           <Stack spacing={-1} textAlign="right">
             <Text fontWeight="bold">{amount}</Text>
@@ -167,21 +182,21 @@ const FCTsTab = (props: { fcts: any }) => {
           <AlertDescription maxWidth="xs">Create a new FCT using Kirobo UI Builder to get started.</AlertDescription>
         </Alert>
       )}
-      <Stack spacing={3}>
-        <TableContainer>
-          <Table variant="striped" size="sm">
-            <Thead>
-              <Tr>
-                <Th>Name</Th>
-                <Th>Created at</Th>
-                <Th>Gas Price</Th>
-                <Th>Status</Th>
-                <Th>Stage</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {fcts &&
-                fcts.map((fct: any, index: number) => (
+      {fcts && (
+        <Stack spacing={3}>
+          <TableContainer>
+            <Table variant="striped" size="sm">
+              <Thead>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>Created at</Th>
+                  <Th>Gas Price</Th>
+                  <Th>Status</Th>
+                  <Th>Stage</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {fcts.map((fct: any, index: number) => (
                   <Tr key={index}>
                     <Td>Untitled #{index}</Td>
                     <Td>{fct.createdAt}</Td>
@@ -190,27 +205,29 @@ const FCTsTab = (props: { fcts: any }) => {
                     <Td>{fct.stage}</Td>
                   </Tr>
                 ))}
-            </Tbody>
-            <Tfoot>
-              <Tr>
-                <Th>Name</Th>
-                <Th>Created at</Th>
-                <Th>Gas Price</Th>
-                <Th>Status</Th>
-                <Th>Stage</Th>
-              </Tr>
-            </Tfoot>
-          </Table>
-        </TableContainer>
-      </Stack>
+              </Tbody>
+              <Tfoot>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>Created at</Th>
+                  <Th>Gas Price</Th>
+                  <Th>Status</Th>
+                  <Th>Stage</Th>
+                </Tr>
+              </Tfoot>
+            </Table>
+          </TableContainer>
+        </Stack>
+      )}
     </>
   )
 }
 
-const NFTsTab = () => {
+const NFTsTab = (props: { nfts: any }) => {
+  const { nfts } = props
   return (
     <>
-      {NFTS.length === 0 && (
+      {nfts.length === 0 && (
         <Alert
           status="info"
           variant="subtle"
@@ -226,6 +243,28 @@ const NFTsTab = () => {
           </AlertTitle>
           <AlertDescription maxWidth="xs">Buy or transfer NFTs to this wallet to get started.</AlertDescription>
         </Alert>
+      )}
+      {nfts && (
+        <SimpleGrid columns={2} spacing={3}>
+          {nfts.map((nft: any, index: number) => (
+            <Card key={index} variant="outline" shadow="sm" p={0} m={0}>
+              <CardBody p={0} m={0}>
+                <Stack spacing={2}>
+                  <AspectRatio maxW="400px" ratio={4 / 3}>
+                    <Image src="https://bit.ly/naruto-sage" alt="naruto" roundedTop="md" />
+                  </AspectRatio>
+                  <Stack spacing={1} py={2} px={3}>
+                    <Heading fontSize="md">{nft.name}</Heading>
+                    <HStack fontSize="sm" justify="space-between" color="gray.500">
+                      <Text>{nft.symbol}</Text>
+                      <Text>{nft.token_id}</Text>
+                    </HStack>
+                  </Stack>
+                </Stack>
+              </CardBody>
+            </Card>
+          ))}
+        </SimpleGrid>
       )}
     </>
   )
@@ -249,9 +288,11 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
   const wallet = useComputed(() => service.wallet.data.fmt.value.address)
   const vault = useComputed(() => service.vault.data.fmt.value.address)
   const vTokens = useComputed(() => service.tokens.vault.data.fmt.list.value)
+  const vTokensRaw = useComputed(() => service.tokens.vault.data.raw.list.value)
   const vNFTS = useComputed(() => service.nfts.vault.data.fmt.list.value)
   const FCTS = useComputed(() => service.fct.active.data.fmt.list.value)
   const wTokens = useComputed(() => service.tokens.wallet.data.fmt.list.value)
+  const wTokensRaw = useComputed(() => service.tokens.wallet.data.raw.list.value)
   const wNFTS = useComputed(() => service.nfts.wallet.data.fmt.list.value)
 
   const vBalance = vTokens.value.reduce((prev, current) => prev + +current.price.usd * +current.amount.replace(/,/g, ''), 0).toFixed(2)
@@ -316,7 +357,7 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
                   <TokensTab tokens={tab === 0 ? vTokens.value : wTokens.value} />
                 </TabPanel>
                 <TabPanel px={0}>
-                  <NFTsTab />
+                  <NFTsTab nfts={tab === 0 ? vNFTS.value : wNFTS.value} />
                 </TabPanel>
                 <TabPanel px={0}>
                   <FCTsTab fcts={FCTS.value} />
