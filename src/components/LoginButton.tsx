@@ -129,6 +129,28 @@ const TokenCard = (props: TokenProps) => {
   )
 }
 
+const NFTCard = (props: NFTProps) => {
+  const { name, symbol, token_id } = props
+  return (
+    <Card variant="outline" shadow="sm" p={0} m={0}>
+      <CardBody p={0} m={0}>
+        <Stack spacing={2}>
+          <AspectRatio maxW="400px" ratio={4 / 3}>
+            <Image src="https://bit.ly/naruto-sage" alt="naruto" roundedTop="md" />
+          </AspectRatio>
+          <Stack spacing={1} py={2} px={3}>
+            <Heading fontSize="md">{name}</Heading>
+            <HStack fontSize="sm" justify="space-between" color="gray.500">
+              <Text>{symbol}</Text>
+              <Text>{token_id}</Text>
+            </HStack>
+          </Stack>
+        </Stack>
+      </CardBody>
+    </Card>
+  )
+}
+
 const TokensTab = (props: { tokens: any }) => {
   const { tokens } = props
   return (
@@ -247,22 +269,7 @@ const NFTsTab = (props: { nfts: any }) => {
       {nfts && (
         <SimpleGrid columns={2} spacing={3}>
           {nfts.map((nft: any, index: number) => (
-            <Card key={index} variant="outline" shadow="sm" p={0} m={0}>
-              <CardBody p={0} m={0}>
-                <Stack spacing={2}>
-                  <AspectRatio maxW="400px" ratio={4 / 3}>
-                    <Image src="https://bit.ly/naruto-sage" alt="naruto" roundedTop="md" />
-                  </AspectRatio>
-                  <Stack spacing={1} py={2} px={3}>
-                    <Heading fontSize="md">{nft.name}</Heading>
-                    <HStack fontSize="sm" justify="space-between" color="gray.500">
-                      <Text>{nft.symbol}</Text>
-                      <Text>{nft.token_id}</Text>
-                    </HStack>
-                  </Stack>
-                </Stack>
-              </CardBody>
-            </Card>
+            <NFTCard key={index} {...nft} />
           ))}
         </SimpleGrid>
       )}
@@ -284,6 +291,7 @@ const NetworkTag = () => {
     </HStack>
   )
 }
+
 const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
   const wallet = useComputed(() => service.wallet.data.fmt.value.address)
   const vault = useComputed(() => service.vault.data.fmt.value.address)
