@@ -30,7 +30,6 @@ import {
   TableContainer,
   Tbody,
   Td,
-  Tfoot,
   Th,
   Thead,
   Tr,
@@ -211,32 +210,31 @@ const FCTsTab = (props: { fcts: any }) => {
               <Thead>
                 <Tr>
                   <Th>Name</Th>
-                  <Th>Created at</Th>
-                  <Th>Gas Price</Th>
                   <Th>Status</Th>
+                  <Th>Gas Price</Th>
                   <Th>Stage</Th>
+                  <Th>Created at</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {fcts.map((fct: any, index: number) => (
                   <Tr key={index}>
                     <Td>Untitled #{index}</Td>
-                    <Td>{fct.createdAt}</Td>
+                    <Td>
+                      <Tag>
+                        <TagLabel>{fct.status}</TagLabel>
+                      </Tag>
+                    </Td>
                     <Td>{fct.gas_price_limit} gwei</Td>
-                    <Td>{fct.status}</Td>
-                    <Td>{fct.stage}</Td>
+                    <Td>
+                      <Tag>
+                        <TagLabel>{fct.stage}</TagLabel>
+                      </Tag>
+                    </Td>
+                    <Td>{fct.createdAt}</Td>
                   </Tr>
                 ))}
               </Tbody>
-              <Tfoot>
-                <Tr>
-                  <Th>Name</Th>
-                  <Th>Created at</Th>
-                  <Th>Gas Price</Th>
-                  <Th>Status</Th>
-                  <Th>Stage</Th>
-                </Tr>
-              </Tfoot>
             </Table>
           </TableContainer>
         </Stack>
@@ -280,14 +278,25 @@ const NFTsTab = (props: { nfts: any }) => {
 const NetworkTag = () => {
   const gasPrice = useComputed(() => (+service.network.data.raw.value.gasPrice / 1e9).toFixed(2) + ' Gwei')
   return (
-    <HStack>
-      <Icon icon={`uis:chart`} width={24} />
-      <Box fontWeight="semibold">
-        <Text display="inline" color="gray.500" fontWeight="normal">
-          Network:
-        </Text>{' '}
-        <>{gasPrice}</>
-      </Box>
+    <HStack justifyContent="space-between" w="full" fontSize="sm">
+      <HStack>
+        <Icon icon={`solar:fire-square-bold`} width={24} />
+        <Box fontWeight="semibold">
+          <Text display="inline" color="gray.500" fontWeight="normal">
+            FCT Power:
+          </Text>{' '}
+          0.0 ETH
+        </Box>
+      </HStack>
+      <HStack>
+        <Icon icon={`uis:chart`} width={24} />
+        <Box fontWeight="semibold">
+          <Text display="inline" color="gray.500" fontWeight="normal">
+            Network:
+          </Text>{' '}
+          <>{gasPrice}</>
+        </Box>
+      </HStack>
     </HStack>
   )
 }
@@ -373,7 +382,7 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
               </TabPanels>
             </Stack>
           </DrawerBody>
-          <DrawerFooter>
+          <DrawerFooter justifyContent="flex-start">
             <NetworkTag />
           </DrawerFooter>
         </DrawerContent>
