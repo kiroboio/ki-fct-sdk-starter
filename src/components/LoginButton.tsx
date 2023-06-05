@@ -276,6 +276,7 @@ const NFTsTab = (props: { nfts: any }) => {
 }
 
 const NetworkTag = () => {
+  const fuel = useComputed(() => service.fct.fuel.data.fmt.value)
   const gasPrice = useComputed(() => (+service.network.data.raw.value.gasPrice / 1e9).toFixed(2) + ' Gwei')
   return (
     <HStack justifyContent="space-between" w="full" fontSize="sm">
@@ -285,7 +286,7 @@ const NetworkTag = () => {
           <Text display="inline" color="gray.500" fontWeight="normal">
             FCT Power:
           </Text>{' '}
-          0.0 ETH
+          {fuel.value.balance.eth} ETH
         </Box>
       </HStack>
       <HStack>
