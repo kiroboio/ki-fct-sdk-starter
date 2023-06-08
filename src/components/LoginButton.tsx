@@ -38,6 +38,19 @@ import {
   Heading,
   AspectRatio,
   Image,
+  Badge,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  FormControl,
+  NumberInput,
+  NumberInputField,
+  Divider,
+  FormLabel,
 } from '@chakra-ui/react'
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
 import { Icon } from '@iconify/react'
@@ -50,7 +63,7 @@ type WalletProps = {
   usd: string
   icon: string
   isSelect?: boolean
-  onClick?: () => any
+  onClick?: any
 }
 
 type TokenProps = {
@@ -62,6 +75,7 @@ type TokenProps = {
     usd: number
     protocol: string
   }
+  onClickSend: any
 }
 
 type NFTProps = {
@@ -102,7 +116,7 @@ const WalletCard = (props: WalletProps) => {
 }
 
 const TokenCard = (props: TokenProps) => {
-  const { symbol, amount, price, logo, name } = props
+  const { symbol, amount, price, logo, name, onClickSend } = props
   return (
     <Card size="sm" variant="outline" rounded="md" shadow="sm">
       <CardBody px={5}>
@@ -116,12 +130,15 @@ const TokenCard = (props: TokenProps) => {
               </Text>
             </Stack>
           </HStack>
-          <Stack spacing={-1} textAlign="right">
-            <Text fontWeight="bold">{amount}</Text>
-            <Text fontSize="sm" color="gray.500">
-              ${(price.usd * +amount.replace(/,/g, '')).toFixed(2)}
-            </Text>
-          </Stack>
+          <HStack spacing={4}>
+            <Stack spacing={-1} textAlign="right">
+              <Text fontWeight="bold">{amount}</Text>
+              <Text fontSize="sm" color="gray.500">
+                ${(price.usd * +amount.replace(/,/g, '')).toFixed(2)}
+              </Text>
+            </Stack>
+            <IconButton size="sm" rounded="full" aria-label="Copy Address" icon={<Icon icon="akar-icons:arrow-right" />} onClick={onClickSend} />
+          </HStack>
         </HStack>
       </CardBody>
     </Card>
@@ -152,6 +169,7 @@ const NFTCard = (props: NFTProps) => {
 
 const TokensTab = (props: { tokens: any }) => {
   const { tokens } = props
+  const { isOpen, onOpen, onClose } = useDisclosure()
   return (
     <>
       {tokens.length === 0 && (
@@ -174,10 +192,37 @@ const TokensTab = (props: { tokens: any }) => {
       {tokens && (
         <Stack spacing={1}>
           {tokens.map((token: TokenProps, index: number) => (
-            <TokenCard key={index} {...token} />
+            <TokenCard key={index} {...token} onClickSend={onOpen} />
           ))}
         </Stack>
       )}
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Send from vault</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>Vault balance: 1.5 ETH</Text>
+            <FormControl textAlign="center" px={12}>
+              <NumberInput defaultValue={0.0} min={0} precision={2} variant="unstyled" m={0} p={0}>
+                <NumberInputField textAlign="center" fontSize="5xl" pr={0} />
+              </NumberInput>
+              <Divider mb={3} />
+              <Text my={3}>0.00</Text>
+              <Button variant="outline" size="xs">
+                Max
+              </Button>
+            </FormControl>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={onClose}>
+              Close
+            </Button>
+            <Button variant="ghost">Send</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   )
 }
@@ -205,38 +250,24 @@ const FCTsTab = (props: { fcts: any }) => {
       )}
       {fcts.length > 0 && (
         <Stack spacing={3}>
-          <TableContainer>
-            <Table variant="striped" size="sm">
-              <Thead>
-                <Tr>
-                  <Th>Name</Th>
-                  <Th>Status</Th>
-                  <Th>Gas Price</Th>
-                  <Th>Stage</Th>
-                  <Th>Created at</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {fcts.map((fct: any, index: number) => (
-                  <Tr key={index}>
-                    <Td>Untitled #{index}</Td>
-                    <Td>
-                      <Tag>
-                        <TagLabel>{fct.status}</TagLabel>
-                      </Tag>
-                    </Td>
-                    <Td>{fct.gas_price_limit} gwei</Td>
-                    <Td>
-                      <Tag>
-                        <TagLabel>{fct.stage}</TagLabel>
-                      </Tag>
-                    </Td>
-                    <Td>{fct.createdAt}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </TableContainer>
+          {fcts.map((fct: any, index: number) => (
+            <Card key={index} variant="outline">
+              <CardBody>
+                <Stack spacing={3}>
+                  <Box>
+                    <Text fontWeight="bold">Untitled #{index + 1}</Text>
+                    <Badge>{fct.status}</Badge>
+                  </Box>
+                  <HStack justify="space-between" fontSize="sm">
+                    <Text>
+                      Gas Price: <Text as="strong">{fct.gas_price_limit} Gwai</Text>
+                    </Text>
+                    <Text color="gray.500">{fct.createdAt}</Text>
+                  </HStack>
+                </Stack>
+              </CardBody>
+            </Card>
+          ))}
         </Stack>
       )}
     </>
