@@ -1,3 +1,4 @@
+//@ts-nocheck
 import {
   Button,
   Drawer,
@@ -26,13 +27,6 @@ import {
   Tag,
   Avatar,
   Box,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
   useClipboard,
   SimpleGrid,
   Heading,
@@ -50,7 +44,6 @@ import {
   NumberInput,
   NumberInputField,
   Divider,
-  FormLabel,
 } from '@chakra-ui/react'
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
 import { Icon } from '@iconify/react'
@@ -75,7 +68,7 @@ type TokenProps = {
     usd: number
     protocol: string
   }
-  onClickSend: any
+  modalHandler: any
 }
 
 type NFTProps = {
@@ -115,36 +108,6 @@ const WalletCard = (props: WalletProps) => {
   )
 }
 
-const TokenCard = (props: TokenProps) => {
-  const { symbol, amount, price, logo, name, onClickSend } = props
-  return (
-    <Card size="sm" variant="outline" rounded="md" shadow="sm">
-      <CardBody px={5}>
-        <HStack justify="space-between">
-          <HStack>
-            <Avatar size="xs" src={logo} />
-            <Stack spacing={-1}>
-              <Text fontWeight="bold">{symbol}</Text>
-              <Text fontSize="sm" color="gray.500">
-                {name}
-              </Text>
-            </Stack>
-          </HStack>
-          <HStack spacing={4}>
-            <Stack spacing={-1} textAlign="right">
-              <Text fontWeight="bold">{amount}</Text>
-              <Text fontSize="sm" color="gray.500">
-                ${(price.usd * +amount.replace(/,/g, '')).toFixed(2)}
-              </Text>
-            </Stack>
-            <IconButton size="sm" rounded="full" aria-label="Copy Address" icon={<Icon icon="akar-icons:arrow-right" />} onClick={onClickSend} />
-          </HStack>
-        </HStack>
-      </CardBody>
-    </Card>
-  )
-}
-
 const NFTCard = (props: NFTProps) => {
   const { name, symbol, token_id, metadata } = props
   return (
@@ -167,9 +130,29 @@ const NFTCard = (props: NFTProps) => {
   )
 }
 
-const TokensTab = (props: { tokens: any }) => {
-  const { tokens } = props
+const TokensTab = (props: { tokens: any; isWallet: boolean }) => {
+  const { tokens, isWallet } = props
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const [selectedToken, setSelectedToken] = useState<TokenProps>(null)
+  const [maxAmount, setMaxAmount] = useState(0.0)
+  const [amount, setAmount] = useState(0.0)
+
+  const handleTransfer = async () => {
+    if (isWallet) {
+      await service.wallet.transfer.execute('transfer', {
+        to: service.vault.data.raw.value.address,
+        amount: amount + '0'.repeat(18),
+        token: service.network.data.raw.value.contracts?.KiroToken.address || '',
+      })
+    } else {
+      await service.vault.transfer.execute('transfer', {
+        to: service.wallet.data.raw.value.address,
+        amount: amount + '0'.repeat(18),
+        token: service.network.data.raw.value.contracts?.KiroToken.address || '',
+      })
+    }
+  }
+
   return (
     <>
       {tokens.length === 0 && (
@@ -192,34 +175,86 @@ const TokensTab = (props: { tokens: any }) => {
       {tokens && (
         <Stack spacing={1}>
           {tokens.map((token: TokenProps, index: number) => (
-            <TokenCard key={index} {...token} onClickSend={onOpen} />
+            <Card key={index} size="sm" variant="outline" rounded="md" shadow="sm">
+              <CardBody px={5}>
+                <HStack justify="space-between">
+                  <HStack>
+                    <Avatar size="xs" src={token.logo} />
+                    <Stack spacing={-1}>
+                      <Text fontWeight="bold">{token.symbol}</Text>
+                      <Text fontSize="sm" color="gray.500">
+                        {token.name}
+                      </Text>
+                    </Stack>
+                  </HStack>
+                  <HStack spacing={4}>
+                    <Stack spacing={-1} textAlign="right">
+                      <Text fontWeight="bold">{token.amount}</Text>
+                      <Text fontSize="sm" color="gray.500">
+                        ${(token.price.usd * +token.amount.replace(/,/g, '')).toFixed(2)}
+                      </Text>
+                    </Stack>
+                    <IconButton
+                      size="sm"
+                      rounded="full"
+                      aria-label="Send"
+                      icon={<Icon icon="akar-icons:arrow-right" />}
+                      onClick={() => {
+                        setSelectedToken(token)
+                        setMaxAmount(+token.amount.replace(/,/g, ''))
+                        onOpen()
+                      }}
+                    />
+                  </HStack>
+                </HStack>
+              </CardBody>
+            </Card>
           ))}
         </Stack>
       )}
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <Modal
+        size="xs"
+        isOpen={isOpen}
+        onClose={() => {
+          setAmount(0)
+          onClose()
+        }}
+        isCentered>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Send from vault</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text>Vault balance: 1.5 ETH</Text>
-            <FormControl textAlign="center" px={12}>
-              <NumberInput defaultValue={0.0} min={0} precision={2} variant="unstyled" m={0} p={0}>
+            <FormControl textAlign="center" px={6}>
+              <NumberInput
+                defaultValue={0.0}
+                min={0}
+                precision={2}
+                variant="unstyled"
+                m={0}
+                p={0}
+                value={amount}
+                onChange={(value) => setAmount(+value)}>
                 <NumberInputField textAlign="center" fontSize="5xl" pr={0} />
               </NumberInput>
               <Divider mb={3} />
-              <Text my={3}>0.00</Text>
-              <Button variant="outline" size="xs">
+              <Text my={3}>${(amount * selectedToken?.price.usd).toFixed(2)}</Text>
+              <Button variant="outline" size="xs" onClick={() => setAmount(maxAmount)}>
                 Max
               </Button>
             </FormControl>
+            <Text fontSize="sm" color="gray.500" mt={4}>
+              Vault balance:{' '}
+              <Text as="span" fontWeight="extrabold">
+                {selectedToken?.amount} {selectedToken?.symbol}
+              </Text>
+            </Text>
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
-              Close
+            <Button w="full" colorScheme="messenger" onClick={handleTransfer}>
+              Send
             </Button>
-            <Button variant="ghost">Send</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -403,7 +438,7 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
             <Stack spacing={8}>
               <TabPanels>
                 <TabPanel px={0}>
-                  <TokensTab tokens={tab === 0 ? vTokens.value : wTokens.value} />
+                  <TokensTab tokens={tab === 0 ? vTokens.value : wTokens.value} isWallet={tab === 0 ? false : true} />
                 </TabPanel>
                 <TabPanel px={0}>
                   <NFTsTab nfts={tab === 0 ? vNFTS.value : wNFTS.value} />
