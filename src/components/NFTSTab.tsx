@@ -7,7 +7,7 @@ const NFTSTab = (props: { nfts: any }) => {
   const { nfts } = props
   return (
     <>
-      {nfts.length === 0 && (
+      {nfts.fmt.value.length === 0 && (
         <Alert
           status="info"
           variant="subtle"
@@ -26,7 +26,7 @@ const NFTSTab = (props: { nfts: any }) => {
       )}
       {nfts && (
         <SimpleGrid columns={3} spacing={3}>
-          {nfts.map((nft: any, index: number) => (
+          {nfts.fmt.value.map((nft: any, index: number) => (
             <NFTCard key={index} {...nft} />
           ))}
         </SimpleGrid>

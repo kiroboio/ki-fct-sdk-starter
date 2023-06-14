@@ -84,20 +84,6 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
 
   const fcts = useComputed(() => service.fct.active.data.fmt.list.value)
 
-  const wallet = useComputed(() => service.wallet.data.fmt.value.address)
-  const vault = useComputed(() => service.vault.data.fmt.value.address)
-
-  const vTokens = useComputed(() => service.tokens.vault.data.fmt.list.value)
-  const vTokensRaw = useComputed(() => service.tokens.vault.data.raw.list.value)
-  const vNFTS = useComputed(() => service.nfts.vault.data.fmt.list.value)
-  const FCTS = useComputed(() => service.fct.active.data.fmt.list.value)
-  const wTokens = useComputed(() => service.tokens.wallet.data.fmt.list.value)
-  const wTokensRaw = useComputed(() => service.tokens.wallet.data.raw.list.value)
-  const wNFTS = useComputed(() => service.nfts.wallet.data.fmt.list.value)
-
-  const vBalance = vTokens.value.reduce((prev, current) => prev + +current.price.usd * +current.amount.replace(/,/g, ''), 0).toFixed(2)
-  const wBalance = wTokens.value.reduce((prev, current) => prev + +current.price.usd * +current.amount.replace(/,/g, ''), 0).toFixed(2)
-
   return (
     <Tabs isFitted>
       <Drawer size="sm" placement="right" isOpen={isOpen} onClose={onClose}>
@@ -154,12 +140,12 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
                 <TabPanel px={0}>
                   <TokensTab tokens={isWallet ? tokens.connectedWallet : tokens.smartWallet} isWallet={isWallet} />
                 </TabPanel>
-                {/* <TabPanel px={0}>
-                  <NFTSTab nfts={nfts} />
+                <TabPanel px={0}>
+                  <NFTSTab nfts={isWallet ? nfts.connectedWallet : nfts.smartWallet} />
                 </TabPanel>
                 <TabPanel px={0}>
-                  <FCTSTab fcts={fcts} />
-                </TabPanel> */}
+                  <FCTSTab fcts={fcts.value} />
+                </TabPanel>
               </TabPanels>
             </Stack>
           </DrawerBody>
