@@ -11,6 +11,21 @@ type WalletProps = {
   onClick?: any
 }
 
+const formatValue = (value: string) => {
+  if (value.slice(-1) === '.' && !value.slice(0, -2).includes('.')) return value
+
+  const numericValue = value.replace(/[^0-9.]/g, '')
+  const parts = numericValue.split('.')
+  const integerPart = parts[0]
+  const decimalPart = parts[1] ? parts[1].slice(0, 2) : ''
+
+  let formattedValue = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  if (decimalPart !== '') {
+    formattedValue += '.' + decimalPart
+  }
+  return formattedValue
+}
+
 const WalletCard = (props: WalletProps) => {
   const { isSelect, onClick, title, address, balance, icon } = props
   const { onCopy, hasCopied } = useClipboard(address.raw)
@@ -35,7 +50,7 @@ const WalletCard = (props: WalletProps) => {
         </HStack>
         <HStack mt={3}>
           <Icon icon={icon} width="24px" height="24px" />
-          <Text fontWeight="extrabold">{balance}</Text>
+          <Text fontWeight="extrabold">${formatValue(balance)}</Text>
         </HStack>
       </CardBody>
     </Card>
