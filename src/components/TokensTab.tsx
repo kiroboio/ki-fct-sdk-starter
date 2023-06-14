@@ -65,6 +65,12 @@ const TokensTab = (props: { tokens: any; isWallet: boolean }) => {
 
   const handleInputChange = (e: { target: { value: any } }) => {
     const { value } = e.target
+
+    if (unFormatValue(value) > unFormatValue(selectedToken.amount)) {
+      setAmount(selectedToken.amount)
+      return
+    }
+
     setAmount(formatValue(value))
   }
 
@@ -122,7 +128,7 @@ const TokensTab = (props: { tokens: any; isWallet: boolean }) => {
                     <Stack spacing={-1} textAlign="right">
                       <Text fontWeight="bold">{token.amount}</Text>
                       <Text fontSize="sm" color="gray.500">
-                        ${(+token.price.usd * +token.amount.replace(/,/g, '')).toFixed(2)}
+                        ${formatValue(`${token.price.usd * unFormatValue(token.amount)}`)}
                       </Text>
                     </Stack>
                     <IconButton
