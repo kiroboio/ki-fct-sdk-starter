@@ -72,13 +72,13 @@ const TokensTab = (props: { tokens: any; isWallet: boolean }) => {
     if (isWallet) {
       await service.wallet.transfer.execute('transfer', {
         to: service.vault.data.raw.value.address,
-        amount: +amount.replace(/,/g, '') + '0'.repeat(18),
+        amount: unFormatValue(amount) + '0'.repeat(18),
         token: tokens.raw.value.find((obj: { symbol: string }) => obj.symbol === selectedToken.symbol).token_address || '',
       })
     } else {
       await service.vault.transfer.execute('transfer', {
         to: service.wallet.data.raw.value.address,
-        amount: +amount.replace(/,/g, '') + '0'.repeat(18),
+        amount: unFormatValue(amount) + '0'.repeat(18),
         token: tokens.raw.value.find((obj: { symbol: string }) => obj.symbol === selectedToken.symbol).token_address || '',
       })
     }
