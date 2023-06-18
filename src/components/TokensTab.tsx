@@ -21,6 +21,10 @@ import {
   Button,
   ModalFooter,
   Text,
+  Checkbox,
+  InputGroup,
+  InputLeftElement,
+  ModalCloseButton,
 } from '@chakra-ui/react'
 import { service } from '@kiroboio/fct-sdk'
 import { Icon } from '@iconify/react'
@@ -62,6 +66,8 @@ const TokensTab = (props: { tokens: any; isWallet: boolean }) => {
   const [selectedToken, setSelectedToken] = useState<any>('')
   const [maxAmount, setMaxAmount] = useState('')
   const [amount, setAmount] = useState('')
+  const [transferTo, setTransferTo] = useState('')
+  const [moveToWallet, setMoveToWallet] = useState(false)
 
   const handleInputChange = (e: { target: { value: any } }) => {
     const { value } = e.target
@@ -76,18 +82,35 @@ const TokensTab = (props: { tokens: any; isWallet: boolean }) => {
 
   const handleTransfer = async () => {
     if (isWallet) {
-      await service.wallet.transfer.execute('transfer', {
-        to: service.vault.data.raw.value.address,
-        amount: unFormatValue(amount) + '0'.repeat(18),
-        token: tokens.raw.value.find((obj: { symbol: string }) => obj.symbol === selectedToken.symbol).token_address || '',
-      })
+      await service.wallet.transfer
+        .execute('transfer', {
+          to: transferTo,
+          amount: unFormatValue(amount) + '0'.repeat(18),
+          token: tokens.raw.value.find((obj: { symbol: string }) => obj.symbol === selectedToken.symbol).token_address || '',
+        })
+        .then((res: any) => {
+          onClose()
+        })
     } else {
-      await service.vault.transfer.execute('transfer', {
-        to: service.wallet.data.raw.value.address,
-        amount: unFormatValue(amount) + '0'.repeat(18),
-        token: tokens.raw.value.find((obj: { symbol: string }) => obj.symbol === selectedToken.symbol).token_address || '',
-      })
+      await service.vault.transfer
+        .execute('transfer', {
+          to: transferTo,
+          amount: unFormatValue(amount) + '0'.repeat(18),
+          token: tokens.raw.value.find((obj: { symbol: string }) => obj.symbol === selectedToken.symbol).token_address || '',
+        })
+        .then((res: any) => {
+          onClose()
+        })
     }
+  }
+
+  const handleSelectWallet = (e: any) => {
+    e.target.checked
+      ? isWallet
+        ? setTransferTo(service.vault.data.raw.value.address)
+        : setTransferTo(service.wallet.data.raw.value.address)
+      : setTransferTo('')
+    setMoveToWallet(e.target.checked)
   }
 
   return (
@@ -150,15 +173,16 @@ const TokensTab = (props: { tokens: any; isWallet: boolean }) => {
         </Stack>
       )}
       <Modal
-        size="xs"
+        size="sm"
         isOpen={isOpen}
         onClose={() => {
           setAmount('')
+          setTransferTo('')
           onClose()
         }}
         isCentered>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent p={4}>
           <ModalHeader>
             <Stack spacing={1}>
               <Heading fontSize="xl">Send from {isWallet ? 'Connected Wallet' : 'Smart Wallet'}</Heading>
@@ -170,23 +194,40 @@ const TokensTab = (props: { tokens: any; isWallet: boolean }) => {
               </Text>
             </Stack>
           </ModalHeader>
+          <ModalCloseButton />
           <ModalBody>
-            <FormControl textAlign="center" px={6}>
-              <Input
-                variant="unstyled"
-                textAlign="center"
-                fontSize="5xl"
-                placeholder="0.00"
-                value={amount}
-                onChange={handleInputChange}
-                autoComplete="off"
-              />
-              <Divider mb={3} />
-              <Text my={3}>{selectedToken.price && <>${formatValue((unFormatValue(amount) * selectedToken.price.usd).toFixed(2))}</>}</Text>
-              <Button variant="outline" size="xs" onClick={() => setAmount(maxAmount)}>
-                Max
-              </Button>
-            </FormControl>
+            <Stack spacing={5}>
+              <FormControl textAlign="center" px={6}>
+                <Input
+                  variant="unstyled"
+                  textAlign="center"
+                  fontSize="5xl"
+                  placeholder="0.00"
+                  value={amount}
+                  onChange={handleInputChange}
+                  autoComplete="off"
+                />
+                <Divider mb={3} />
+                <Text my={3}>{selectedToken.price && <>${formatValue((unFormatValue(amount) * selectedToken.price.usd).toFixed(2))}</>}</Text>
+                <Button variant="outline" size="xs" onClick={() => setAmount(maxAmount)}>
+                  Max
+                </Button>
+              </FormControl>
+              <FormControl>
+                <Checkbox onChange={handleSelectWallet}>{isWallet ? 'Move to Smart Wallet' : 'Move to Connected Wallet'}</Checkbox>
+                <InputGroup mt={3}>
+                  <InputLeftElement pointerEvents="none">
+                    <Icon icon={isWallet && moveToWallet ? 'fluent:brain-circuit-20-filled' : 'fluent:wallet-32-filled'} />
+                  </InputLeftElement>
+                  <Input
+                    placeholder="Enter Ethereum address"
+                    value={transferTo}
+                    onChange={(e) => setTransferTo(e.target.value)}
+                    readOnly={moveToWallet}
+                  />
+                </InputGroup>
+              </FormControl>
+            </Stack>
           </ModalBody>
 
           <ModalFooter>
