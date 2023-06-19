@@ -62,7 +62,7 @@ const TransferModal = (props: { isOpen: any; onClose: any; tokens: any; isWallet
           token: tokens.raw.value.find((obj: { symbol: string }) => obj.symbol === selectedToken.symbol).token_address || '',
         })
         .then((res: any) => {
-          onClose()
+          handleModalClose()
         })
     } else {
       await service.vault.transfer
@@ -72,7 +72,7 @@ const TransferModal = (props: { isOpen: any; onClose: any; tokens: any; isWallet
           token: tokens.raw.value.find((obj: { symbol: string }) => obj.symbol === selectedToken.symbol).token_address || '',
         })
         .then((res: any) => {
-          onClose()
+          handleModalClose()
         })
     }
   }
