@@ -138,7 +138,7 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
             <Stack spacing={8}>
               <TabPanels>
                 <TabPanel px={0}>
-                  <TokensTab tokens={isWallet ? tokens.connectedWallet : tokens.smartWallet} isWallet={isWallet} />
+                  <TokensTab isWallet={isWallet} />
                 </TabPanel>
                 <TabPanel px={0}>
                   <NFTSTab nfts={isWallet ? nfts.connectedWallet : nfts.smartWallet} />
