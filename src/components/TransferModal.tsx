@@ -18,7 +18,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { Icon } from '@iconify/react'
-import { service } from '@kiroboio/fct-sdk'
+import { service, useComputed } from '@kiroboio/fct-sdk'
 import { useState } from 'react'
 
 const formatValue = (value: string) => {
@@ -40,8 +40,14 @@ const unFormatValue = (value: string) => {
   return typeof value === 'number' ? value : +value.replace(/,/g, '')
 }
 
-const TransferModal = (props: { isOpen: any; onClose: any; tokens: any; isWallet: any; selectedToken: any }) => {
-  const { isOpen, onClose, tokens, isWallet, selectedToken } = props
+const TransferModal = (props: { isOpen: any; onClose: any; isWallet: any; selectedTokenId: any }) => {
+  const { isOpen, onClose, isWallet, selectedTokenId } = props
+  const tokens = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
+
+  const token_address = useComputed(() => tokens.value[selectedTokenId]?.token_address)
+  const token_amount = useComputed(() => tokens.value[selectedTokenId]?.amount)
+  const token_symbol = useComputed(() => tokens.value[selectedTokenId]?.symbol)
+  const token_price = useComputed(() => tokens.value[selectedTokenId]?.price.usd)
 
   const [amount, setAmount] = useState('')
   const [transferTo, setTransferTo] = useState('')
@@ -59,7 +65,7 @@ const TransferModal = (props: { isOpen: any; onClose: any; tokens: any; isWallet
         .execute('transfer', {
           to: transferTo,
           amount: unFormatValue(amount) + '0'.repeat(18),
-          token: tokens.raw.value.find((obj: { symbol: string }) => obj.symbol === selectedToken.symbol).token_address || '',
+          token: token_address.value || '',
         })
         .then((res: any) => {
           handleModalClose()
@@ -69,7 +75,7 @@ const TransferModal = (props: { isOpen: any; onClose: any; tokens: any; isWallet
         .execute('transfer', {
           to: transferTo,
           amount: unFormatValue(amount) + '0'.repeat(18),
-          token: tokens.raw.value.find((obj: { symbol: string }) => obj.symbol === selectedToken.symbol).token_address || '',
+          token: token_address.value || '',
         })
         .then((res: any) => {
           handleModalClose()
@@ -80,8 +86,8 @@ const TransferModal = (props: { isOpen: any; onClose: any; tokens: any; isWallet
   const handleInputChange = (e: { target: { value: any } }) => {
     const { value } = e.target
 
-    if (unFormatValue(value) > unFormatValue(selectedToken.amount)) {
-      setAmount(selectedToken.amount)
+    if (unFormatValue(value) > unFormatValue(token_amount.value)) {
+      setAmount(token_amount.value)
       return
     }
 
@@ -109,7 +115,7 @@ const TransferModal = (props: { isOpen: any; onClose: any; tokens: any; isWallet
             <Text fontSize="md" color="gray.500">
               Balance:{' '}
               <Text as="span" fontWeight="extrabold">
-                {selectedToken?.amount} {selectedToken?.symbol}
+                <>{token_amount}</> <>{token_symbol}</>
               </Text>
             </Text>
           </Stack>
@@ -129,8 +135,8 @@ const TransferModal = (props: { isOpen: any; onClose: any; tokens: any; isWallet
                 isRequired
               />
               <Divider mb={3} />
-              <Text my={3}>{selectedToken.price && <>${formatValue((unFormatValue(amount) * selectedToken.price.usd).toFixed(2))}</>}</Text>
-              <Button variant="outline" size="xs" onClick={() => setAmount(selectedToken.amount)}>
+              <Text my={3}>{token_price && <>${formatValue((unFormatValue(amount) * token_price.value).toFixed(2))}</>}</Text>
+              <Button variant="outline" size="xs" onClick={() => setAmount(token_amount.value)}>
                 Max
               </Button>
             </FormControl>

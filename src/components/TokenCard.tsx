@@ -1,15 +1,19 @@
 import { Card, CardBody, HStack, Stack, IconButton, Avatar, Text } from '@chakra-ui/react'
 import { Icon } from '@iconify/react'
+import { service, useComputed } from '@kiroboio/fct-sdk'
+import { memo } from 'react'
 
 type TokenProps = {
-  symbol: string
-  amount: string
-  logo: string
-  name: string
-  price: {
-    usd: number
-    protocol: string
-  }
+  // symbol: string
+  // amount: string
+  // logo: string
+  // name: string
+  // price: {
+  //   usd: number
+  //   protocol: string
+  // }
+  id: string
+  isWallet: boolean
   handleOpenModal: any
 }
 
@@ -33,25 +37,35 @@ const unFormatValue = (value: string) => {
 }
 
 const TokenCard = (props: TokenProps) => {
-  const { symbol, amount, logo, name, price, handleOpenModal } = props
+  const { id, isWallet, handleOpenModal } = props
+  const tokens = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
+  const amount = useComputed(() => tokens.value[id]?.amount)
+  const name = useComputed(() => tokens.value[id]?.name)
+  const symbol = useComputed(() => tokens.value[id]?.symbol)
+  const price = useComputed(() => tokens.value[id]?.price.usd)
+  const logoURL = useComputed(() => tokens.value[id]?.logo)
   return (
     <Card size="sm" variant="outline" rounded="md" shadow="sm">
       <CardBody px={5}>
         <HStack justify="space-between">
           <HStack>
-            <Avatar size="xs" src={logo} />
+            <Avatar size="xs" src={logoURL.value || ''} />
             <Stack spacing={-1}>
-              <Text fontWeight="bold">{symbol}</Text>
+              <Text fontWeight="bold">
+                <>{symbol}</>
+              </Text>
               <Text fontSize="sm" color="gray.500">
-                {name}
+                <>{name}</>
               </Text>
             </Stack>
           </HStack>
           <HStack spacing={4}>
             <Stack spacing={-1} textAlign="right">
-              <Text fontWeight="bold">{amount}</Text>
+              <Text fontWeight="bold">
+                <>{amount}</>
+              </Text>
               <Text fontSize="sm" color="gray.500">
-                ${formatValue(`${price.usd * unFormatValue(amount)}`)}
+                ${formatValue(`${+price * unFormatValue(amount.value)}`)}
               </Text>
             </Stack>
             <IconButton size="sm" rounded="full" aria-label="Send" icon={<Icon icon="akar-icons:arrow-right" />} onClick={handleOpenModal} />
@@ -62,4 +76,6 @@ const TokenCard = (props: TokenProps) => {
   )
 }
 
-export default TokenCard
+const MemoTokenCard = memo(TokenCard)
+
+export default MemoTokenCard
