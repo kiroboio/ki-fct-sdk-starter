@@ -1,34 +1,8 @@
-import {
-  useDisclosure,
-  Alert,
-  Avatar,
-  AlertTitle,
-  AlertDescription,
-  Stack,
-  Card,
-  CardBody,
-  HStack,
-  IconButton,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  Heading,
-  ModalBody,
-  FormControl,
-  Input,
-  Divider,
-  Button,
-  ModalFooter,
-  Text,
-  Checkbox,
-  InputGroup,
-  InputLeftElement,
-  ModalCloseButton,
-} from '@chakra-ui/react'
-import { service } from '@kiroboio/fct-sdk'
+import { useDisclosure, Alert, AlertTitle, AlertDescription, Stack } from '@chakra-ui/react'
 import { Icon } from '@iconify/react'
 import { useState } from 'react'
+import TokenCard from './TokenCard'
+import TransferModal from './TransferModal'
 
 type TokenProps = {
   symbol: string
@@ -40,77 +14,14 @@ type TokenProps = {
     protocol: string
   }
 }
-
-const formatValue = (value: string) => {
-  if (value.slice(-1) === '.' && !value.slice(0, -2).includes('.')) return value
-
-  const numericValue = value.replace(/[^0-9.]/g, '')
-  const parts = numericValue.split('.')
-  const integerPart = parts[0]
-  const decimalPart = parts[1] ? parts[1].slice(0, 2) : ''
-
-  let formattedValue = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-  if (decimalPart !== '') {
-    formattedValue += '.' + decimalPart
-  }
-  return formattedValue
-}
-
-const unFormatValue = (value: string) => {
-  return typeof value === 'number' ? value : +value.replace(/,/g, '')
-}
-
 const TokensTab = (props: { tokens: any; isWallet: boolean }) => {
   const { tokens, isWallet } = props
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [selectedToken, setSelectedToken] = useState<any>('')
-  const [maxAmount, setMaxAmount] = useState('')
-  const [amount, setAmount] = useState('')
-  const [transferTo, setTransferTo] = useState('')
-  const [moveToWallet, setMoveToWallet] = useState(false)
+  const [selectedToken, setSelectedToken] = useState('')
 
-  const handleInputChange = (e: { target: { value: any } }) => {
-    const { value } = e.target
-
-    if (unFormatValue(value) > unFormatValue(selectedToken.amount)) {
-      setAmount(selectedToken.amount)
-      return
-    }
-
-    setAmount(formatValue(value))
-  }
-
-  const handleTransfer = async () => {
-    if (isWallet) {
-      await service.wallet.transfer
-        .execute('transfer', {
-          to: transferTo,
-          amount: unFormatValue(amount) + '0'.repeat(18),
-          token: tokens.raw.value.find((obj: { symbol: string }) => obj.symbol === selectedToken.symbol).token_address || '',
-        })
-        .then((res: any) => {
-          onClose()
-        })
-    } else {
-      await service.vault.transfer
-        .execute('transfer', {
-          to: transferTo,
-          amount: unFormatValue(amount) + '0'.repeat(18),
-          token: tokens.raw.value.find((obj: { symbol: string }) => obj.symbol === selectedToken.symbol).token_address || '',
-        })
-        .then((res: any) => {
-          onClose()
-        })
-    }
-  }
-
-  const handleSelectWallet = (e: any) => {
-    e.target.checked
-      ? isWallet
-        ? setTransferTo(service.vault.data.raw.value.address)
-        : setTransferTo(service.wallet.data.raw.value.address)
-      : setTransferTo('')
-    setMoveToWallet(e.target.checked)
+  const handleOpenModal = (token: any) => {
+    setSelectedToken(token)
+    onOpen()
   }
 
   return (
@@ -135,108 +46,11 @@ const TokensTab = (props: { tokens: any; isWallet: boolean }) => {
       {tokens && (
         <Stack spacing={1}>
           {tokens.fmt.value.map((token: TokenProps, index: number) => (
-            <Card key={index} size="sm" variant="outline" rounded="md" shadow="sm">
-              <CardBody px={5}>
-                <HStack justify="space-between">
-                  <HStack>
-                    <Avatar size="xs" src={token.logo} />
-                    <Stack spacing={-1}>
-                      <Text fontWeight="bold">{token.symbol}</Text>
-                      <Text fontSize="sm" color="gray.500">
-                        {token.name}
-                      </Text>
-                    </Stack>
-                  </HStack>
-                  <HStack spacing={4}>
-                    <Stack spacing={-1} textAlign="right">
-                      <Text fontWeight="bold">{token.amount}</Text>
-                      <Text fontSize="sm" color="gray.500">
-                        ${formatValue(`${token.price.usd * unFormatValue(token.amount)}`)}
-                      </Text>
-                    </Stack>
-                    <IconButton
-                      size="sm"
-                      rounded="full"
-                      aria-label="Send"
-                      icon={<Icon icon="akar-icons:arrow-right" />}
-                      onClick={() => {
-                        setSelectedToken(token)
-                        setMaxAmount(token.amount)
-                        onOpen()
-                      }}
-                    />
-                  </HStack>
-                </HStack>
-              </CardBody>
-            </Card>
+            <TokenCard key={index} handleOpenModal={() => handleOpenModal(token)} {...token} />
           ))}
+          <TransferModal isOpen={isOpen} onClose={onClose} tokens={tokens} isWallet={isWallet} selectedToken={selectedToken} />
         </Stack>
       )}
-      <Modal
-        size="sm"
-        isOpen={isOpen}
-        onClose={() => {
-          setAmount('')
-          setTransferTo('')
-          onClose()
-        }}
-        isCentered>
-        <ModalOverlay />
-        <ModalContent p={4}>
-          <ModalHeader>
-            <Stack spacing={1}>
-              <Heading fontSize="xl">Send from {isWallet ? 'Connected Wallet' : 'Smart Wallet'}</Heading>
-              <Text fontSize="md" color="gray.500">
-                Balance:{' '}
-                <Text as="span" fontWeight="extrabold">
-                  {selectedToken?.amount} {selectedToken?.symbol}
-                </Text>
-              </Text>
-            </Stack>
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Stack spacing={5}>
-              <FormControl textAlign="center" px={6}>
-                <Input
-                  variant="unstyled"
-                  textAlign="center"
-                  fontSize="5xl"
-                  placeholder="0.00"
-                  value={amount}
-                  onChange={handleInputChange}
-                  autoComplete="off"
-                />
-                <Divider mb={3} />
-                <Text my={3}>{selectedToken.price && <>${formatValue((unFormatValue(amount) * selectedToken.price.usd).toFixed(2))}</>}</Text>
-                <Button variant="outline" size="xs" onClick={() => setAmount(maxAmount)}>
-                  Max
-                </Button>
-              </FormControl>
-              <FormControl>
-                <Checkbox onChange={handleSelectWallet}>{isWallet ? 'Move to Smart Wallet' : 'Move to Connected Wallet'}</Checkbox>
-                <InputGroup mt={3}>
-                  <InputLeftElement pointerEvents="none">
-                    <Icon icon={isWallet && moveToWallet ? 'fluent:brain-circuit-20-filled' : 'fluent:wallet-32-filled'} />
-                  </InputLeftElement>
-                  <Input
-                    placeholder="Enter Ethereum address"
-                    value={transferTo}
-                    onChange={(e) => setTransferTo(e.target.value)}
-                    readOnly={moveToWallet}
-                  />
-                </InputGroup>
-              </FormControl>
-            </Stack>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button w="full" colorScheme="messenger" onClick={handleTransfer}>
-              Send
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </>
   )
 }

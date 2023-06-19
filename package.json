@@ -42,6 +42,7 @@
     "next": "13.3.0",
     "next-seo": "^6.0.0",
     "react": "18.2.0",
+    "react-confetti-explosion": "^2.1.2",
     "react-dom": "18.2.0",
     "react-icons": "^4.8.0",
     "siwe": "^1.1.6",
