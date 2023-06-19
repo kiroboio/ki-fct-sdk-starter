@@ -97,6 +97,8 @@ const TransferModal = (props: { isOpen: any; onClose: any; tokens: any; isWallet
     setMoveToWallet(e.target.checked)
   }
 
+  const isError = amount === '' || transferTo === ''
+
   return (
     <Modal size="sm" isOpen={isOpen} onClose={handleModalClose} isCentered>
       <ModalOverlay />
@@ -124,6 +126,7 @@ const TransferModal = (props: { isOpen: any; onClose: any; tokens: any; isWallet
                 value={amount}
                 onChange={handleInputChange}
                 autoComplete="off"
+                isRequired
               />
               <Divider mb={3} />
               <Text my={3}>{selectedToken.price && <>${formatValue((unFormatValue(amount) * selectedToken.price.usd).toFixed(2))}</>}</Text>
@@ -142,6 +145,7 @@ const TransferModal = (props: { isOpen: any; onClose: any; tokens: any; isWallet
                   value={transferTo}
                   onChange={(e) => setTransferTo(e.target.value)}
                   readOnly={moveToWallet}
+                  isRequired
                 />
               </InputGroup>
             </FormControl>
@@ -149,7 +153,7 @@ const TransferModal = (props: { isOpen: any; onClose: any; tokens: any; isWallet
         </ModalBody>
 
         <ModalFooter>
-          <Button w="full" colorScheme="messenger" onClick={handleTransfer}>
+          <Button w="full" colorScheme="messenger" onClick={handleTransfer} isDisabled={isError}>
             Send
           </Button>
         </ModalFooter>
