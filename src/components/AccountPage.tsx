@@ -90,7 +90,7 @@ const NFTCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
 }
 const MemoNFTCard = memo(NFTCard)
 
-const ModalTransfer = ({ isOpen, onClose, id, isWallet }) => {
+const ModalTransfer = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose: any; id: string; isWallet: boolean }) => {
   const tokens = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
   const name = useComputed(() => tokens.value[id]?.name)
   const symbol = useComputed(() => tokens.value[id]?.symbol)
@@ -130,7 +130,7 @@ const ModalTransfer = ({ isOpen, onClose, id, isWallet }) => {
   )
 }
 
-const AccountPage = ({ isOpen, onClose }) => {
+const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
   const [isWallet, setIsWallet] = useState(false)
   const [tabIndex, setTabIndex] = useState(0)
   const wIsLoading = useComputed(() => service.tokens.wallet.data.isLoading.value)
