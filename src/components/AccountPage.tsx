@@ -11,78 +11,156 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  DrawerFooter,
+  Card,
+  CardBody,
   Stack,
   HStack,
-  DrawerFooter,
-  TagLabel,
-  Tag,
+  Center,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Button,
+  useDisclosure,
+  FormControl,
+  Divider,
+  Input,
+  Checkbox,
 } from '@chakra-ui/react'
-import { service, useComputed } from '@kiroboio/fct-sdk'
-import { useState } from 'react'
 
 import NetworkTag from './NetworkTag'
-import WalletCard from './WalletCard'
+import { service, useComputed } from '@kiroboio/fct-sdk'
+import { memo, useState } from 'react'
 
-import TokensTab from './TokensTab'
-import NFTSTab from './NFTSTab'
-import FCTSTab from './FCTSTab'
+const pack = (list: Partial<{ id: string }>[]) => {
+  return JSON.stringify(list.map((item) => item.id))
+}
 
-const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
+const unpack = (packed: string): string[] => JSON.parse(packed)
+
+const TokenCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  const tokens = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
+  const name = useComputed(() => tokens.value[id]?.name)
+  const amount = useComputed(() => tokens.value[id]?.amount)
+  return (
+    <>
+      <Card variant="outline">
+        <CardBody>
+          <HStack justify="space-between">
+            <Text fontWeight="bold">
+              <>{name}</>
+            </Text>
+            <Text>
+              <>{amount}</>
+            </Text>
+            <Button size="sm" onClick={onOpen}>
+              Transfer
+            </Button>
+          </HStack>
+        </CardBody>
+      </Card>
+      <ModalTransfer isOpen={isOpen} onClose={onClose} id={id} isWallet={isWallet} />
+    </>
+  )
+}
+const MemoTokenCard = memo(TokenCard)
+
+const NFTCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
+  const nfts = isWallet ? service.nfts.wallet.data.fmt.map : service.nfts.vault.data.fmt.map
+  const name = useComputed(() => nfts.value[id]?.name)
+  const symbol = useComputed(() => nfts.value[id]?.symbol)
+  return (
+    <Card variant="outline">
+      <CardBody>
+        <Text>
+          <>{name}</>
+        </Text>
+        <Text>
+          <>{symbol}</>
+        </Text>
+      </CardBody>
+    </Card>
+  )
+}
+const MemoNFTCard = memo(NFTCard)
+
+const ModalTransfer = ({ isOpen, onClose, id, isWallet }) => {
+  const tokens = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
+  const name = useComputed(() => tokens.value[id]?.name)
+  const symbol = useComputed(() => tokens.value[id]?.symbol)
+  const amount = useComputed(() => tokens.value[id]?.amount)
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>
+          Transfer <>{symbol}</> from your {isWallet ? 'connected wallet' : 'smart wallet'}
+        </ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <Text>
+            Balance:{' '}
+            <Text as="strong">
+              <>{amount}</>
+            </Text>
+          </Text>
+          <FormControl>
+            <Input />
+            <Divider />
+            <Input />
+            <Checkbox>Send to your {isWallet ? 'smart wallet' : 'connected wallet'}</Checkbox>
+          </FormControl>
+        </ModalBody>
+
+        <ModalFooter>
+          <Button colorScheme="blue" mr={3} onClick={onClose}>
+            Close
+          </Button>
+          <Button variant="ghost">Send</Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  )
+}
+
+const AccountPage = ({ isOpen, onClose }) => {
   const [isWallet, setIsWallet] = useState(false)
-
-  const smartWallet = {
-    address: {
-      fmt: useComputed(() => service.vault.data.fmt.value.address),
-      raw: useComputed(() => service.vault.data.raw.value.address),
-    },
-    balance: {
-      fmt: useComputed(() =>
-        service.tokens.vault.data.fmt.list.value
-          .reduce((prev, current) => prev + +current.price.usd * +current.amount.replace(/,/g, ''), 0)
-          .toFixed(2)
-      ),
-      raw: useComputed(() => service.tokens.vault.data.raw.list.value.reduce((prev, current) => prev + +current.price.usd * +current.amount, 0)),
-    },
-  }
-
-  const connectedWallet = {
-    address: {
-      fmt: useComputed(() => service.wallet.data.fmt.value.address),
-      raw: useComputed(() => service.wallet.data.raw.value.address),
-    },
-    balance: {
-      fmt: useComputed(() =>
-        service.tokens.wallet.data.fmt.list.value
-          .reduce((prev, current) => prev + +current.price.usd * +current.amount.replace(/,/g, ''), 0)
-          .toFixed(2)
-      ),
-      raw: useComputed(() => service.tokens.wallet.data.raw.list.value.reduce((prev, current) => prev + +current.price.usd * +current.amount, 0)),
-    },
-  }
+  const [tabIndex, setTabIndex] = useState(0)
+  const wIsLoading = useComputed(() => service.tokens.wallet.data.isLoading.value)
+  const vIsLoading = useComputed(() => service.tokens.vault.data.isLoading.value)
+  const wTokens = useComputed(() => pack(service.tokens.wallet.data.fmt.list.value))
+  const vTokens = useComputed(() => pack(service.tokens.vault.data.fmt.list.value))
+  const wNFTS = useComputed(() => pack(service.nfts.wallet.data.fmt.list.value))
+  const vNFTS = useComputed(() => pack(service.nfts.vault.data.fmt.list.value))
 
   const tokens = {
-    smartWallet: {
-      fmt: useComputed(() => service.tokens.vault.data.fmt.list.value),
-      raw: useComputed(() => service.tokens.vault.data.raw.list.value),
-    },
-    connectedWallet: {
-      fmt: useComputed(() => service.tokens.wallet.data.fmt.list.value),
-      raw: useComputed(() => service.tokens.wallet.data.raw.list.value),
-    },
+    wallet: useComputed(() => (
+      <>{wIsLoading.value ? <Center>Loading...</Center> : unpack(wTokens.value).map((id) => <MemoTokenCard key={id} id={id} isWallet={true} />)}</>
+    )),
+    vault: useComputed(() => (
+      <>{vIsLoading.value ? <Center>Loading...</Center> : unpack(vTokens.value).map((id) => <MemoTokenCard key={id} id={id} isWallet={false} />)}</>
+    )),
   }
-
   const nfts = {
-    smartWallet: {
-      fmt: useComputed(() => service.nfts.vault.data.fmt.list.value),
-      raw: useComputed(() => service.nfts.vault.data.raw.list.value),
-    },
-    connectedWallet: {
-      fmt: useComputed(() => service.nfts.wallet.data.fmt.list.value),
-      raw: useComputed(() => service.nfts.wallet.data.raw.list.value),
-    },
+    wallet: useComputed(() => (
+      <>{wIsLoading.value ? <Center>Loading...</Center> : unpack(wNFTS.value).map((id) => <MemoNFTCard key={id} id={id} isWallet={true} />)}</>
+    )),
+    vault: useComputed(() => (
+      <>{vIsLoading.value ? <Center>Loading...</Center> : unpack(vNFTS.value).map((id) => <MemoNFTCard key={id} id={id} isWallet={false} />)}</>
+    )),
   }
 
-  const fcts = useComputed(() => service.fct.active.data.fmt.list.value)
+  const handleTabsChange = (index: number) => {
+    setTabIndex(index)
+    setIsWallet(index === 1 ? true : false)
+  }
 
   return (
     <Tabs isFitted>
@@ -91,63 +169,66 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
         <DrawerContent m={4} rounded="lg">
           <DrawerCloseButton />
           <DrawerHeader>
-            <Stack spacing={8}>
-              <Text>Account</Text>
-              <HStack justify="space-between">
-                <WalletCard
-                  onClick={() => setIsWallet(false)}
-                  address={smartWallet.address}
-                  balance={`$${smartWallet.balance.fmt.value}`}
-                  title="Smart Wallet"
-                  icon="fluent:brain-circuit-20-filled"
-                  isSelect={!isWallet}
-                />
-                <WalletCard
-                  onClick={() => setIsWallet(true)}
-                  address={connectedWallet.address}
-                  balance={`$${connectedWallet.balance.fmt.value}`}
-                  title="Connected Wallet"
-                  icon="fluent:wallet-32-filled"
-                  isSelect={isWallet}
-                />
-              </HStack>
-              <TabList>
-                <Tab gap={2}>
-                  <Text>Tokens</Text>
-                  <Tag variant="solid">
-                    <TagLabel>{isWallet ? tokens.connectedWallet.fmt.value.length : tokens.smartWallet.fmt.value.length}</TagLabel>
-                  </Tag>
-                </Tab>
-                <Tab gap={2}>
-                  <Text>NFTs</Text>
-                  <Tag variant="solid">
-                    <TagLabel>{isWallet ? nfts.connectedWallet.fmt.value.length : nfts.smartWallet.fmt.value.length}</TagLabel>
-                  </Tag>
-                </Tab>
-                <Tab gap={2}>
-                  <Text>FCTs</Text>
-                  <Tag variant="solid">
-                    <TagLabel>{fcts.value.length}</TagLabel>
-                  </Tag>
-                </Tab>
-              </TabList>
-            </Stack>
+            <Text>Account</Text>
           </DrawerHeader>
 
           <DrawerBody>
-            <Stack spacing={8}>
+            <Tabs size="lg" variant="solid-rounded" isFitted index={tabIndex} onChange={handleTabsChange}>
+              <TabList>
+                <Tab rounded="md">Smart Wallet</Tab>
+                <Tab rounded="md">Connected Wallet</Tab>
+              </TabList>
               <TabPanels>
-                <TabPanel px={0}>
-                  <TokensTab isWallet={isWallet} />
+                <TabPanel p={0} pt={4}>
+                  <Tabs variant="solid-rounded" isFitted isLazy>
+                    <TabList>
+                      <Tab rounded="md">Tokens</Tab>
+                      <Tab rounded="md">NFTS</Tab>
+                      <Tab rounded="md">FCTS</Tab>
+                    </TabList>
+                    <TabPanels>
+                      <TabPanel p={0} pt={4}>
+                        <Stack spacing={4}>
+                          <>{tokens.vault}</>
+                        </Stack>
+                      </TabPanel>
+                      <TabPanel p={0} pt={4}>
+                        <HStack spacing={4}>
+                          <>{nfts.vault}</>
+                        </HStack>
+                      </TabPanel>
+                      <TabPanel>
+                        <p>Smart Wallet FCTs!</p>
+                      </TabPanel>
+                    </TabPanels>
+                  </Tabs>
                 </TabPanel>
-                <TabPanel px={0}>
-                  <NFTSTab nfts={isWallet ? nfts.connectedWallet : nfts.smartWallet} />
-                </TabPanel>
-                <TabPanel px={0}>
-                  <FCTSTab fcts={fcts.value} />
+                <TabPanel p={0} pt={4}>
+                  <Tabs variant="solid-rounded" isFitted isLazy>
+                    <TabList>
+                      <Tab rounded="md">Tokens</Tab>
+                      <Tab rounded="md">NFTS</Tab>
+                      <Tab rounded="md">FCTS</Tab>
+                    </TabList>
+                    <TabPanels>
+                      <TabPanel p={0} pt={4}>
+                        <Stack spacing={4}>
+                          <>{tokens.wallet}</>
+                        </Stack>
+                      </TabPanel>
+                      <TabPanel p={0} pt={4}>
+                        <HStack spacing={4}>
+                          <>{nfts.wallet}</>
+                        </HStack>
+                      </TabPanel>
+                      <TabPanel>
+                        <p>Connected Wallet FCTs!</p>
+                      </TabPanel>
+                    </TabPanels>
+                  </Tabs>
                 </TabPanel>
               </TabPanels>
-            </Stack>
+            </Tabs>
           </DrawerBody>
           <DrawerFooter justifyContent="flex-start">
             <NetworkTag />
