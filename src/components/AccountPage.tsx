@@ -30,6 +30,7 @@ import {
   Divider,
   Input,
   Checkbox,
+  Box,
 } from '@chakra-ui/react'
 
 import NetworkTag from './NetworkTag'
@@ -92,9 +93,54 @@ const MemoNFTCard = memo(NFTCard)
 
 const ModalTransfer = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose: any; id: string; isWallet: boolean }) => {
   const tokens = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
-  const name = useComputed(() => tokens.value[id]?.name)
   const symbol = useComputed(() => tokens.value[id]?.symbol)
   const amount = useComputed(() => tokens.value[id]?.amount)
+  const price = useComputed(() => tokens.value[id]?.price.usd)
+  const tokenAddress = useComputed(() => tokens.value[id]?.token_address)
+  const [toTransfer, setToTransfer] = useState('')
+  const [toPrice, setToPrice] = useState('')
+  const [toWallet, setToWallet] = useState('')
+
+  const handleModalClose = () => {
+    setToPrice('')
+    setToTransfer('')
+    setToWallet('')
+    onClose()
+  }
+
+  const handleTransfer = async () => {
+    if (isWallet) {
+      await service.wallet.transfer
+        .execute('transfer', {
+          to: toWallet,
+          amount: toTransfer + '0'.repeat(18),
+          token: tokenAddress || '',
+        })
+        .then((res: any) => {
+          handleModalClose()
+        })
+    } else {
+      await service.vault.transfer
+        .execute('transfer', {
+          to: toWallet,
+          amount: toTransfer + '0'.repeat(18),
+          token: tokenAddress || '',
+        })
+        .then((res: any) => {
+          handleModalClose()
+        })
+    }
+  }
+
+  const handleSelectWallet = (e: any) => {
+    e.target.checked
+      ? isWallet
+        ? setToWallet(service.vault.data.raw.value.address)
+        : setToWallet(service.wallet.data.raw.value.address)
+      : setToWallet('')
+  }
+
+  const isError = toWallet === '' || toTransfer === ''
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -111,19 +157,65 @@ const ModalTransfer = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
               <>{amount}</>
             </Text>
           </Text>
-          <FormControl>
-            <Input />
-            <Divider />
-            <Input />
-            <Checkbox>Send to your {isWallet ? 'smart wallet' : 'connected wallet'}</Checkbox>
+          <FormControl mt={4}>
+            <Stack spacing={5}>
+              <Stack spacing={2}>
+                <Input
+                  placeholder="0.0"
+                  variant="unstyled"
+                  _focus={{
+                    fontSize: '5xl',
+                  }}
+                  fontSize="2xl"
+                  size="lg"
+                  textAlign="center"
+                  autoComplete="off"
+                  value={toTransfer}
+                  onChange={(e) => {
+                    setToTransfer(e.target.value)
+                    setToPrice(`${e.target.value} * ${price}`)
+                  }}
+                />
+                <Divider />
+                <Input
+                  placeholder="0.0"
+                  variant="unstyled"
+                  _focus={{
+                    fontSize: '5xl',
+                  }}
+                  fontSize="2xl"
+                  size="lg"
+                  textAlign="center"
+                  autoComplete="off"
+                  value={toPrice}
+                  onChange={(e) => setToPrice(e.target.value)}
+                />
+                <Box textAlign="center">
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setToTransfer(amount.value)
+                      setToPrice(`${amount.value} * ${price}`)
+                    }}>
+                    Max
+                  </Button>
+                </Box>
+              </Stack>
+              <Box>
+                <Checkbox onChange={handleSelectWallet}>Send to your {isWallet ? 'smart wallet' : 'connected wallet'}</Checkbox>
+                <Input placeholder="0x..." value={toWallet} onChange={(e) => setToWallet(e.target.value)} />
+              </Box>
+            </Stack>
           </FormControl>
         </ModalBody>
 
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onClose}>
+          <Button colorScheme="blue" isDisabled={isError} onClick={handleTransfer}>
+            Send
+          </Button>
+          <Button variant="ghost" mr={3} onClick={onClose}>
             Close
           </Button>
-          <Button variant="ghost">Send</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
@@ -131,7 +223,7 @@ const ModalTransfer = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
 }
 
 const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
-  const [isWallet, setIsWallet] = useState(false)
+  const [, setIsWallet] = useState(false)
   const [tabIndex, setTabIndex] = useState(0)
   const wIsLoading = useComputed(() => service.tokens.wallet.data.isLoading.value)
   const vIsLoading = useComputed(() => service.tokens.vault.data.isLoading.value)
@@ -180,7 +272,7 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
               </TabList>
               <TabPanels>
                 <TabPanel p={0} pt={4}>
-                  <Tabs variant="solid-rounded" isFitted isLazy>
+                  <Tabs variant="solid-rounded" isFitted>
                     <TabList>
                       <Tab rounded="md">Tokens</Tab>
                       <Tab rounded="md">NFTS</Tab>
@@ -204,7 +296,7 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
                   </Tabs>
                 </TabPanel>
                 <TabPanel p={0} pt={4}>
-                  <Tabs variant="solid-rounded" isFitted isLazy>
+                  <Tabs variant="solid-rounded" isFitted>
                     <TabList>
                       <Tab rounded="md">Tokens</Tab>
                       <Tab rounded="md">NFTS</Tab>
