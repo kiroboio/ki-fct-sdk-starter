@@ -110,21 +110,21 @@ const ModalTransfer = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
 
   const handleTransfer = async () => {
     if (isWallet) {
-      await service.wallet.transfer
+      await service.wallet.erc20.transfer
         .execute('transfer', {
           to: toWallet,
           amount: toTransfer + '0'.repeat(18),
-          token: tokenAddress || '',
+          token: tokenAddress.peek() || '',
         })
         .then((res: any) => {
           handleModalClose()
         })
     } else {
-      await service.vault.transfer
+      await service.vault.erc20.transfer
         .execute('transfer', {
           to: toWallet,
           amount: toTransfer + '0'.repeat(18),
-          token: tokenAddress || '',
+          token: tokenAddress.peek() || '',
         })
         .then((res: any) => {
           handleModalClose()
