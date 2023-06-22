@@ -61,7 +61,7 @@ const TransferModal = (props: { isOpen: any; onClose: any; isWallet: any; select
 
   const handleTransfer = async () => {
     if (isWallet) {
-      await service.wallet.transfer
+      await service.wallet.erc20.transfer
         .execute('transfer', {
           to: transferTo,
           amount: unFormatValue(amount) + '0'.repeat(18),
@@ -71,7 +71,7 @@ const TransferModal = (props: { isOpen: any; onClose: any; isWallet: any; select
           handleModalClose()
         })
     } else {
-      await service.vault.transfer
+      await service.vault.erc20.transfer
         .execute('transfer', {
           to: transferTo,
           amount: unFormatValue(amount) + '0'.repeat(18),
