@@ -159,9 +159,11 @@ const ModalTransfer = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
     if (isWallet) {
       await service.wallet.erc20.transfer
         .execute('transfer', {
-          to: transferWalletAddress,
-          amount: transferAmount + '0'.repeat(18),
-          token: tokenAddress.peek() || '',
+          contract: tokenAddress.peek() || '',
+          inputs: {
+            to: transferWalletAddress as `0x${string}`,
+            amount: BigInt(transferAmount + '0'.repeat(18)),
+          },
         })
         .then((res: any) => {
           console.log(res)
@@ -174,11 +176,15 @@ const ModalTransfer = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
         })
     } else {
       await service.vault.erc20.transfer
-        .execute('transfer', {
-          to: transferWalletAddress,
-          amount: transferAmount + '0'.repeat(18),
-          token: tokenAddress.peek() || '',
-        })
+        .execute('transfer', [
+          {
+            contract: tokenAddress.peek() || '',
+            inputs: {
+              to: transferWalletAddress as `0x${string}`,
+              amount: BigInt(transferAmount + '0'.repeat(18)),
+            },
+          },
+        ])
         .then((res: any) => {
           console.log(res)
           if (res.results) {

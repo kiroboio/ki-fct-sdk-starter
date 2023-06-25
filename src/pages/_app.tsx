@@ -6,19 +6,25 @@ import { useIsMounted } from 'hooks/useIsMounted'
 import { Seo } from 'components/layout/Seo'
 
 import { service } from '@kiroboio/fct-sdk'
-import { watchSigner } from '@wagmi/core'
+import { watchWalletClient } from '@wagmi/core'
+import { providers } from 'ethers'
 
 function serviceInit() {
   service.start({})
 
-  watchSigner({}, (signer) => {
+  watchWalletClient({}, async (client) => {
+    const chainId = await client?.getChainId()
+    const transport = client?.transport
+    const address = client?.account.address
+    const signer = chainId && transport && address ? new providers.Web3Provider(transport, chainId).getSigner(address) : null
+
     service.config({
       signer,
       autoLogin: false,
     })
   })
-  // service.formatting.setValueFormatter((params) => {
-  //   let result = service.formatting.prebuild.formatValue({ ...params, digits: 4 })
+  // // service.formatting.setValueFormatter((params) => {
+  // //   let result = service.formatting.prebuild.formatValue({ ...params, digits: 4 })
   //   if (result.endsWith('.0')) {
   //     result = result.slice(0, -2)
   //   }
