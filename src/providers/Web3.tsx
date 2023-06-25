@@ -1,6 +1,6 @@
-import { configureChains, createClient, WagmiConfig } from 'wagmi'
+import { configureChains, createConfig, WagmiConfig } from 'wagmi'
 import { publicProvider } from 'wagmi/providers/public'
-import { ConnectKitProvider, getDefaultClient } from 'connectkit'
+import { ConnectKitProvider, getDefaultConfig } from 'connectkit'
 import { ETH_CHAINS, SITE_NAME } from 'utils/config'
 import { useColorMode } from '@chakra-ui/react'
 import { ReactNode } from 'react'
@@ -9,15 +9,16 @@ interface Props {
   children: ReactNode
 }
 
-const { provider, webSocketProvider } = configureChains(ETH_CHAINS, [publicProvider()])
+const { publicClient, webSocketPublicClient } = configureChains(ETH_CHAINS, [publicProvider()])
 
-const client = createClient(
-  getDefaultClient({
+const config = createConfig(
+  getDefaultConfig({
     appName: SITE_NAME,
     autoConnect: true,
     chains: ETH_CHAINS,
-    provider,
-    webSocketProvider,
+    walletConnectProjectId: '',
+    publicClient,
+    webSocketPublicClient,
   })
 )
 
@@ -25,7 +26,7 @@ export function Web3Provider(props: Props) {
   const { colorMode } = useColorMode()
 
   return (
-    <WagmiConfig client={client}>
+    <WagmiConfig config={config}>
       <ConnectKitProvider options={{ initialChainId: 5 }} mode={colorMode}>
         {props.children}
       </ConnectKitProvider>

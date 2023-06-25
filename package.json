@@ -34,9 +34,8 @@
     "@iconify/icons-cryptocurrency": "^1.2.5",
     "@kiroboio/fct-sdk": "^0.3.3",
     "@next/font": "13.3.0",
-    "connectkit": "^1.2.2",
+    "connectkit": "^1.4.0",
     "dayjs": "^1.11.7",
-    "ethers": "^5.7.2",
     "framer-motion": "^10.12.2",
     "iron-session": "^6.3.1",
     "next": "13.3.0",
@@ -45,10 +44,12 @@
     "react-confetti-explosion": "^2.1.2",
     "react-dom": "18.2.0",
     "react-icons": "^4.8.0",
+    "react-number-format": "^5.2.2",
     "siwe": "^1.1.6",
     "uniswap-tradingview": "^1.0.2",
     "usehooks-ts": "^2.9.1",
-    "wagmi": "^0.12.10"
+    "viem": "^1.1.7",
+    "wagmi": "^1.2.2"
   },
   "devDependencies": {
     "@iconify/react": "^4.1.0",
