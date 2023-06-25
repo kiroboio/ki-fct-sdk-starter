@@ -11,9 +11,9 @@ import { watchWalletClient } from '@wagmi/core'
 function serviceInit() {
   service.start({})
 
-  watchWalletClient({}, (walletClient) => {
+  watchWalletClient({}, (signer) => {
     service.config({
-      signer: walletClient,
+      signer: signer,
       autoLogin: false,
     })
   })
