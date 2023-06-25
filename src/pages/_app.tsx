@@ -13,13 +13,13 @@ function serviceInit() {
   service.start({})
 
   watchWalletClient({}, async (client) => {
-    const chainId = await client?.getChainId()
     const transport = client?.transport
+    const chainId = await client?.getChainId()
     const address = client?.account.address
-    const signer = chainId && transport && address ? new providers.Web3Provider(transport, chainId).getSigner(address) : null
+    const signer = transport && chainId && address ? new providers.Web3Provider(transport, chainId).getSigner(address) : null
 
     service.config({
-      signer,
+      signer: signer,
       autoLogin: false,
     })
   })
