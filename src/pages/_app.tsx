@@ -10,26 +10,23 @@ import { watchWalletClient } from '@wagmi/core'
 import { providers } from 'ethers'
 
 function serviceInit() {
-  service.start({})
+  service.start({
+    url: 'https://testapi.kirobo.me',
+    key: 'kirobo',
+    secret: 'kirobodev',
+  })
 
   watchWalletClient({}, async (client) => {
-    const chainId = await client?.getChainId()
     const transport = client?.transport
+    const chainId = await client?.getChainId()
     const address = client?.account.address
-    const signer = chainId && transport && address ? new providers.Web3Provider(transport, chainId).getSigner(address) : null
+    const signer = transport && chainId && address ? new providers.Web3Provider(transport, chainId).getSigner(address) : null
 
     service.config({
-      signer,
-      autoLogin: false,
+      signer: signer,
+      autoLogin: true,
     })
   })
-  // // service.formatting.setValueFormatter((params) => {
-  // //   let result = service.formatting.prebuild.formatValue({ ...params, digits: 4 })
-  //   if (result.endsWith('.0')) {
-  //     result = result.slice(0, -2)
-  //   }
-  //   return result
-  // })
 }
 
 if (typeof window !== 'undefined') {
