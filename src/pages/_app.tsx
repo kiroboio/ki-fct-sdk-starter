@@ -17,6 +17,13 @@ function serviceInit() {
       autoLogin: false,
     })
   })
+  // service.formatting.setValueFormatter((params) => {
+  //   let result = service.formatting.prebuild.formatValue({ ...params, digits: 4 })
+  //   if (result.endsWith('.0')) {
+  //     result = result.slice(0, -2)
+  //   }
+  //   return result
+  // })
 }
 
 if (typeof window !== 'undefined') {

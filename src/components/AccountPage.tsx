@@ -31,24 +31,33 @@ import {
   Input,
   Checkbox,
   Box,
+  Image,
+  Alert,
+  AlertIcon,
+  AlertDescription,
+  CloseButton,
+  ButtonGroup,
 } from '@chakra-ui/react'
-
+import { NumericFormat } from 'react-number-format'
 import NetworkTag from './NetworkTag'
 import { service, useComputed } from '@kiroboio/fct-sdk'
 import { memo, useState } from 'react'
 
-const pack = (list: Partial<{ id: string }>[]) => {
-  return JSON.stringify(list.map((item) => item.id))
+const unFormatValue = (value: any) => {
+  return +value.toString().replace(/,/g, '').replace('$', '')
 }
 
+const pack = (list: Partial<{ id: string }>[]) => JSON.stringify(list.map((item) => item.id))
 const unpack = (packed: string): string[] => JSON.parse(packed)
 
 const TokenCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
-
   const tokens = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
   const name = useComputed(() => tokens.value[id]?.name)
   const amount = useComputed(() => tokens.value[id]?.amount)
+  const price = useComputed(() => tokens.value[id]?.price.usd)
+  const total = useComputed(() => +amount.value * +price.value)
+
   return (
     <>
       <Card variant="outline">
@@ -57,9 +66,14 @@ const TokenCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
             <Text fontWeight="bold">
               <>{name}</>
             </Text>
-            <Text>
-              <>{amount}</>
-            </Text>
+            <Stack spacing={1}>
+              <Text fontWeight="bold">
+                <>{amount}</>
+              </Text>
+              <Text color="gray.500">
+                $<>{price}</>
+              </Text>
+            </Stack>
             <Button size="sm" onClick={onOpen}>
               Transfer
             </Button>
@@ -75,16 +89,22 @@ const MemoTokenCard = memo(TokenCard)
 const NFTCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
   const nfts = isWallet ? service.nfts.wallet.data.fmt.map : service.nfts.vault.data.fmt.map
   const name = useComputed(() => nfts.value[id]?.name)
+  const meta = useComputed(() => nfts.value[id]?.metadata)
   const symbol = useComputed(() => nfts.value[id]?.symbol)
   return (
     <Card variant="outline">
       <CardBody>
-        <Text>
-          <>{name}</>
-        </Text>
-        <Text>
-          <>{symbol}</>
-        </Text>
+        <Stack spacing={4}>
+          <Image src={JSON.parse(meta.value).image} alt="naruto" />
+          <Stack spacing={1}>
+            <Text fontWeight="bold">
+              <>{name}</>
+            </Text>
+            <Text>
+              <>{symbol}</>
+            </Text>
+          </Stack>
+        </Stack>
       </CardBody>
     </Card>
   )
@@ -92,55 +112,94 @@ const NFTCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
 const MemoNFTCard = memo(NFTCard)
 
 const ModalTransfer = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose: any; id: string; isWallet: boolean }) => {
-  const tokens = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
+  const [transferWalletAddress, setTransferWalletAddress] = useState('')
+  const [transferAmount, setTransferAmount] = useState<any>(0)
+  const [transferPrice, setTransferPrice] = useState<any>(0)
+  const [error, setError] = useState('')
+  const [isSending, setIsSending] = useState(false)
+
+  const tokens = isWallet ? service.tokens.wallet.data.raw.map : service.tokens.vault.data.raw.map
+  const tokensFmt = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
   const symbol = useComputed(() => tokens.value[id]?.symbol)
   const amount = useComputed(() => tokens.value[id]?.amount)
+  const amountFmt = useComputed(() => tokensFmt.value[id]?.amount)
   const price = useComputed(() => tokens.value[id]?.price.usd)
   const tokenAddress = useComputed(() => tokens.value[id]?.token_address)
-  const [toTransfer, setToTransfer] = useState('')
-  const [toPrice, setToPrice] = useState('')
-  const [toWallet, setToWallet] = useState('')
+
+  const isError = transferWalletAddress === '' || unFormatValue(transferAmount) > unFormatValue(amountFmt.value) || unFormatValue(transferAmount) <= 0
 
   const handleModalClose = () => {
-    setToPrice('')
-    setToTransfer('')
-    setToWallet('')
+    setTransferWalletAddress('')
+    setTransferAmount('')
+    setTransferPrice('')
+    setError('')
+    setIsSending(false)
     onClose()
-  }
-
-  const handleTransfer = async () => {
-    if (isWallet) {
-      await service.wallet.erc20.transfer
-        .execute('transfer', {
-          to: toWallet,
-          amount: toTransfer + '0'.repeat(18),
-          token: tokenAddress.peek() || '',
-        })
-        .then((res: any) => {
-          handleModalClose()
-        })
-    } else {
-      await service.vault.erc20.transfer
-        .execute('transfer', {
-          to: toWallet,
-          amount: toTransfer + '0'.repeat(18),
-          token: tokenAddress.peek() || '',
-        })
-        .then((res: any) => {
-          handleModalClose()
-        })
-    }
   }
 
   const handleSelectWallet = (e: any) => {
     e.target.checked
       ? isWallet
-        ? setToWallet(service.vault.data.raw.value.address)
-        : setToWallet(service.wallet.data.raw.value.address)
-      : setToWallet('')
+        ? setTransferWalletAddress(service.vault.data.raw.value.address)
+        : setTransferWalletAddress(service.wallet.data.raw.value.address)
+      : setTransferWalletAddress('')
   }
 
-  const isError = toWallet === '' || toTransfer === ''
+  const handleSetMaxBalance = () => {
+    setTransferAmount(unFormatValue(amountFmt.value))
+    setTransferPrice(unFormatValue(amountFmt.value) * unFormatValue(price.value))
+  }
+
+  const handleTransfer = async () => {
+    console.log(transferAmount, transferWalletAddress, tokenAddress.value)
+
+    setError('')
+    setIsSending(true)
+
+    if (isWallet) {
+      await service.wallet.erc20.transfer
+        .execute('transfer', {
+          to: transferWalletAddress,
+          amount: transferAmount + '0'.repeat(18),
+          token: tokenAddress.peek() || '',
+        })
+        .then((res: any) => {
+          console.log(res)
+          if (res.results) {
+            handleModalClose()
+          } else {
+            setError(res.error.message)
+          }
+          setIsSending(false)
+        })
+    } else {
+      await service.vault.erc20.transfer
+        .execute('transfer', {
+          to: transferWalletAddress,
+          amount: transferAmount + '0'.repeat(18),
+          token: tokenAddress.peek() || '',
+        })
+        .then((res: any) => {
+          console.log(res)
+          if (res.results) {
+            handleModalClose()
+          } else {
+            setIsSending(false)
+            setError(res.error.message)
+          }
+        })
+    }
+  }
+
+  const handleTransferAmountChange = (value: any) => {
+    setTransferAmount(value)
+    setTransferPrice(unFormatValue(value) * price.value)
+  }
+
+  const handleTransferPriceChange = (value: any) => {
+    setTransferPrice(value)
+    setTransferAmount(unFormatValue(value) / unFormatValue(price.value))
+  }
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -154,63 +213,74 @@ const ModalTransfer = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
           <Text>
             Balance:{' '}
             <Text as="strong">
-              <>{amount}</>
+              <>
+                {amountFmt} {symbol}
+              </>
             </Text>
           </Text>
           <FormControl mt={4}>
             <Stack spacing={5}>
               <Stack spacing={2}>
-                <Input
-                  placeholder="0.0"
+                <NumericFormat
                   variant="unstyled"
-                  _focus={{
-                    fontSize: '5xl',
-                  }}
-                  fontSize="2xl"
-                  size="lg"
-                  textAlign="center"
-                  autoComplete="off"
-                  value={toTransfer}
-                  onChange={(e) => {
-                    setToTransfer(e.target.value)
-                    setToPrice(`${e.target.value} * ${price}`)
-                  }}
-                />
-                <Divider />
-                <Input
+                  value={transferAmount}
                   placeholder="0.0"
-                  variant="unstyled"
-                  _focus={{
-                    fontSize: '5xl',
-                  }}
-                  fontSize="2xl"
-                  size="lg"
                   textAlign="center"
+                  fontSize="3xl"
                   autoComplete="off"
-                  value={toPrice}
-                  onChange={(e) => setToPrice(e.target.value)}
+                  customInput={Input}
+                  isDisabled={isSending}
+                  onChange={(e) => handleTransferAmountChange(e.target.value)}
+                  thousandSeparator
                 />
+                ;
+                <Divider my={-5} />
+                <NumericFormat
+                  prefix="$"
+                  variant="unstyled"
+                  placeholder="0.0"
+                  textAlign="center"
+                  fontSize="3xl"
+                  autoComplete="off"
+                  value={transferPrice}
+                  customInput={Input}
+                  isDisabled={isSending}
+                  onChange={(e) => handleTransferPriceChange(e.target.value)}
+                  thousandSeparator
+                />
+                ;
                 <Box textAlign="center">
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      setToTransfer(amount.value)
-                      setToPrice(`${amount.value} * ${price}`)
-                    }}>
-                    Max
-                  </Button>
+                  <ButtonGroup>
+                    <Button isDisabled={isSending} size="sm" onClick={handleSetMaxBalance}>
+                      Max
+                    </Button>
+                  </ButtonGroup>
                 </Box>
               </Stack>
-              <Box>
-                <Checkbox onChange={handleSelectWallet}>Send to your {isWallet ? 'smart wallet' : 'connected wallet'}</Checkbox>
-                <Input placeholder="0x..." value={toWallet} onChange={(e) => setToWallet(e.target.value)} />
-              </Box>
+              <Stack spacing={2}>
+                <Checkbox disabled={isSending} onChange={handleSelectWallet}>
+                  Move to your {isWallet ? 'smart wallet' : 'connected wallet'}
+                </Checkbox>
+                <Input
+                  disabled={isSending}
+                  placeholder="Ethereum Address"
+                  value={transferWalletAddress}
+                  onChange={(e) => setTransferWalletAddress(e.target.value)}
+                />
+              </Stack>
             </Stack>
           </FormControl>
+          {error && (
+            <Alert status="error" mt={4}>
+              <AlertIcon />
+              <AlertDescription maxWidth="sm">{error}</AlertDescription>
+              <CloseButton position="absolute" right="8px" top="8px" onClick={() => setError('')} />
+            </Alert>
+          )}
         </ModalBody>
 
         <ModalFooter>
-          <Button colorScheme="blue" isDisabled={isError} onClick={handleTransfer}>
+          <Button colorScheme="blue" isDisabled={isError} onClick={handleTransfer} isLoading={isSending}>
             Send
           </Button>
           <Button variant="ghost" mr={3} onClick={onClose}>
@@ -266,21 +336,21 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
 
           <DrawerBody>
             <Tabs size="lg" variant="solid-rounded" isFitted index={tabIndex} onChange={handleTabsChange}>
-              <TabList>
+              <TabList position="sticky" top={0}>
                 <Tab rounded="md">Smart Wallet</Tab>
                 <Tab rounded="md">Connected Wallet</Tab>
               </TabList>
               <TabPanels>
                 <TabPanel p={0} pt={4}>
                   <Tabs variant="solid-rounded" isFitted>
-                    <TabList>
+                    <TabList position="sticky" top={0}>
                       <Tab rounded="md">Tokens</Tab>
                       <Tab rounded="md">NFTS</Tab>
                       <Tab rounded="md">FCTS</Tab>
                     </TabList>
                     <TabPanels>
                       <TabPanel p={0} pt={4}>
-                        <Stack spacing={4}>
+                        <Stack spacing={4} overflowY="auto" maxH="h-full">
                           <>{tokens.vault}</>
                         </Stack>
                       </TabPanel>
@@ -297,7 +367,7 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
                 </TabPanel>
                 <TabPanel p={0} pt={4}>
                   <Tabs variant="solid-rounded" isFitted>
-                    <TabList>
+                    <TabList position="sticky" top={0}>
                       <Tab rounded="md">Tokens</Tab>
                       <Tab rounded="md">NFTS</Tab>
                       <Tab rounded="md">FCTS</Tab>
