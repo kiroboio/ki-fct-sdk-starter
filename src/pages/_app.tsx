@@ -6,14 +6,14 @@ import { useIsMounted } from 'hooks/useIsMounted'
 import { Seo } from 'components/layout/Seo'
 
 import { service } from '@kiroboio/fct-sdk'
-import { watchSigner } from '@wagmi/core'
+import { watchWalletClient } from '@wagmi/core'
 
 function serviceInit() {
   service.start({})
 
-  watchSigner({}, (signer) => {
+  watchWalletClient({}, (walletClient) => {
     service.config({
-      signer,
+      signer: walletClient,
       autoLogin: false,
     })
   })
