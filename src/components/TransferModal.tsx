@@ -63,20 +63,26 @@ const TransferModal = (props: { isOpen: any; onClose: any; isWallet: any; select
     if (isWallet) {
       await service.wallet.erc20.transfer
         .execute('transfer', {
-          to: transferTo,
-          amount: unFormatValue(amount) + '0'.repeat(18),
-          token: token_address.value || '',
+          contract: token_address.value || '',
+          inputs: {
+            to: transferTo as `0x${string}`,
+            amount: BigInt(unFormatValue(amount) + '0'.repeat(18)),
+          },
         })
         .then((res: any) => {
           handleModalClose()
         })
     } else {
       await service.vault.erc20.transfer
-        .execute('transfer', {
-          to: transferTo,
-          amount: unFormatValue(amount) + '0'.repeat(18),
-          token: token_address.value || '',
-        })
+        .execute('transfer', [
+          {
+            contract: token_address.value || '',
+            inputs: {
+              to: transferTo as `0x${string}`,
+              amount: BigInt(unFormatValue(amount) + '0'.repeat(18)),
+            },
+          },
+        ])
         .then((res: any) => {
           handleModalClose()
         })
