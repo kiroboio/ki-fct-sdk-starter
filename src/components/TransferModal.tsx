@@ -1,171 +1,210 @@
 import {
+  Text,
+  Stack,
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  Stack,
-  Heading,
-  ModalCloseButton,
-  ModalBody,
-  FormControl,
-  Input,
-  Divider,
-  Button,
-  Checkbox,
-  InputGroup,
-  InputLeftElement,
   ModalFooter,
-  Text,
+  ModalBody,
+  ModalCloseButton,
+  Button,
+  FormControl,
+  Divider,
+  Input,
+  Checkbox,
+  Box,
+  Alert,
+  AlertIcon,
+  AlertDescription,
+  CloseButton,
+  ButtonGroup,
 } from '@chakra-ui/react'
-import { Icon } from '@iconify/react'
+
 import { service, useComputed } from '@kiroboio/fct-sdk'
-import { useState } from 'react'
+import { memo, useState } from 'react'
+import { NumericFormat } from 'react-number-format'
+import { unFormatValue, pack, unpack } from '../utils/format'
 
-const formatValue = (value: string) => {
-  if (value.slice(-1) === '.' && !value.slice(0, -2).includes('.')) return value
+const TransferModal = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose: any; id: string; isWallet: boolean }) => {
+  const [transferWalletAddress, setTransferWalletAddress] = useState('')
+  const [transferAmount, setTransferAmount] = useState<any>(0)
+  const [transferPrice, setTransferPrice] = useState<any>(0)
+  const [error, setError] = useState('')
+  const [isSending, setIsSending] = useState(false)
 
-  const numericValue = value.replace(/[^0-9.]/g, '')
-  const parts = numericValue.split('.')
-  const integerPart = parts[0]
-  const decimalPart = parts[1] ? parts[1].slice(0, 2) : ''
+  const tokens = isWallet ? service.tokens.wallet.data.raw.map : service.tokens.vault.data.raw.map
+  const tokensFmt = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
+  const symbol = useComputed(() => tokens.value[id]?.symbol)
+  const amount = useComputed(() => tokens.value[id]?.amount)
+  const amountFmt = useComputed(() => tokensFmt.value[id]?.amount)
+  const price = useComputed(() => tokens.value[id]?.price.usd)
+  const tokenAddress = useComputed(() => tokens.value[id]?.token_address)
 
-  let formattedValue = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-  if (decimalPart !== '') {
-    formattedValue += '.' + decimalPart
-  }
-  return formattedValue
-}
-
-const unFormatValue = (value: string) => {
-  return typeof value === 'number' ? value : +value.replace(/,/g, '')
-}
-
-const TransferModal = (props: { isOpen: any; onClose: any; isWallet: any; selectedTokenId: any }) => {
-  const { isOpen, onClose, isWallet, selectedTokenId } = props
-  const tokens = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
-
-  const token_address = useComputed(() => tokens.value[selectedTokenId]?.token_address)
-  const token_amount = useComputed(() => tokens.value[selectedTokenId]?.amount)
-  const token_symbol = useComputed(() => tokens.value[selectedTokenId]?.symbol)
-  const token_price = useComputed(() => tokens.value[selectedTokenId]?.price.usd)
-
-  const [amount, setAmount] = useState('')
-  const [transferTo, setTransferTo] = useState('')
-  const [moveToWallet, setMoveToWallet] = useState(false)
+  const isError = transferWalletAddress === '' || unFormatValue(transferAmount) > unFormatValue(amountFmt.value) || unFormatValue(transferAmount) <= 0
 
   const handleModalClose = () => {
-    setAmount('')
-    setTransferTo('')
+    setTransferWalletAddress('')
+    setTransferAmount('')
+    setTransferPrice('')
+    setError('')
+    setIsSending(false)
     onClose()
-  }
-
-  const handleTransfer = async () => {
-    if (isWallet) {
-      await service.wallet.erc20.transfer
-        .execute('transfer', {
-          contract: token_address.value || '',
-          inputs: {
-            to: transferTo as `0x${string}`,
-            amount: BigInt(unFormatValue(amount) + '0'.repeat(18)),
-          },
-        })
-        .then((res: any) => {
-          handleModalClose()
-        })
-    } else {
-      await service.vault.erc20.transfer
-        .execute('transfer', [
-          {
-            contract: token_address.value || '',
-            inputs: {
-              to: transferTo as `0x${string}`,
-              amount: BigInt(unFormatValue(amount) + '0'.repeat(18)),
-            },
-          },
-        ])
-        .then((res: any) => {
-          handleModalClose()
-        })
-    }
-  }
-
-  const handleInputChange = (e: { target: { value: any } }) => {
-    const { value } = e.target
-
-    if (unFormatValue(value) > unFormatValue(token_amount.value)) {
-      setAmount(token_amount.value)
-      return
-    }
-
-    setAmount(formatValue(value))
   }
 
   const handleSelectWallet = (e: any) => {
     e.target.checked
       ? isWallet
-        ? setTransferTo(service.vault.data.raw.value.address)
-        : setTransferTo(service.wallet.data.raw.value.address)
-      : setTransferTo('')
-    setMoveToWallet(e.target.checked)
+        ? setTransferWalletAddress(service.vault.data.raw.value.address)
+        : setTransferWalletAddress(service.wallet.data.raw.value.address)
+      : setTransferWalletAddress('')
   }
 
-  const isError = amount === '' || transferTo === ''
+  const handleSetMaxBalance = () => {
+    setTransferAmount(unFormatValue(amountFmt.value))
+    setTransferPrice(unFormatValue(amountFmt.value) * unFormatValue(price.value))
+  }
+
+  const handleTransfer = async () => {
+    console.log(transferAmount, transferWalletAddress, tokenAddress.value)
+
+    setError('')
+    setIsSending(true)
+
+    if (isWallet) {
+      await service.wallet.erc20.transfer
+        .execute('transfer', {
+          contract: tokenAddress.peek() || '',
+          inputs: {
+            to: transferWalletAddress as `0x${string}`,
+            amount: BigInt(transferAmount + '0'.repeat(18)),
+          },
+        })
+        .then((res: any) => {
+          console.log(res)
+          if (res.results) {
+            handleModalClose()
+          } else {
+            setError(res.error.message)
+          }
+          setIsSending(false)
+        })
+    } else {
+      await service.vault.erc20.transfer
+        .execute('transfer', [
+          {
+            contract: tokenAddress.peek() || '',
+            inputs: {
+              to: transferWalletAddress as `0x${string}`,
+              amount: BigInt(transferAmount + '0'.repeat(18)),
+            },
+          },
+        ])
+        .then((res: any) => {
+          console.log(res)
+          if (res.results) {
+            handleModalClose()
+          } else {
+            setIsSending(false)
+            setError(res.error.message)
+          }
+        })
+    }
+  }
+
+  const handleTransferAmountChange = (value: any) => {
+    setTransferAmount(value)
+    setTransferPrice(unFormatValue(value) * price.value)
+  }
+
+  const handleTransferPriceChange = (value: any) => {
+    setTransferPrice(value)
+    setTransferAmount(unFormatValue(value) / unFormatValue(price.value))
+  }
 
   return (
-    <Modal size="sm" isOpen={isOpen} onClose={handleModalClose} isCentered>
+    <Modal size="sm" isOpen={isOpen} onClose={handleModalClose}>
       <ModalOverlay />
-      <ModalContent p={4}>
+      <ModalContent>
         <ModalHeader>
-          <Stack spacing={1}>
-            <Heading fontSize="xl">Send from {isWallet ? 'Connected Wallet' : 'Smart Wallet'}</Heading>
-            <Text fontSize="md" color="gray.500">
-              Balance:{' '}
-              <Text as="span" fontWeight="extrabold">
-                <>{token_amount}</> <>{token_symbol}</>
-              </Text>
-            </Text>
-          </Stack>
+          Transfer <>{symbol}</>
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Stack spacing={5}>
-            <FormControl textAlign="center" px={6}>
-              <Input
-                variant="unstyled"
-                textAlign="center"
-                fontSize="5xl"
-                placeholder="0.00"
-                value={amount}
-                onChange={handleInputChange}
-                autoComplete="off"
-                isRequired
-              />
-              <Divider mb={3} />
-              <Text my={3}>{token_price && <>${formatValue((unFormatValue(amount) * token_price.value).toFixed(2))}</>}</Text>
-              <Button variant="outline" size="xs" onClick={() => setAmount(token_amount.value)}>
-                Max
-              </Button>
-            </FormControl>
-            <FormControl>
-              <Checkbox onChange={handleSelectWallet}>{isWallet ? 'Move to Smart Wallet' : 'Move to Connected Wallet'}</Checkbox>
-              <InputGroup mt={3}>
-                <InputLeftElement pointerEvents="none">
-                  <Icon icon={isWallet && moveToWallet ? 'fluent:brain-circuit-20-filled' : 'fluent:wallet-32-filled'} />
-                </InputLeftElement>
-                <Input
-                  placeholder="Enter Ethereum address"
-                  value={transferTo}
-                  onChange={(e) => setTransferTo(e.target.value)}
-                  readOnly={moveToWallet}
-                  isRequired
+          <Text>
+            From: <Text as="strong">{isWallet ? 'Connected Wallet' : 'Smart Wallet'}</Text>
+          </Text>
+          <Text>
+            Balance:{' '}
+            <Text as="strong">
+              <>
+                {amountFmt} {symbol}
+              </>
+            </Text>
+          </Text>
+          <FormControl mt={4}>
+            <Stack spacing={5}>
+              <Stack spacing={2}>
+                <NumericFormat
+                  variant="unstyled"
+                  value={transferAmount}
+                  placeholder="0.0"
+                  textAlign="center"
+                  fontSize="3xl"
+                  autoComplete="off"
+                  customInput={Input}
+                  isDisabled={isSending}
+                  onChange={(e) => handleTransferAmountChange(e.target.value)}
+                  thousandSeparator
                 />
-              </InputGroup>
-            </FormControl>
-          </Stack>
+                ;
+                <Divider />
+                <NumericFormat
+                  prefix="$"
+                  variant="unstyled"
+                  placeholder="0.0"
+                  textAlign="center"
+                  fontSize="3xl"
+                  autoComplete="off"
+                  value={transferPrice}
+                  customInput={Input}
+                  isDisabled={isSending}
+                  onChange={(e) => handleTransferPriceChange(e.target.value)}
+                  thousandSeparator
+                />
+                ;
+                <Box textAlign="center">
+                  <ButtonGroup>
+                    <Button isDisabled={isSending} size="sm" onClick={handleSetMaxBalance}>
+                      Max
+                    </Button>
+                  </ButtonGroup>
+                </Box>
+              </Stack>
+              <Stack spacing={2}>
+                <Checkbox disabled={isSending} onChange={handleSelectWallet}>
+                  Move to your {isWallet ? 'smart wallet' : 'connected wallet'}
+                </Checkbox>
+                <Input
+                  disabled={isSending}
+                  placeholder="Ethereum Address"
+                  value={transferWalletAddress}
+                  onChange={(e) => setTransferWalletAddress(e.target.value)}
+                />
+              </Stack>
+            </Stack>
+          </FormControl>
+          {error && (
+            <Alert status="error" mt={4}>
+              <AlertIcon />
+              <AlertDescription maxWidth="sm">{error}</AlertDescription>
+              <CloseButton position="absolute" right="8px" top="8px" onClick={() => setError('')} />
+            </Alert>
+          )}
         </ModalBody>
 
         <ModalFooter>
-          <Button w="full" colorScheme="messenger" onClick={handleTransfer} isDisabled={isError}>
+          <Button w="full" colorScheme="blue" isDisabled={isError} onClick={handleTransfer} isLoading={isSending}>
             Send
           </Button>
         </ModalFooter>
