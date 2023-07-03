@@ -69,8 +69,8 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
           <DrawerBody>
             <Tabs size="lg" variant="solid-rounded" isFitted index={tabIndex} onChange={handleTabsChange}>
               <TabList>
-                <WalletTab isWallet={false}>Smart Wallet</WalletTab>
-                <WalletTab isWallet={true}>Connected Wallet</WalletTab>
+                <WalletTab />
+                <WalletTab />
               </TabList>
               <TabPanels>
                 <TabPanel p={0} pt={4}>

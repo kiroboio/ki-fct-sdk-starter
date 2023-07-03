@@ -1,35 +1,13 @@
-import {
-  Drawer,
-  DrawerBody,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
-  Text,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  DrawerFooter,
-  Card,
-  CardBody,
-  Stack,
-  HStack,
-  Center,
-  useTab,
-  IconButton,
-  useClipboard,
-} from '@chakra-ui/react'
+import { Text, Card, CardBody, HStack, useTab, IconButton, useClipboard } from '@chakra-ui/react'
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
 import { Icon } from '@iconify/react'
 import { service, useComputed } from '@kiroboio/fct-sdk'
 import { forwardRef, useState } from 'react'
 
 const WalletTab = forwardRef((props, ref) => {
-  const { isWallet } = props
-  const tabProps = useTab({ ...props, ref })
+  const tabProps = useTab({ ...props })
   const isSelected = !!tabProps['aria-selected']
+  const isWallet = tabProps.tabIndex === 1
 
   const smartWallet = {
     address: {
@@ -74,7 +52,7 @@ const WalletTab = forwardRef((props, ref) => {
       {...tabProps}>
       <CardBody>
         <Text fontSize="md" fontWeight="bold">
-          {tabProps.children}
+          {isWallet ? 'Connected Wallet' : 'Smart Wallet'}
         </Text>
         <HStack spacing={1}>
           <Text fontSize="sm" color="gray.500">
@@ -92,5 +70,7 @@ const WalletTab = forwardRef((props, ref) => {
     </Card>
   )
 })
+
+WalletTab.displayName = 'WalletTab'
 
 export default WalletTab
