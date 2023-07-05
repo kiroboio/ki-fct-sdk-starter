@@ -23,7 +23,6 @@ const NFTCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
               <Text>
                 <>{symbol}</>
               </Text>
-              <Text>{id}</Text>
             </HStack>
           </Stack>
         </Stack>
