@@ -7,6 +7,7 @@ import { forwardRef, useState } from 'react'
 const WalletTab = forwardRef((props, ref) => {
   const tabProps = useTab({ ...props })
   const isSelected = !!tabProps['aria-selected']
+  //@ts-ignore
   const isWallet = props.id === 'wallet'
 
   const smartWallet = {
