@@ -15,7 +15,6 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  FormHelperText,
   FormControl,
   Tabs,
   TabList,
@@ -31,13 +30,11 @@ import { useComputed, service } from '@kiroboio/fct-sdk'
 import { Icon } from '@iconify/react'
 import { SetStateAction, useState } from 'react'
 import { NumericFormat } from 'react-number-format'
-import { PhoneIcon } from '@chakra-ui/icons'
 
 const NetworkTag = () => {
   const fuel = useComputed(() => service.fct.fuel.data.fmt.value)
   const gasPrice = useComputed(() => (+service.network.data.raw.value.gasPrice / 1e9).toFixed(2) + ' Gwei')
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [isWallet, setIsWallet] = useState(false)
   const [amount, setAmount] = useState('')
   const [amountSmartWallet, setAmountSmartWallet] = useState('')
   const [amountConnectedWallet, setAmountConnectedWallet] = useState('')
@@ -54,8 +51,13 @@ const NetworkTag = () => {
   const handleTabsChange = (index: SetStateAction<number>) => {
     setTabIndex(index)
     setAmount('')
-    setIsWallet(index === 1 ? true : false)
+    setAmountSmartWallet('')
+    setAmountConnectedWallet('')
   }
+
+  const error =
+    (tabIndex === 0 && amount.length === 0) ||
+    (tabIndex === 1 && amountSmartWallet.length === 0 && tabIndex === 1 && amountConnectedWallet.length === 0)
 
   const addFunds = async () => {
     setIsSending(true)
@@ -72,6 +74,16 @@ const NetworkTag = () => {
       console.log('add fuel error:', service.wallet.erc20.approve.state('allowance').value)
     }
   }
+
+  const handleClose = () => {
+    setAmount('')
+    setAmountSmartWallet('')
+    setAmountConnectedWallet('')
+    setIsSending(false)
+    onClose()
+  }
+
+  console.log(error)
 
   return (
     <>
@@ -95,13 +107,13 @@ const NetworkTag = () => {
           </Box>
         </HStack>
       </HStack>
-      <Modal size="sm" isOpen={isOpen} onClose={onClose} isCentered>
+      <Modal size="sm" isOpen={isOpen} onClose={handleClose} isCentered>
         <ModalOverlay />
         <ModalContent borderRadius="xl">
           <ModalHeader textAlign="center">Add FCT Power</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Tabs isFitted>
+            <Tabs isFitted index={tabIndex} onChange={handleTabsChange}>
               <TabList>
                 <Tab>Easy</Tab>
                 <Tab>Custom</Tab>
@@ -207,7 +219,7 @@ const NetworkTag = () => {
           </ModalBody>
 
           <ModalFooter>
-            <Button w="full" colorScheme="messenger" onClick={addFunds} isLoading={isSending}>
+            <Button w="full" colorScheme="messenger" onClick={addFunds} isLoading={isSending} isDisabled={error}>
               Add Funds
             </Button>
           </ModalFooter>
