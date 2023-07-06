@@ -62,7 +62,7 @@ const WalletTab = forwardRef((props, ref) => {
           <IconButton size="xs" rounded="full" aria-label="Copy Address" icon={hasCopied ? <CheckIcon /> : <CopyIcon />} onClick={onCopy} />
         </HStack>
         <HStack mt={3}>
-          <Icon icon="fluent:wallet-32-filled" width="24px" height="24px" />
+          <Icon icon={isWallet ? 'fluent:wallet-32-filled' : 'fluent:brain-circuit-20-filled'} width="24px" height="24px" />
           <Text fontWeight="extrabold" fontSize="xl">
             ${isWallet ? connectedWallet.balance.fmt.value : smartWallet.balance.fmt.value}
           </Text>
