@@ -24,7 +24,7 @@ function serviceInit() {
 
     service.config({
       signer: signer,
-      autoLogin: false,
+      autoLogin: true,
     })
   })
 }
