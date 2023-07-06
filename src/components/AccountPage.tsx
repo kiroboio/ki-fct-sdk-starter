@@ -78,8 +78,8 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
                   <Tabs isFitted>
                     <TabList>
                       <Tab>Tokens</Tab>
-                      <Tab>NFTS</Tab>
-                      <Tab>FCTS</Tab>
+                      <Tab>NFTs</Tab>
+                      <Tab>Flows</Tab>
                     </TabList>
                     <TabPanels>
                       <TabPanel p={0} pt={4}>
@@ -102,8 +102,8 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
                   <Tabs isFitted>
                     <TabList position="sticky" top={0}>
                       <Tab>Tokens</Tab>
-                      <Tab>NFTS</Tab>
-                      <Tab>FCTS</Tab>
+                      <Tab>NFTs</Tab>
+                      <Tab>Flows</Tab>
                     </TabList>
                     <TabPanels>
                       <TabPanel p={0} pt={4}>

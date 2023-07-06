@@ -1,3 +1,4 @@
+//@ts-nocheck
 import {
   HStack,
   Box,
@@ -21,11 +22,16 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  InputLeftElement,
+  Divider,
+  Card,
+  CardBody,
 } from '@chakra-ui/react'
 import { useComputed, service } from '@kiroboio/fct-sdk'
 import { Icon } from '@iconify/react'
 import { SetStateAction, useState } from 'react'
 import { NumericFormat } from 'react-number-format'
+import { PhoneIcon } from '@chakra-ui/icons'
 
 const NetworkTag = () => {
   const fuel = useComputed(() => service.fct.fuel.data.fmt.value)
@@ -33,12 +39,17 @@ const NetworkTag = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [isWallet, setIsWallet] = useState(false)
   const [amount, setAmount] = useState('')
+  const [amountSmartWallet, setAmountSmartWallet] = useState('')
+  const [amountConnectedWallet, setAmountConnectedWallet] = useState('')
   const [tabIndex, setTabIndex] = useState(0)
   const [isSending, setIsSending] = useState(false)
 
-  const balance = isWallet
-    ? service.tokens.wallet.data.fmt.list.value.find((token) => token.symbol === 'ETH')?.amount
-    : service.tokens.vault.data.fmt.list.value.find((token) => token.symbol === 'ETH')?.amount
+  const balance = {
+    wallet: service.tokens.wallet.data.fmt.list.value.find((token) => token.symbol === 'ETH')?.amount,
+    smartwallet: service.tokens.vault.data.fmt.list.value.find((token) => token.symbol === 'ETH')?.amount,
+  }
+
+  const total = +balance.wallet + +balance.smartwallet
 
   const handleTabsChange = (index: SetStateAction<number>) => {
     setTabIndex(index)
@@ -86,21 +97,26 @@ const NetworkTag = () => {
       </HStack>
       <Modal size="sm" isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Add FCT Power from</ModalHeader>
+        <ModalContent borderRadius="xl">
+          <ModalHeader textAlign="center">Add FCT Power</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Tabs variant="solid-rounded" colorScheme="messenger" isFitted index={tabIndex} onChange={handleTabsChange}>
+            <Tabs isFitted>
               <TabList>
-                <Tab>Smart Wallet</Tab>
-                <Tab>Connected Wallet</Tab>
+                <Tab>Easy</Tab>
+                <Tab>Custom</Tab>
               </TabList>
+
               <TabPanels>
-                <TabPanel>
-                  <FormControl mt={8}>
+                <TabPanel p={0}>
+                  <FormControl mt={10} mb={6}>
                     <InputGroup size="lg">
+                      <InputLeftElement pointerEvents="none">
+                        <Icon icon={'solar:fire-square-bold'} width="24px" height="24px" color="#999" />
+                      </InputLeftElement>
                       <NumericFormat
                         pr="4.5rem"
+                        pl={10}
                         value={amount}
                         placeholder="0.0"
                         autoComplete="off"
@@ -109,47 +125,85 @@ const NetworkTag = () => {
                         thousandSeparator
                       />
                       <InputRightElement width="4.5rem">
-                        <Button h="1.75rem" size="sm" onClick={() => setAmount(balance || '')}>
+                        <Button h="1.75rem" size="sm" onClick={() => setAmount(total)}>
                           Max
                         </Button>
                       </InputRightElement>
                     </InputGroup>
-                    <FormHelperText mb={3} textAlign="right">
-                      Balance:{' '}
-                      <Text as="strong">
-                        <>{balance}</> ETH
-                      </Text>
-                    </FormHelperText>
                   </FormControl>
                 </TabPanel>
-                <TabPanel>
-                  <FormControl mt={8}>
+                <TabPanel p={0}>
+                  <FormControl mt={10} mb={6}>
                     <InputGroup size="lg">
+                      <InputLeftElement pointerEvents="none">
+                        <Icon icon={'fluent:brain-circuit-20-filled'} width="24px" height="24px" color="#999" />
+                      </InputLeftElement>
                       <NumericFormat
                         pr="4.5rem"
-                        value={amount}
+                        pl={10}
+                        value={amountSmartWallet}
                         placeholder="0.0"
                         autoComplete="off"
                         customInput={Input}
-                        onChange={(e) => setAmount(e.target.value)}
+                        onChange={(e) => setAmountSmartWallet(e.target.value)}
                         thousandSeparator
                       />
                       <InputRightElement width="4.5rem">
-                        <Button h="1.75rem" size="sm" onClick={() => setAmount(balance || '')}>
+                        <Button h="1.75rem" size="sm" onClick={() => setAmountSmartWallet(balance.smartwallet || '')}>
                           Max
                         </Button>
                       </InputRightElement>
                     </InputGroup>
-                    <FormHelperText mb={3} textAlign="right">
-                      Balance:{' '}
-                      <Text as="strong">
-                        <>{balance}</> ETH
-                      </Text>
-                    </FormHelperText>
+                    <InputGroup size="lg" my={4}>
+                      <InputLeftElement pointerEvents="none">
+                        <Icon icon={'fluent:wallet-32-filled'} width="24px" height="24px" color="#999" />
+                      </InputLeftElement>
+                      <NumericFormat
+                        pr="4.5rem"
+                        pl={10}
+                        value={amountConnectedWallet}
+                        placeholder="0.0"
+                        autoComplete="off"
+                        customInput={Input}
+                        onChange={(e) => setAmountConnectedWallet(e.target.value)}
+                        thousandSeparator
+                      />
+                      <InputRightElement width="4.5rem">
+                        <Button h="1.75rem" size="sm" onClick={() => setAmountConnectedWallet(balance.wallet || '')}>
+                          Max
+                        </Button>
+                      </InputRightElement>
+                    </InputGroup>
                   </FormControl>
                 </TabPanel>
               </TabPanels>
             </Tabs>
+
+            <Card variant="outline">
+              <CardBody>
+                <FormControl fontSize="sm">
+                  <HStack justify="space-between">
+                    <Text color="gray.500">Smart Wallet:</Text>
+                    <Text as="strong">
+                      <>{(+balance.smartwallet).toFixed(2)}</> ETH
+                    </Text>
+                  </HStack>
+                  <HStack justify="space-between">
+                    <Text color="gray.500">Connected Wallet:</Text>
+                    <Text as="strong">
+                      <>{(+balance.wallet).toFixed(2)}</> ETH
+                    </Text>
+                  </HStack>
+                  <Divider my={4} />
+                  <HStack justify="space-between">
+                    <Text color="gray.500">Total Balance:</Text>
+                    <Text as="strong">
+                      <>{(+balance.wallet + +balance.smartwallet).toFixed(2)}</> ETH
+                    </Text>
+                  </HStack>
+                </FormControl>
+              </CardBody>
+            </Card>
           </ModalBody>
 
           <ModalFooter>
