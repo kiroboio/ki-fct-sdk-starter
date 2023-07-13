@@ -126,7 +126,7 @@ const TransferModal = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
     <Modal size="sm" isOpen={isOpen} onClose={handleModalClose} isCentered>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>
+        <ModalHeader textAlign="center">
           Transfer <>{symbol}</>
         </ModalHeader>
         <ModalCloseButton />

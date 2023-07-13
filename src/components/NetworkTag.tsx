@@ -25,6 +25,7 @@ import {
   Divider,
   Card,
   CardBody,
+  IconButton,
 } from '@chakra-ui/react'
 import { useComputed, service } from '@kiroboio/fct-sdk'
 import { Icon } from '@iconify/react'
@@ -65,8 +66,8 @@ const NetworkTag = () => {
     try {
       await service.vault.fct.actuator.addFunds.execute('funds', [
         {
-          valueIn: BigInt('5' + '0'.repeat(16)), // 0.05 ETH funding from wallet
-          value: BigInt('10' + '0'.repeat(16)),
+          valueIn: BigInt(amount), // 0.05 ETH funding from wallet
+          value: BigInt(amount),
           inputs: {},
         },
       ])
@@ -83,13 +84,18 @@ const NetworkTag = () => {
     onClose()
   }
 
-  console.log(error)
-
   return (
     <>
       <HStack justifyContent="space-between" w="full" fontSize="sm">
-        <HStack>
-          <Icon icon={`solar:fire-square-bold`} width={24} onClick={onOpen} />
+        <HStack spacing={0}>
+          <IconButton
+            aria-label="Search database"
+            variant="ghost"
+            _hover={{ color: 'red.500' }}
+            size="sm"
+            icon={<Icon icon={`solar:fire-square-bold`} width={24} />}
+            onClick={onOpen}
+          />
           <Box fontWeight="semibold">
             <Text display="inline" color="gray.500" fontWeight="normal">
               FCT Power:
@@ -97,7 +103,7 @@ const NetworkTag = () => {
             {fuel.value.balance.eth} ETH
           </Box>
         </HStack>
-        <HStack>
+        <HStack spacing={1}>
           <Icon icon={`uis:chart`} width={24} />
           <Box fontWeight="semibold">
             <Text display="inline" color="gray.500" fontWeight="normal">
