@@ -13,7 +13,7 @@ const NFTCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
       <CardBody p={0} m={0}>
         <Stack spacing={2}>
           <AspectRatio ratio={1}>
-            <Image src={JSON.parse(meta.value).image} alt="naruto" roundedTop="md" />
+            <Image src={JSON.parse(meta.value).image} alt={name.value} roundedTop="md" />
           </AspectRatio>
           <Stack spacing={1} py={2} px={3}>
             <Heading fontSize="sm">

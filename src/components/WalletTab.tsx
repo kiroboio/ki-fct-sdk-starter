@@ -4,11 +4,14 @@ import { Icon } from '@iconify/react'
 import { service, useComputed } from '@kiroboio/fct-sdk'
 import { forwardRef, useState } from 'react'
 
-const WalletTab = forwardRef((props, ref) => {
+interface WalletTabProps {
+  id: string
+}
+
+const WalletTab = forwardRef(({ id, ...props }: WalletTabProps, ref) => {
   const tabProps = useTab({ ...props })
   const isSelected = !!tabProps['aria-selected']
-  //@ts-ignore
-  const isWallet = props.id === 'wallet'
+  const isWallet = id === 'wallet'
 
   const smartWallet = {
     address: {
