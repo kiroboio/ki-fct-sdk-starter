@@ -120,17 +120,17 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
 
               <DrawerBody>
                 <Tabs size="lg" variant="solid-rounded" isFitted index={tabIndex} onChange={handleTabsChange}>
-                  <TabList>
+                  <TabList gap={2}>
                     <WalletTab id="smartwallet" />
                     <WalletTab id="wallet" />
                   </TabList>
-                  <TabPanels>
+                  <TabPanels mt={6}>
                     <TabPanel p={0} pt={4}>
-                      <Tabs isFitted>
+                      <Tabs size="lg" variant="soft-rounded" align="center">
                         <TabList>
-                          <Tab>Tokens</Tab>
-                          <Tab>NFTs</Tab>
-                          <Tab>Flows</Tab>
+                          <Tab>💰 Tokens</Tab>
+                          <Tab>🎨 NFTs</Tab>
+                          <Tab>🌊 Flows</Tab>
                         </TabList>
                         <TabPanels>
                           <TabPanel p={0} pt={4}>
@@ -208,11 +208,11 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
                       </Tabs>
                     </TabPanel>
                     <TabPanel p={0} pt={4}>
-                      <Tabs isFitted>
-                        <TabList position="sticky" top={0}>
-                          <Tab>Tokens</Tab>
-                          <Tab>NFTs</Tab>
-                          <Tab>Flows</Tab>
+                      <Tabs size="lg" variant="soft-rounded" align="center">
+                        <TabList>
+                          <Tab>💰 Tokens</Tab>
+                          <Tab>🎨 NFTs</Tab>
+                          <Tab>🌊 Flows</Tab>
                         </TabList>
                         <TabPanels>
                           <TabPanel p={0} pt={4}>

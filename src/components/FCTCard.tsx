@@ -27,10 +27,10 @@ const FCTCard = ({ id }: { id: string }) => {
               <Icon icon={`tabler:gas-station`} width={18} />
               <Text as="strong">{gas_price_limit} Gwai </Text>
             </HStack>
-            <ButtonGroup size="xs" variant="outline" colorScheme="teal" spacing={1} isAttached>
-              <IconButton aria-label="Sign" icon={<Icon icon={`fluent:signature-28-filled`} />} />
-              <IconButton aria-label="Pause" icon={<Icon icon={`fa6-solid:pause`} />} />
-              <IconButton aria-label="Delete" icon={<Icon icon={`ph:trash-bold`} />} />
+            <ButtonGroup size="xs" variant="outline" spacing={0.5}>
+              <IconButton aria-label="Sign" icon={<Icon icon={`fluent:signature-28-filled`} />} colorScheme="whatsapp" />
+              <IconButton aria-label="Pause" icon={<Icon icon={`fa6-solid:pause`} />} colorScheme="messenger" />
+              <IconButton aria-label="Delete" icon={<Icon icon={`ph:trash-bold`} />} colorScheme="red" />
             </ButtonGroup>
           </HStack>
         </Stack>
