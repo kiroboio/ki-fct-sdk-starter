@@ -60,14 +60,14 @@ const WalletTab = forwardRef(({ id, ...props }: WalletTabProps, ref) => {
         </Text>
         <HStack spacing={1}>
           <Text fontSize="sm" color="gray.500">
-            {isWallet ? connectedWallet.address.fmt.value : smartWallet.address.fmt.value}
+            {isWallet ? <>{connectedWallet.address.fmt}</> : <>{smartWallet.address.fmt}</>}
           </Text>
           <IconButton size="xs" rounded="full" aria-label="Copy Address" icon={hasCopied ? <CheckIcon /> : <CopyIcon />} onClick={onCopy} />
         </HStack>
         <HStack mt={3}>
           <Icon icon={isWallet ? 'fluent:wallet-32-filled' : 'fluent:brain-circuit-20-filled'} width="24px" height="24px" />
           <Text fontWeight="extrabold" fontSize="xl">
-            ${isWallet ? connectedWallet.balance.fmt.value : smartWallet.balance.fmt.value}
+            ${isWallet ? <>{connectedWallet.balance.fmt}</> : <>{smartWallet.balance.fmt}</>}
           </Text>
         </HStack>
       </CardBody>

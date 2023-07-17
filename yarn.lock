@@ -1747,10 +1747,10 @@
     uniqid "^5.4.0"
     web3-utils "^1.8.0"
 
-"@kiroboio/fct-sdk@^0.4.8":
-  version "0.4.9"
-  resolved "https://registry.yarnpkg.com/@kiroboio/fct-sdk/-/fct-sdk-0.4.9.tgz#311eae3c7b525ac2a5400899fe6eadc2a8857167"
-  integrity sha512-CZ196Qeutl+LfkZyKCyHXR3T/7j7KcCGZBp+Jmv7XCiwQQRYOrXVyOAWGYmlXdePgbAvm42u3BaInSVY/jHZEQ==
+"@kiroboio/fct-sdk@^0.4.21":
+  version "0.4.21"
+  resolved "https://registry.yarnpkg.com/@kiroboio/fct-sdk/-/fct-sdk-0.4.21.tgz#89a3fecbd43a9504163df5c73ebff2ab8291b872"
+  integrity sha512-+L+g8RokWaIaWHE8CI26i5oiyF08/fRfW0ZwS355F0ydkgQTLnPHo0zhYn8U4+1o/T3XUV/CYIkMEiIX5oV9qg==
   dependencies:
     "@kiroboio/fct-builder" "^1.0.5"
     "@kiroboio/fct-contracts" "^1.0.8"
