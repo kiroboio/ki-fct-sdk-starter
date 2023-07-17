@@ -28,6 +28,7 @@ import { pack, unpack } from '../utils/format'
 import NetworkTag from './NetworkTag'
 import MemoTokenCard from './TokenCard'
 import MemoNFTCard from './NFTCard'
+import MemoFCTCard from './FCTCard'
 import WalletTab from './WalletTab'
 import { Icon } from '@iconify/react'
 import { zeroAddress } from 'viem'
@@ -37,6 +38,7 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
   const [tabIndex, setTabIndex] = useState(0)
   const wIsLoading = useComputed(() => service.tokens.wallet.data.isLoading.value)
   const vIsLoading = useComputed(() => service.tokens.vault.data.isLoading.value)
+  const fIsLoading = useComputed(() => service.fct.active.data.isLoading.value)
   const wTokens = useComputed(() => pack(service.tokens.wallet.data.fmt.list.value))
   const vTokens = useComputed(() => pack(service.tokens.vault.data.fmt.list.value))
   const wNFTS = useComputed(() => pack(service.nfts.wallet.data.fmt.list.value))
@@ -62,6 +64,13 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
       <>{vIsLoading.value ? <Center>Loading...</Center> : unpack(vNFTS.value).map((id) => <MemoNFTCard key={id} id={id} isWallet={false} />)}</>
     )),
   }
+  const fcts = useComputed(() => (
+    <>
+      {unpack(FCTS.value).map((id) => (
+        <MemoFCTCard key={id} id={id} />
+      ))}
+    </>
+  ))
 
   const handleTabsChange = (index: number) => {
     setTabIndex(index)
@@ -73,6 +82,7 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
       const res = await service.wallet.vaultFactory.createVault.execute('createVault', {
         inputs: {},
       })
+      console.log('vault address', res)
       if (!res.error) {
         service.session.login()
         setHasVault(true)
@@ -172,24 +182,27 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
                             </HStack>
                           </TabPanel>
                           <TabPanel p={0} pt={4}>
-                            {service.fct.active.data.fmt.list.value.length === 0 ||
-                              (!hasVault && (
-                                <Alert
-                                  status="info"
-                                  variant="subtle"
-                                  flexDirection="column"
-                                  alignItems="center"
-                                  justifyContent="center"
-                                  textAlign="center"
-                                  rounded="lg"
-                                  height="200px">
-                                  <Icon icon="iconoir:network-right" width="40px" height="40px" />
-                                  <AlertTitle mt={4} mb={1} fontSize="lg">
-                                    No FCTs yet
-                                  </AlertTitle>
-                                  <AlertDescription maxWidth="xs">Create a new FCT using Kirobo UI Builder to get started.</AlertDescription>
-                                </Alert>
-                              ))}
+                            {service.fct.active.data.fmt.list.value.length === 0 ? (
+                              <Alert
+                                status="info"
+                                variant="subtle"
+                                flexDirection="column"
+                                alignItems="center"
+                                justifyContent="center"
+                                textAlign="center"
+                                rounded="lg"
+                                height="200px">
+                                <Icon icon="iconoir:network-right" width="40px" height="40px" />
+                                <AlertTitle mt={4} mb={1} fontSize="lg">
+                                  No FCTs yet
+                                </AlertTitle>
+                                <AlertDescription maxWidth="xs">Create a new FCT using Kirobo UI Builder to get started.</AlertDescription>
+                              </Alert>
+                            ) : (
+                              <Stack spacing={1}>
+                                <>{fcts}</>
+                              </Stack>
+                            )}
                           </TabPanel>
                         </TabPanels>
                       </Tabs>
@@ -249,24 +262,27 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
                             )}
                           </TabPanel>
                           <TabPanel p={0} pt={4}>
-                            {service.fct.active.data.fmt.list.value.length === 0 ||
-                              (!hasVault && (
-                                <Alert
-                                  status="info"
-                                  variant="subtle"
-                                  flexDirection="column"
-                                  alignItems="center"
-                                  justifyContent="center"
-                                  textAlign="center"
-                                  rounded="lg"
-                                  height="200px">
-                                  <Icon icon="iconoir:network-right" width="40px" height="40px" />
-                                  <AlertTitle mt={4} mb={1} fontSize="lg">
-                                    No FCTs yet
-                                  </AlertTitle>
-                                  <AlertDescription maxWidth="xs">Create a new FCT using Kirobo UI Builder to get started.</AlertDescription>
-                                </Alert>
-                              ))}
+                            {service.fct.active.data.fmt.list.value.length === 0 ? (
+                              <Alert
+                                status="info"
+                                variant="subtle"
+                                flexDirection="column"
+                                alignItems="center"
+                                justifyContent="center"
+                                textAlign="center"
+                                rounded="lg"
+                                height="200px">
+                                <Icon icon="iconoir:network-right" width="40px" height="40px" />
+                                <AlertTitle mt={4} mb={1} fontSize="lg">
+                                  No FCTs yet
+                                </AlertTitle>
+                                <AlertDescription maxWidth="xs">Create a new FCT using Kirobo UI Builder to get started.</AlertDescription>
+                              </Alert>
+                            ) : (
+                              <Stack spacing={1}>
+                                <>{fcts}</>
+                              </Stack>
+                            )}
                           </TabPanel>
                         </TabPanels>
                       </Tabs>
