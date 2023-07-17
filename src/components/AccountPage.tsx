@@ -125,23 +125,23 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
                   </TabList>
                   <TabPanels mt={6}>
                     <TabPanel p={0} pt={4}>
-                      <Tabs size="lg" variant="soft-rounded" align="center">
+                      <Tabs variant="soft-rounded" align="center">
                         <TabList>
                           <Tab>
                             <HStack spacing={1}>
-                              <Icon icon="ph:coins-bold" width="22px" height="22px" />
+                              <Icon icon="ph:coins-bold" width="20px" height="20px" />
                               <Text>Tokens</Text>
                             </HStack>
                           </Tab>
                           <Tab>
                             <HStack spacing={1}>
-                              <Icon icon="ri:nft-fill" width="22px" height="22px" />
+                              <Icon icon="ri:nft-fill" width="20px" height="20px" />
                               <Text>NFTs</Text>
                             </HStack>
                           </Tab>
                           <Tab>
                             <HStack spacing={1}>
-                              <Icon icon="clarity:flow-chart-solid" width="22px" height="22px" />
+                              <Icon icon="clarity:flow-chart-solid" width="20px" height="20px" />
                               <Text>Flows</Text>
                             </HStack>
                           </Tab>
@@ -222,23 +222,23 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
                       </Tabs>
                     </TabPanel>
                     <TabPanel p={0} pt={4}>
-                      <Tabs size="lg" variant="soft-rounded" align="center">
+                      <Tabs variant="soft-rounded" align="center">
                         <TabList>
                           <Tab>
                             <HStack spacing={1}>
-                              <Icon icon="ph:coins-bold" width="22px" height="22px" />
+                              <Icon icon="ph:coins-bold" width="20px" height="20px" />
                               <Text>Tokens</Text>
                             </HStack>
                           </Tab>
                           <Tab>
                             <HStack spacing={1}>
-                              <Icon icon="ri:nft-fill" width="22px" height="22px" />
+                              <Icon icon="ri:nft-fill" width="20px" height="20px" />
                               <Text>NFTs</Text>
                             </HStack>
                           </Tab>
                           <Tab>
                             <HStack spacing={1}>
-                              <Icon icon="clarity:flow-chart-solid" width="22px" height="22px" />
+                              <Icon icon="clarity:flow-chart-solid" width="20px" height="20px" />
                               <Text>Flows</Text>
                             </HStack>
                           </Tab>
