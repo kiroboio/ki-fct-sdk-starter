@@ -2,7 +2,7 @@ import { Text, Card, CardBody, HStack, useTab, IconButton, useClipboard } from '
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
 import { Icon } from '@iconify/react'
 import { service, useComputed } from '@kiroboio/fct-sdk'
-import { forwardRef, useState } from 'react'
+import { forwardRef } from 'react'
 
 interface WalletTabProps {
   id: string
@@ -13,7 +13,7 @@ const WalletTab = forwardRef(({ id, ...props }: WalletTabProps, ref) => {
   const isSelected = !!tabProps['aria-selected']
   const isWallet = id === 'wallet'
 
-  const smartWallet = {
+  const vault = {
     address: {
       fmt: useComputed(() => service.vault.data.fmt.value.address),
       raw: useComputed(() => service.vault.data.raw.value.address),
@@ -28,7 +28,7 @@ const WalletTab = forwardRef(({ id, ...props }: WalletTabProps, ref) => {
     },
   }
 
-  const connectedWallet = {
+  const wallet = {
     address: {
       fmt: useComputed(() => service.wallet.data.fmt.value.address),
       raw: useComputed(() => service.wallet.data.raw.value.address),
@@ -43,7 +43,7 @@ const WalletTab = forwardRef(({ id, ...props }: WalletTabProps, ref) => {
     },
   }
 
-  const { onCopy, hasCopied } = useClipboard(isWallet ? connectedWallet.address.raw.value : smartWallet.address.raw.value)
+  const { onCopy, hasCopied } = useClipboard(isWallet ? wallet.address.raw.value : vault.address.raw.value)
 
   return (
     <Card
@@ -60,14 +60,14 @@ const WalletTab = forwardRef(({ id, ...props }: WalletTabProps, ref) => {
         </Text>
         <HStack spacing={1}>
           <Text fontSize="sm" color="gray.500">
-            {isWallet ? <>{connectedWallet.address.fmt}</> : <>{smartWallet.address.fmt}</>}
+            {isWallet ? <>{wallet.address.fmt}</> : <>{vault.address.fmt}</>}
           </Text>
           <IconButton size="xs" rounded="full" aria-label="Copy Address" icon={hasCopied ? <CheckIcon /> : <CopyIcon />} onClick={onCopy} />
         </HStack>
         <HStack mt={3}>
           <Icon icon={isWallet ? 'fluent:wallet-32-filled' : 'fluent:brain-circuit-20-filled'} width="24px" height="24px" />
           <Text fontWeight="extrabold" fontSize="xl">
-            ${isWallet ? <>{connectedWallet.balance.fmt}</> : <>{smartWallet.balance.fmt}</>}
+            ${isWallet ? <>{wallet.balance.fmt}</> : <>{vault.balance.fmt}</>}
           </Text>
         </HStack>
       </CardBody>
