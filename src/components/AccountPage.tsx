@@ -73,8 +73,10 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
       const res = await service.wallet.vaultFactory.createVault.execute('createVault', {
         inputs: {},
       })
-      console.log('vault address', res)
-      setHasVault(true)
+      if (!res.error) {
+        service.session.login()
+        setHasVault(true)
+      }
     } catch (e) {
       console.log('createVault error:', service.wallet.erc20.approve.state('allowance').value)
     }
