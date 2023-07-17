@@ -38,7 +38,6 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
   const [tabIndex, setTabIndex] = useState(0)
   const wIsLoading = useComputed(() => service.tokens.wallet.data.isLoading.value)
   const vIsLoading = useComputed(() => service.tokens.vault.data.isLoading.value)
-  const fIsLoading = useComputed(() => service.fct.active.data.isLoading.value)
   const wTokens = useComputed(() => pack(service.tokens.wallet.data.fmt.list.value))
   const vTokens = useComputed(() => pack(service.tokens.vault.data.fmt.list.value))
   const wNFTS = useComputed(() => pack(service.nfts.wallet.data.fmt.list.value))
@@ -128,9 +127,24 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
                     <TabPanel p={0} pt={4}>
                       <Tabs size="lg" variant="soft-rounded" align="center">
                         <TabList>
-                          <Tab>💰 Tokens</Tab>
-                          <Tab>🎨 NFTs</Tab>
-                          <Tab>🌊 Flows</Tab>
+                          <Tab>
+                            <HStack spacing={1}>
+                              <Icon icon="ph:coins-bold" width="22px" height="22px" />
+                              <Text>Tokens</Text>
+                            </HStack>
+                          </Tab>
+                          <Tab>
+                            <HStack spacing={1}>
+                              <Icon icon="ri:nft-fill" width="22px" height="22px" />
+                              <Text>NFTs</Text>
+                            </HStack>
+                          </Tab>
+                          <Tab>
+                            <HStack spacing={1}>
+                              <Icon icon="clarity:flow-chart-solid" width="22px" height="22px" />
+                              <Text>Flows</Text>
+                            </HStack>
+                          </Tab>
                         </TabList>
                         <TabPanels>
                           <TabPanel p={0} pt={4}>
@@ -210,9 +224,24 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
                     <TabPanel p={0} pt={4}>
                       <Tabs size="lg" variant="soft-rounded" align="center">
                         <TabList>
-                          <Tab>💰 Tokens</Tab>
-                          <Tab>🎨 NFTs</Tab>
-                          <Tab>🌊 Flows</Tab>
+                          <Tab>
+                            <HStack spacing={1}>
+                              <Icon icon="ph:coins-bold" width="22px" height="22px" />
+                              <Text>Tokens</Text>
+                            </HStack>
+                          </Tab>
+                          <Tab>
+                            <HStack spacing={1}>
+                              <Icon icon="ri:nft-fill" width="22px" height="22px" />
+                              <Text>NFTs</Text>
+                            </HStack>
+                          </Tab>
+                          <Tab>
+                            <HStack spacing={1}>
+                              <Icon icon="clarity:flow-chart-solid" width="22px" height="22px" />
+                              <Text>Flows</Text>
+                            </HStack>
+                          </Tab>
                         </TabList>
                         <TabPanels>
                           <TabPanel p={0} pt={4}>
