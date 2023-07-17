@@ -16,16 +16,16 @@ const FCTCard = ({ id }: { id: string }) => {
         <Stack spacing={3}>
           <HStack justify="space-between" align="center">
             <Text fontWeight="bold">Untitled</Text>
-            <Badge>{status}</Badge>
+            <Badge variant="outline">{status}</Badge>
           </HStack>
           <HStack justify="space-between" align="center" fontSize="sm" color="gray.500">
             <HStack spacing={1}>
-              <Icon icon={`iconamoon:clock-bold`} width={18} />
+              <Icon icon={`iconamoon:clock-bold`} width={16} />
               <Text>{createdAt}</Text>
             </HStack>
             <HStack spacing={1}>
-              <Icon icon={`tabler:gas-station`} width={18} />
-              <Text as="strong">{gas_price_limit} Gwai </Text>
+              <Icon icon={`tabler:gas-station`} width={16} />
+              <Text>{gas_price_limit} gwai </Text>
             </HStack>
             <ButtonGroup size="xs" variant="outline" spacing={0.5}>
               <IconButton aria-label="Sign" icon={<Icon icon={`fluent:signature-28-filled`} />} colorScheme="whatsapp" />
