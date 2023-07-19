@@ -31,6 +31,7 @@ import { useComputed, service } from '@kiroboio/fct-sdk'
 import { Icon } from '@iconify/react'
 import { SetStateAction, useState } from 'react'
 import { NumericFormat } from 'react-number-format'
+import { parseEther } from 'viem'
 
 const NetworkTag = () => {
   const fuel = useComputed(() => service.fct.fuel.data.fmt.value)
@@ -66,8 +67,8 @@ const NetworkTag = () => {
     try {
       await service.vault.fct.actuator.addFunds.execute('funds', [
         {
-          valueIn: BigInt(amount), // 0.05 ETH funding from wallet
-          value: BigInt(amount),
+          valueIn: parseEther(amount), // 0.05 ETH funding from wallet
+          value: parseEther(amount),
           inputs: {},
         },
       ])

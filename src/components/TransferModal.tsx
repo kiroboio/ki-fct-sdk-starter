@@ -21,10 +21,11 @@ import {
   ButtonGroup,
 } from '@chakra-ui/react'
 
+import { parseEther } from 'viem'
 import { service, useComputed } from '@kiroboio/fct-sdk'
-import { memo, useState } from 'react'
+import { useState } from 'react'
 import { NumericFormat } from 'react-number-format'
-import { unFormatValue, pack, unpack } from '../utils/format'
+import { unFormatValue } from '../utils/format'
 
 const TransferModal = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose: any; id: string; isWallet: boolean }) => {
   const [transferWalletAddress, setTransferWalletAddress] = useState('')
@@ -77,11 +78,10 @@ const TransferModal = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
           contract: tokenAddress.peek() || '',
           inputs: {
             to: transferWalletAddress as `0x${string}`,
-            amount: BigInt(transferAmount + '0'.repeat(18)),
+            amount: parseEther(transferAmount.toString()),
           },
         })
         .then((res: any) => {
-          console.log(res)
           if (res.results) {
             handleModalClose()
           } else {
@@ -96,12 +96,11 @@ const TransferModal = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
             contract: tokenAddress.peek() || '',
             inputs: {
               to: transferWalletAddress as `0x${string}`,
-              amount: BigInt(transferAmount + '0'.repeat(18)),
+              amount: parseEther(transferAmount.toString()),
             },
           },
         ])
         .then((res: any) => {
-          console.log(res)
           if (res.results) {
             handleModalClose()
           } else {
