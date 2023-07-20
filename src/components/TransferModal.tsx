@@ -21,7 +21,7 @@ import {
   ButtonGroup,
 } from '@chakra-ui/react'
 
-import { parseEther } from 'viem'
+import { parseEther, isAddress } from 'viem'
 import { service, useComputed } from '@kiroboio/fct-sdk'
 import { useState } from 'react'
 import { NumericFormat } from 'react-number-format'
@@ -42,7 +42,8 @@ const TransferModal = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
   const price = useComputed(() => tokens.value[id]?.price.usd)
   const tokenAddress = useComputed(() => tokens.value[id]?.token_address)
 
-  const isError = transferWalletAddress === '' || unFormatValue(transferAmount) > unFormatValue(amountFmt.value) || unFormatValue(transferAmount) <= 0
+  const isError =
+    !isAddress(transferWalletAddress) || unFormatValue(transferAmount) > unFormatValue(amountFmt.value) || unFormatValue(transferAmount) <= 0
 
   const handleModalClose = () => {
     setTransferWalletAddress('')
