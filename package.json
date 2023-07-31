@@ -32,7 +32,7 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@iconify/icons-cryptocurrency": "^1.2.5",
-    "@kiroboio/fct-sdk": "^0.4.24",
+    "@kiroboio/fct-sdk": "^0.5.5",
     "@next/font": "13.3.0",
     "connectkit": "^1.4.0",
     "dayjs": "^1.11.9",

@@ -21,16 +21,15 @@ const formatValue = (value: string) => {
 }
 
 const unFormatValue = (value: string) => {
-  return typeof value === 'number' ? value : +value.replace(/,/g, '')
+  return value
 }
 
 const TokenCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const tokens = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
   const name = useComputed(() => tokens.value[id]?.name)
-  const amount = useComputed(() => tokens.value[id]?.amount)
-  const price = useComputed(() => tokens.value[id]?.price.usd)
-  const total = useComputed(() => +amount.value * +price.value)
+  const balance = useComputed(() => tokens.value[id]?.balance)
+  const balanceUsd = useComputed(() => tokens.value[id].balanceUsd)
   const logoURL = useComputed(() => tokens.value[id]?.logo)
   const symbol = useComputed(() => tokens.value[id]?.symbol)
 
@@ -52,10 +51,10 @@ const TokenCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
           <HStack spacing={4}>
             <Stack spacing={-1} textAlign="right">
               <Text fontWeight="bold">
-                <>{amount}</>
+                <>{balance}</>
               </Text>
               <Text fontSize="sm" color="gray.500">
-                ${formatValue(`${+price * unFormatValue(amount.value)}`)}
+                ${balanceUsd}
               </Text>
             </Stack>
             <IconButton size="sm" rounded="full" aria-label="Send" icon={<Icon icon="akar-icons:arrow-right" />} onClick={onOpen} />

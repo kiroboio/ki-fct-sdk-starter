@@ -34,6 +34,8 @@ import { FiChevronDown } from 'react-icons/fi'
 import { IoSearch } from 'react-icons/io5'
 import { CheckCircleIcon } from '@chakra-ui/icons'
 
+import { service, useComputed } from '@kiroboio/fct-sdk'
+
 interface TokenBoxProps {
   symbol: string
   name: string
@@ -82,6 +84,8 @@ export default function LimitForm() {
   const [exchangeRate, setExchangeRate] = useState<number>(0)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
+  const isLoggedIn = service.session.status.value === 'loggedIn'
+
   useEffect(() => {
     if (inputAmount && exchangeRate) {
       setOutputAmount(+(inputAmount * exchangeRate).toFixed(2))
@@ -89,6 +93,7 @@ export default function LimitForm() {
       setOutputAmount(0)
     }
   }, [inputAmount, exchangeRate])
+
   return (
     <>
       <Card minW="330px">
@@ -106,9 +111,9 @@ export default function LimitForm() {
               </HStack>
               <InputGroup mt={2}>
                 <NumberInput defaultValue={inputAmount} flex={1}>
-                  <NumberInputField onChange={(e) => setInputAmount(+e.target.value)} />
+                  <NumberInputField onChange={(e) => setInputAmount(+e.target.value)} disabled={!isLoggedIn} />
                   <InputRightElement w="6rem" ml="auto">
-                    <Button w="full" mr={1} size="sm" rightIcon={<FiChevronDown />} onClick={() => setIsModalOpen(true)}>
+                    <Button w="full" mr={1} size="sm" rightIcon={<FiChevronDown />} onClick={() => setIsModalOpen(true)} isDisabled={!isLoggedIn}>
                       USDC
                     </Button>
                   </InputRightElement>
@@ -121,9 +126,9 @@ export default function LimitForm() {
                 <InputLeftAddon fontSize="sm" fontWeight="bold">
                   1 USDC =
                 </InputLeftAddon>
-                <Input defaultValue={exchangeRate} onChange={(e) => setExchangeRate(+e.target.value)} />
+                <Input defaultValue={exchangeRate} onChange={(e) => setExchangeRate(+e.target.value)} isDisabled={!isLoggedIn} />
                 <InputRightElement w="6rem" ml="auto">
-                  <Button w="full" mr={1} size="sm" rightIcon={<FiChevronDown />} onClick={() => setIsModalOpen(true)}>
+                  <Button w="full" mr={1} size="sm" rightIcon={<FiChevronDown />} onClick={() => setIsModalOpen(true)} isDisabled={!isLoggedIn}>
                     DAI
                   </Button>
                 </InputRightElement>
@@ -135,13 +140,15 @@ export default function LimitForm() {
                 <Text fontWeight="bold">You Get</Text>
               </HStack>
               <InputGroup mt={2}>
-                <Input value={outputAmount} readOnly />
+                <Input value={outputAmount} isDisabled />
                 <InputRightAddon fontSize="sm" fontWeight="bold">
                   DAI
                 </InputRightAddon>
               </InputGroup>
             </FormControl>
-            <Button colorScheme="messenger">Create limite order</Button>
+            <Button colorScheme="messenger" isDisabled={!isLoggedIn}>
+              Create limite order
+            </Button>
           </Stack>
         </CardBody>
       </Card>

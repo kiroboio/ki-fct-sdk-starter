@@ -44,8 +44,8 @@ const NetworkTag = () => {
   const [isSending, setIsSending] = useState(false)
 
   const balance = {
-    wallet: service.tokens.wallet.data.fmt.list.value.find((token) => token.symbol === 'ETH')?.amount,
-    smartwallet: service.tokens.vault.data.fmt.list.value.find((token) => token.symbol === 'ETH')?.amount,
+    wallet: service.tokens.wallet.data.fmt.list.value.find((token) => token.symbol === 'ETH')?.balance,
+    smartwallet: service.tokens.vault.data.fmt.list.value.find((token) => token.symbol === 'ETH')?.balance,
   }
 
   const total = +balance.wallet + +balance.smartwallet
