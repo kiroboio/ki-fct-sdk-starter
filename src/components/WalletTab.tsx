@@ -20,11 +20,16 @@ const WalletTab = forwardRef(({ id, ...props }: WalletTabProps, ref) => {
     },
     balance: {
       fmt: useComputed(() =>
-        service.tokens.vault.data.fmt.list.value
-          .reduce((prev, current) => prev + +current.price.usd * +current.amount.replace(/,/g, ''), 0)
-          .toFixed(2)
+        service.formatting.prebuild.formatValue({
+          service: 'tokens',
+          name: 'total',
+          value: service.tokens.vault.data.raw.list.value.reduce((acc, cur) => acc + +cur.balanceUsd, 0),
+          decimals: 2,
+          digits: 2,
+          // format: '0,.00',
+        })
       ),
-      raw: useComputed(() => service.tokens.vault.data.raw.list.value.reduce((prev, current) => prev + +current.price.usd * +current.amount, 0)),
+      raw: useComputed(() => service.tokens.vault.data.raw.list.value.reduce((acc, cur) => acc + +cur.balanceUsd, 0)),
     },
   }
 
@@ -35,15 +40,40 @@ const WalletTab = forwardRef(({ id, ...props }: WalletTabProps, ref) => {
     },
     balance: {
       fmt: useComputed(() =>
-        service.tokens.wallet.data.fmt.list.value
-          .reduce((prev, current) => prev + +current.price.usd * +current.amount.replace(/,/g, ''), 0)
-          .toFixed(2)
+        service.formatting.prebuild.formatValue({
+          service: 'tokens',
+          name: 'total',
+          value: service.tokens.wallet.data.raw.list.value.reduce((acc, cur) => acc + +cur.balanceUsd, 0),
+          decimals: 2,
+          digits: 2,
+        })
       ),
-      raw: useComputed(() => service.tokens.wallet.data.raw.list.value.reduce((prev, current) => prev + +current.price.usd * +current.amount, 0)),
+      raw: useComputed(() => service.tokens.wallet.data.raw.list.value.reduce((acc, cur) => acc + +cur.balanceUsd, 0)),
     },
   }
 
   const { onCopy, hasCopied } = useClipboard(isWallet ? wallet.address.raw.value : vault.address.raw.value)
+
+  const wTotalUsd = useComputed(() =>
+    service.formatting.prebuild.formatValue({
+      service: 'tokens',
+      name: 'total',
+      value: service.tokens.wallet.data.raw.list.value.reduce((acc, cur) => acc + +cur.balanceUsd, 0),
+      decimals: 0,
+      digits: 6,
+      // format: '0,.00',
+    })
+  )
+  const vTotalUsd = useComputed(() =>
+    service.formatting.prebuild.formatValue({
+      service: 'tokens',
+      name: 'total',
+      value: service.tokens.vault.data.raw.list.value.reduce((acc, cur) => acc + +cur.balanceUsd, 0),
+      decimals: 0,
+      digits: 6,
+      // format: '0,.00',
+    })
+  )
 
   return (
     <Card
@@ -67,7 +97,7 @@ const WalletTab = forwardRef(({ id, ...props }: WalletTabProps, ref) => {
         <HStack mt={3}>
           <Icon icon={isWallet ? 'fluent:wallet-32-filled' : 'fluent:brain-circuit-20-filled'} width="24px" height="24px" />
           <Text fontWeight="extrabold" fontSize="xl">
-            ${isWallet ? <>{wallet.balance.fmt}</> : <>{vault.balance.fmt}</>}
+            ${isWallet ? <>{wTotalUsd}</> : <>{vTotalUsd}</>}
           </Text>
         </HStack>
       </CardBody>

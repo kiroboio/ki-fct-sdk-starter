@@ -43,7 +43,8 @@ const TransferModal = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
   const tokenAddress = useComputed(() => tokens.value[id]?.token_address)
 
   const isError =
-    !isAddress(transferWalletAddress) || unFormatValue(transferAmount) > unFormatValue(amountFmt.value) || unFormatValue(transferAmount) <= 0
+    // !isAddress(transferWalletAddress) || unFormatValue(transferAmount) > unFormatValue(amountFmt.value) || unFormatValue(transferAmount) <= 0
+    false
 
   const handleModalClose = () => {
     setTransferWalletAddress('')
