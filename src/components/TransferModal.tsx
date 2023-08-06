@@ -37,8 +37,8 @@ const TransferModal = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
   const tokens = isWallet ? service.tokens.wallet.data.raw.map : service.tokens.vault.data.raw.map
   const tokensFmt = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
   const symbol = useComputed(() => tokens.value[id]?.symbol)
-  const amount = useComputed(() => tokens.value[id]?.amount)
-  const amountFmt = useComputed(() => tokensFmt.value[id]?.amount)
+  const amount = useComputed(() => tokens.value[id]?.balance)
+  const amountFmt = useComputed(() => tokensFmt.value[id]?.balance)
   const price = useComputed(() => tokens.value[id]?.price.usd)
   const tokenAddress = useComputed(() => tokens.value[id]?.token_address)
 
