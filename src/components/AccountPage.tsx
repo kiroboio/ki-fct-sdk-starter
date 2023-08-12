@@ -35,17 +35,18 @@ import { zeroAddress } from 'viem'
 
 const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
   const [, setIsWallet] = useState(false)
+  const [hasVault, setHasVault] = useState(false)
   const [tabIndex, setTabIndex] = useState(0)
   const wIsLoading = useComputed(() => service.tokens.wallet.data.isLoading.value)
   const vIsLoading = useComputed(() => service.tokens.vault.data.isLoading.value)
+  const isCreateValueRunning = useComputed(() => service.wallet.vaultFactory.createVault.isRunning().value)
+  const vaultAddress = useComputed(() => service.vault.data.raw.value.address)
+
   const wTokens = useComputed(() => pack(service.tokens.wallet.data.fmt.list.value))
   const vTokens = useComputed(() => pack(service.tokens.vault.data.fmt.list.value))
   const wNFTS = useComputed(() => pack(service.nfts.wallet.data.fmt.list.value))
   const vNFTS = useComputed(() => pack(service.nfts.vault.data.fmt.list.value))
   const FCTS = useComputed(() => pack(service.fct.active.data.fmt.list.value))
-  const isCreateValueRunning = useComputed(() => service.wallet.vaultFactory.createVault.isRunning().value)
-  const [hasVault, setHasVault] = useState(false)
-  const vaultAddress = useComputed(() => service.vault.data.raw.value.address)
 
   const tokens = {
     wallet: useComputed(() => (
@@ -55,6 +56,7 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
       <>{vIsLoading.value ? <Center>Loading...</Center> : unpack(vTokens.value).map((id) => <MemoTokenCard key={id} id={id} isWallet={false} />)}</>
     )),
   }
+
   const nfts = {
     wallet: useComputed(() => (
       <>{wIsLoading.value ? <Center>Loading...</Center> : unpack(wNFTS.value).map((id) => <MemoNFTCard key={id} id={id} isWallet={true} />)}</>
@@ -63,6 +65,7 @@ const AccountPage = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
       <>{vIsLoading.value ? <Center>Loading...</Center> : unpack(vNFTS.value).map((id) => <MemoNFTCard key={id} id={id} isWallet={false} />)}</>
     )),
   }
+
   const fcts = useComputed(() => (
     <>
       {unpack(FCTS.value).map((id) => (
