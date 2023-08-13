@@ -1,4 +1,3 @@
-//@ts-nocheck
 import {
   HStack,
   Box,
@@ -44,8 +43,8 @@ const NetworkTag = () => {
   const [isSending, setIsSending] = useState(false)
 
   const balance = {
-    wallet: service.tokens.wallet.data.fmt.list.value.find((token) => token.symbol === 'ETH')?.balance,
-    smartwallet: service.tokens.vault.data.fmt.list.value.find((token) => token.symbol === 'ETH')?.balance,
+    wallet: service.tokens.wallet.data.fmt.list.value.find((token) => token.symbol === 'ETH')?.balance || '0',
+    smartwallet: service.tokens.vault.data.fmt.list.value.find((token) => token.symbol === 'ETH')?.balance || '0',
   }
 
   const total = +balance.wallet + +balance.smartwallet
@@ -144,7 +143,7 @@ const NetworkTag = () => {
                         thousandSeparator
                       />
                       <InputRightElement width="4.5rem">
-                        <Button h="1.75rem" size="sm" onClick={() => setAmount(total)}>
+                        <Button h="1.75rem" size="sm" onClick={() => setAmount(`${total}`)}>
                           Max
                         </Button>
                       </InputRightElement>

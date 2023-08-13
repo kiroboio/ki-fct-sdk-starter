@@ -5,25 +5,6 @@ import { memo } from 'react'
 
 import TransferModal from './TransferModal'
 
-const formatValue = (value: string) => {
-  if (value.slice(-1) === '.' && !value.slice(0, -2).includes('.')) return value
-
-  const numericValue = value.replace(/[^0-9.]/g, '')
-  const parts = numericValue.split('.')
-  const integerPart = parts[0]
-  const decimalPart = parts[1] ? parts[1].slice(0, 2) : ''
-
-  let formattedValue = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-  if (decimalPart !== '') {
-    formattedValue += '.' + decimalPart
-  }
-  return formattedValue
-}
-
-const unFormatValue = (value: string) => {
-  return value
-}
-
 const TokenCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const tokens = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
