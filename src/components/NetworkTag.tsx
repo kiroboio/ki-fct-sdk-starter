@@ -34,7 +34,7 @@ import { parseEther } from 'viem'
 
 const NetworkTag = () => {
   const fuel = useComputed(() => service.fct.fuel.data.fmt.value)
-  const gasPrice = useComputed(() => (+service.network.data.raw.value.gasPrice / 1e9).toFixed(2) + ' Gwei')
+  const gasPrice = useComputed(() => (+service.network.data.raw.value.gasPrice.fast.maxFeePerGas / 1e9).toFixed(2) + ' Gwei')
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [amount, setAmount] = useState('')
   const [amountSmartWallet, setAmountSmartWallet] = useState('')
@@ -100,7 +100,7 @@ const NetworkTag = () => {
             <Text display="inline" color="gray.500" fontWeight="normal">
               FCT Power:
             </Text>{' '}
-            {fuel.value.balance.eth} ETH
+            {fuel.value.balance.native} ETH
           </Box>
         </HStack>
         <HStack spacing={1}>

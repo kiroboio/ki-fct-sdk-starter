@@ -1,9 +1,12 @@
-import { Card, CardBody, Stack, AspectRatio, Heading, HStack, Text, Image } from '@chakra-ui/react'
+import { Card, CardBody, Stack, AspectRatio, Heading, HStack, Text, Image, Button, useDisclosure } from '@chakra-ui/react'
 
 import { service, useComputed } from '@kiroboio/fct-sdk'
 import { memo } from 'react'
 
+import TransferNFTModal from './TransferNFTModal'
+
 const NFTCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const nfts = isWallet ? service.nfts.wallet.data.fmt.map : service.nfts.vault.data.fmt.map
   const name = useComputed(() => nfts.value[id]?.name)
   const meta = useComputed(() => nfts.value[id]?.metadata)
@@ -19,13 +22,15 @@ const NFTCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
             <Heading fontSize="sm">
               <>{name}</>
             </Heading>
-            <HStack fontSize="xs" justify="space-between" color="gray.500">
-              <Text>
-                <>{symbol}</>
-              </Text>
-            </HStack>
+            <Text fontSize="xs" color="gray.500">
+              <>{symbol}</>
+            </Text>
+            <Button size="sm" mt={2} onClick={onOpen}>
+              Transfer
+            </Button>
           </Stack>
         </Stack>
+        <TransferNFTModal isOpen={isOpen} onClose={onClose} id={id} isWallet={isWallet} />
       </CardBody>
     </Card>
   )
