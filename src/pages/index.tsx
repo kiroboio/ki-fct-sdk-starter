@@ -11,7 +11,7 @@ export default function Home() {
         <Heading>Kirobo SDK starter kit</Heading>
         <Text>Quickly ship Web3 apps using Next.js and Kirobo FCTs ⚡</Text>
         <Divider my={12} />
-        <Flex gap={6} alignItems="flex-start" direction={['column', 'column', 'row']} mb={6}>
+        <Flex gap={6} alignItems="center" direction={['column', 'column', 'row']} mb={6}>
           <Box>
             <LimitForm />
           </Box>
