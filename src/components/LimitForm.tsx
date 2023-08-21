@@ -27,53 +27,60 @@ import {
   LinkOverlay,
   Box,
   useColorModeValue,
+  Center,
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { FiChevronDown } from 'react-icons/fi'
 import { IoSearch } from 'react-icons/io5'
 import { CheckCircleIcon } from '@chakra-ui/icons'
-
+import { pack, unpack } from '../utils/format'
 import { service, useComputed } from '@kiroboio/fct-sdk'
 
 interface TokenBoxProps {
-  symbol: string
-  name: string
-  amount: number
-  price?: number
+  id: string
+  isWallet?: boolean
   isSelected?: boolean
 }
 
-const TokenBox: React.FC<TokenBoxProps> = ({ symbol, name, amount, price = 0, isSelected }) => (
-  <LinkBox py={1} _hover={{ background: useColorModeValue('gray.100', 'gray.900') }}>
-    <LinkOverlay href="#">
-      <HStack px={6} py={1} spacing={3} justifyContent="space-between">
-        <HStack>
-          <Icon icon={`cryptocurrency-color:${symbol.toLowerCase()}`} width={28} />
-          <Stack spacing={0}>
-            <HStack>
-              <Text fontSize="sm" fontWeight="bold">
-                {symbol}
+const TokenBox: React.FC<TokenBoxProps> = ({ id, isWallet, isSelected }) => {
+  const tokens = isWallet ? service.tokens.wallet.data.fmt.map : service.tokens.vault.data.fmt.map
+  const name = useComputed(() => tokens.value[id]?.name)
+  const balance = useComputed(() => tokens.value[id]?.balance)
+  const balanceUsd = useComputed(() => tokens.value[id].balanceUsd)
+  const logoURL = useComputed(() => tokens.value[id]?.logo)
+  const symbol = useComputed(() => tokens.value[id]?.symbol)
+  return (
+    <LinkBox py={1} _hover={{ background: useColorModeValue('gray.100', 'gray.900') }}>
+      <LinkOverlay href="#">
+        <HStack px={6} py={1} spacing={3} justifyContent="space-between">
+          <HStack>
+            <Icon icon={`cryptocurrency-color:${symbol}`} width={28} />
+            <Stack spacing={0}>
+              <HStack>
+                <Text fontSize="sm" fontWeight="bold">
+                  {symbol}
+                </Text>
+                {isSelected && <CheckCircleIcon ml="auto" color="green.500" />}
+              </HStack>
+              <Text fontSize="xs" color="gray.500">
+                {name}
               </Text>
-              {isSelected && <CheckCircleIcon ml="auto" color="green.500" />}
-            </HStack>
-            <Text fontSize="xs" color="gray.500">
-              {name}
+            </Stack>
+          </HStack>
+          <Box textAlign="right">
+            <Text fontSize="sm" fontWeight="bold">
+              {balance}
             </Text>
-          </Stack>
+            <Text fontSize="xs" color="gray.500">
+              ${balance}
+            </Text>
+          </Box>
         </HStack>
-        <Box textAlign="right">
-          <Text fontSize="sm" fontWeight="bold">
-            {amount}
-          </Text>
-          <Text fontSize="xs" color="gray.500">
-            ${(price * amount).toFixed(2)}
-          </Text>
-        </Box>
-      </HStack>
-    </LinkOverlay>
-  </LinkBox>
-)
+      </LinkOverlay>
+    </LinkBox>
+  )
+}
 
 export default function LimitForm() {
   const [searchText, setSearchText] = useState('')
@@ -85,6 +92,21 @@ export default function LimitForm() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const isLoggedIn = service.session.status.value === 'loggedIn'
+
+  const wIsLoading = useComputed(() => service.tokens.wallet.data.isLoading.value)
+  const vIsLoading = useComputed(() => service.tokens.vault.data.isLoading.value)
+
+  const wTokens = useComputed(() => pack(service.tokens.wallet.data.fmt.list.value))
+  const vTokens = useComputed(() => pack(service.tokens.vault.data.fmt.list.value))
+
+  const tokens = {
+    wallet: useComputed(() => (
+      <>{wIsLoading.value ? <Center>Loading...</Center> : unpack(wTokens.value).map((id) => <TokenBox key={id} id={id} isWallet={true} />)}</>
+    )),
+    vault: useComputed(() => (
+      <>{vIsLoading.value ? <Center>Loading...</Center> : unpack(vTokens.value).map((id) => <TokenBox key={id} id={id} isWallet={false} />)}</>
+    )),
+  }
 
   useEffect(() => {
     if (inputAmount && exchangeRate) {
@@ -170,11 +192,7 @@ export default function LimitForm() {
 
           <ModalCloseButton />
           <ModalBody pt={0} px={0} pb={4} maxH="400px" overflowY="auto">
-            <Stack spacing={0}>
-              <TokenBox name="USDC Coin" symbol="USDC" amount={0.0} price={1.0} isSelected />
-              <TokenBox name="Dai Stablecoin" symbol="DAI" amount={0.0} price={1.0} isSelected />
-              <TokenBox name="Ethereum" symbol="ETH" amount={0.0} price={1800.0} />
-            </Stack>
+            <Stack spacing={0}>{tokens.wallet}</Stack>
           </ModalBody>
         </ModalContent>
       </Modal>

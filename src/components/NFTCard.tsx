@@ -11,6 +11,7 @@ const NFTCard = ({ id, isWallet }: { id: string; isWallet: boolean }) => {
   const name = useComputed(() => nfts.value[id]?.name)
   const meta = useComputed(() => nfts.value[id]?.metadata)
   const symbol = useComputed(() => nfts.value[id]?.symbol)
+
   return (
     <Card variant="outline" shadow="sm" p={0} m={0}>
       <CardBody p={0} m={0}>

@@ -42,6 +42,14 @@ const TransferNFTModal = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onCl
     </>
   ))
 
+  const handleSelectWallet = (e: any) => {
+    e.target.checked
+      ? isWallet
+        ? setTransferWalletAddress(service.vault.data.raw.value.address)
+        : setTransferWalletAddress(service.wallet.data.raw.value.address)
+      : setTransferWalletAddress('')
+  }
+
   const handleModalClose = () => {
     setTransferWalletAddress('')
     setError('')
@@ -83,8 +91,15 @@ const TransferNFTModal = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onCl
               </TableContainer>
               <Divider />
               <Stack spacing={2}>
-                <Checkbox>Move to your {isWallet ? 'smart wallet' : 'connected wallet'}</Checkbox>
-                <Input disabled={false} placeholder="Ethereum Address" value="" />
+                <Checkbox disabled={isSending} onChange={handleSelectWallet}>
+                  Move to your {isWallet ? 'smart wallet' : 'connected wallet'}
+                </Checkbox>
+                <Input
+                  disabled={isSending}
+                  placeholder="Ethereum Address"
+                  value={transferWalletAddress}
+                  onChange={(e) => setTransferWalletAddress(e.target.value)}
+                />
               </Stack>
             </Stack>
           </ModalBody>
