@@ -1758,16 +1758,16 @@
     uniqid "^5.4.0"
     web3-utils "^1.8.0"
 
-"@kiroboio/fct-sdk@^0.5.23":
-  version "0.5.23"
-  resolved "https://registry.yarnpkg.com/@kiroboio/fct-sdk/-/fct-sdk-0.5.23.tgz#0a9f70c3baceee0edc4bc2cab8a3731caca31fba"
-  integrity sha512-Ncsp6dLbx9VU2CCOTI2pH9mpIefEpiCBnhjwdufjdhu/AXSaTS/EZaPEQwogJ7n5FmEzSdkSHp/Sx4haVjZe6g==
+"@kiroboio/fct-sdk@^0.5.30":
+  version "0.5.30"
+  resolved "https://registry.yarnpkg.com/@kiroboio/fct-sdk/-/fct-sdk-0.5.30.tgz#c24b4e9f845432b3978bde6c9a9bc6ebb2940ad7"
+  integrity sha512-PEo8l7EuyAB37k8sM+qokSjLunraz9SExZXNwv1mpK5hn2IwZvkDJSLuwTLsNnWjjobUTBQXgtL18QZCNo53Ag==
   dependencies:
     "@kiroboio/fct-builder" "^1.0.5"
     "@kiroboio/fct-contracts" "^1.0.8"
     "@kiroboio/fct-core" "^2.2.8"
     "@kiroboio/fct-plugins" "^1.1.350"
-    "@kiroboio/fct-service" "^3.0.0"
+    "@kiroboio/fct-service" "^3.1.0"
     "@preact/signals-react" "^1.3.2"
     abitype "^0.8.11"
     ajv "^8.12.0"
@@ -1783,10 +1783,10 @@
     shallow-equal "^3.1.0"
     utf-8-validate "^6.0.3"
 
-"@kiroboio/fct-service@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@kiroboio/fct-service/-/fct-service-3.0.0.tgz#e216df95330244bae3ef892c25caa8ac3f052ad1"
-  integrity sha512-imDbEx9spYgmGi4FCMHNziABID2NkCftE1Lil6TngJVhw7M6kHg4/HMl+BUyPsiA6azN5vU9cqzAFoQivM8wxw==
+"@kiroboio/fct-service@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@kiroboio/fct-service/-/fct-service-3.1.0.tgz#718644669d05ab0addeacf2963c6afd51fe9c38c"
+  integrity sha512-8vFYXHJ6v9Btuf+eYwH665v/NHqcgLbNuLV5b0Lk2ZDf9Eb3RoEYdG4sznBvSOh6AtDVQUcGgYh1+wa5WBiw/g==
   dependencies:
     "@feathersjs/authentication-client" "4.5.4"
     "@feathersjs/feathers" "4.5.3"
@@ -5903,10 +5903,10 @@ formdata-polyfill@^4.0.10:
   dependencies:
     fetch-blob "^3.1.2"
 
-framer-motion@^10.16.0:
-  version "10.16.0"
-  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-10.16.0.tgz#c8020d05d98662ba01d294b7d4c2e263073829cf"
-  integrity sha512-R+88Mkr/1dr7XHjacwptfJyrywRzQ1HZX3YSZtN4tFMBq1O8GGCbDEv31Nf/H08o0hUXLC87GkxsR/1bZgwXfw==
+framer-motion@^10.16.1:
+  version "10.16.1"
+  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-10.16.1.tgz#0ff5de554bbb35ee6605357d80f92b27d0271a94"
+  integrity sha512-K6TXr5mZtitC/dxQCBdg7xzdN0d5IAIrlaqCPKtIQVdzVPGC0qBuJKXggHX1vjnP5gPOFwB1KbCCTWcnFc3kWg==
   dependencies:
     tslib "^2.4.0"
   optionalDependencies:
@@ -9367,10 +9367,10 @@ viem@^1.0.0:
     isomorphic-ws "5.0.0"
     ws "8.12.0"
 
-viem@^1.6.4:
-  version "1.6.4"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-1.6.4.tgz#051c6fe54bca73911af0e33a308feb06369ce396"
-  integrity sha512-NUZIZRQnvjViP6P8PTQsPev9va9hYwFzAWR6y0UCtd4LBOUaAKUZqFoPTanX83rHInyHtyVTGr/Dl4qy7CbMNA==
+viem@^1.6.7:
+  version "1.6.7"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-1.6.7.tgz#2445ea47aae96f5bfc3b79ed08df20ce9530ca7a"
+  integrity sha512-w2OMJqKcQrzPQnmMFxe4ex+md8wSwfle6L3LvEi25CBvDKhkuljVrsWY19UzG05ssQhiZ+cdxU3YMBrX817Qiw==
   dependencies:
     "@adraffy/ens-normalize" "1.9.0"
     "@noble/curves" "1.1.0"
