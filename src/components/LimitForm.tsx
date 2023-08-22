@@ -28,6 +28,7 @@ import {
   Box,
   useColorModeValue,
   Center,
+  Avatar,
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
@@ -55,7 +56,7 @@ const TokenBox: React.FC<TokenBoxProps> = ({ id, isWallet, isSelected }) => {
       <LinkOverlay href="#">
         <HStack px={6} py={1} spacing={3} justifyContent="space-between">
           <HStack>
-            <Icon icon={`cryptocurrency-color:${symbol}`} width={28} />
+            <Avatar size="xs" src={logoURL.value || ''} />
             <Stack spacing={0}>
               <HStack>
                 <Text fontSize="sm" fontWeight="bold">
@@ -73,7 +74,7 @@ const TokenBox: React.FC<TokenBoxProps> = ({ id, isWallet, isSelected }) => {
               {balance}
             </Text>
             <Text fontSize="xs" color="gray.500">
-              ${balance}
+              ${balanceUsd}
             </Text>
           </Box>
         </HStack>
