@@ -25,6 +25,7 @@ import {
   Card,
   CardBody,
   IconButton,
+  useToast,
 } from '@chakra-ui/react'
 import { useComputed, service } from '@kiroboio/fct-sdk'
 import { Icon } from '@iconify/react'
@@ -41,6 +42,8 @@ const NetworkTag = () => {
   const [amountConnectedWallet, setAmountConnectedWallet] = useState('')
   const [tabIndex, setTabIndex] = useState(0)
   const [isSending, setIsSending] = useState(false)
+
+  const toast = useToast()
 
   const balance = {
     wallet: service.tokens.wallet.data.fmt.list.value.find((token) => token.symbol === 'ETH')?.balance || '0',
@@ -64,16 +67,33 @@ const NetworkTag = () => {
     setIsSending(true)
 
     try {
-      await service.vault.fct.actuator.addFunds.execute('funds', [
-        {
-          valueIn: parseEther(amount), // 0.05 ETH funding from wallet
-          value: parseEther(amount),
-          inputs: {},
-        },
-      ])
+      if (tabIndex === 0 && balance.smartwallet > amount) {
+        await service.vault.fct.actuator.addFunds.execute('funds', [
+          {
+            valueIn: parseEther(amount),
+            value: parseEther(amount),
+            inputs: {},
+          },
+        ])
+      }
     } catch (e) {
       console.log('add fuel error:', service.wallet.erc20.approve.state('allowance').value)
+      toast({
+        title: 'Fuel error.',
+        description: `${service.wallet.erc20.approve.state('allowance').value}`,
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+      })
     }
+    toast({
+      title: 'Fuel added.',
+      description: "We've added the fuel to your account.",
+      status: 'success',
+      duration: 9000,
+      isClosable: true,
+    })
+    handleClose()
   }
 
   const handleClose = () => {

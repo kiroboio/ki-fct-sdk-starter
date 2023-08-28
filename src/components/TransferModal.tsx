@@ -19,6 +19,7 @@ import {
   AlertDescription,
   CloseButton,
   ButtonGroup,
+  useToast,
 } from '@chakra-ui/react'
 
 import { parseEther, isAddress } from 'viem'
@@ -41,6 +42,8 @@ const TransferModal = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
   const amountFmt = useComputed(() => tokensFmt.value[id]?.balance)
   const price = useComputed(() => tokens.value[id]?.price.usd)
   const tokenAddress = useComputed(() => tokens.value[id]?.token_address)
+
+  const toast = useToast()
 
   const isError =
     // !isAddress(transferWalletAddress) || unFormatValue(transferAmount) > unFormatValue(amountFmt.value) || unFormatValue(transferAmount) <= 0
@@ -86,6 +89,13 @@ const TransferModal = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
         .then((res: any) => {
           if (res.results) {
             handleModalClose()
+            toast({
+              title: 'Tokens transferred.',
+              description: "We've transferred your tokens succesfully.",
+              status: 'success',
+              duration: 9000,
+              isClosable: true,
+            })
           } else {
             setError(res.error.message)
           }
@@ -105,6 +115,13 @@ const TransferModal = ({ isOpen, onClose, id, isWallet }: { isOpen: any; onClose
         .then((res: any) => {
           if (res.results) {
             handleModalClose()
+            toast({
+              title: 'Tokens transferred.',
+              description: "We've transferred your tokens succesfully.",
+              status: 'success',
+              duration: 9000,
+              isClosable: true,
+            })
           } else {
             setIsSending(false)
             setError(res.error.message)
