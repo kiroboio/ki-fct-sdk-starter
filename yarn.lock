@@ -1687,10 +1687,10 @@
     graphlib "^2.1.8"
     lodash "^4.17.21"
 
-"@kiroboio/fct-core@^2.2.8":
-  version "2.2.13"
-  resolved "https://registry.yarnpkg.com/@kiroboio/fct-core/-/fct-core-2.2.13.tgz#f37a0ec0352707bde140faf762424fefd0089e07"
-  integrity sha512-ZzCYbzlrHMjuW1GJvlC4ljDK+4rFQ/PxCLEx6tnwwPr2+AQQabjT6G/lKgsFJNgdsPlYrcHuJjM6CE15lEqrsw==
+"@kiroboio/fct-core@^2.2.14":
+  version "2.2.14"
+  resolved "https://registry.yarnpkg.com/@kiroboio/fct-core/-/fct-core-2.2.14.tgz#979d07149f96b74a9eb541938066c97dc717ec14"
+  integrity sha512-K6tInWysKbybf3ZT/3vzuHUlvsBdF1mHXE+f7JkwjS3Vl6Ko49ovErYOsFManifFxK+WHPt+TtQRoJj/MI+xng==
   dependencies:
     "@kiroboio/fct-plugins" latest
     "@metamask/eth-sig-util" "^5.1.0"
@@ -1698,10 +1698,10 @@
     graphlib "^2.1.8"
     lodash "^4.17.21"
 
-"@kiroboio/fct-plugins@^1.1.350":
-  version "1.1.356"
-  resolved "https://registry.yarnpkg.com/@kiroboio/fct-plugins/-/fct-plugins-1.1.356.tgz#80b92eb6195615f4c255ba94677189f94124301f"
-  integrity sha512-pkRs7jUgyAUc22Xm+dy+j9ElC1hB1DPKqimZmOomvD+FIhese12757jD1E/v17phtEsmnwY9HjYLTF+Yw6QlJA==
+"@kiroboio/fct-plugins@^1.1.358":
+  version "1.1.358"
+  resolved "https://registry.yarnpkg.com/@kiroboio/fct-plugins/-/fct-plugins-1.1.358.tgz#ea0d16d6e90628558cd39a5a1ade11276beac2d8"
+  integrity sha512-xpcxJkjouWE/qSk3su6htb0LG2otgl1llyKeVWq32zdBrJGW529yIDK2wOAH7tHLWs2AFh+Y+gwSrg1JCZ1+Xw==
   dependencies:
     "@babel/runtime" "^7.17.0"
     "@sushiswap/sdk" "^5.0.0-canary.116"
@@ -1758,18 +1758,18 @@
     uniqid "^5.4.0"
     web3-utils "^1.8.0"
 
-"@kiroboio/fct-sdk@^0.5.31":
-  version "0.5.31"
-  resolved "https://registry.yarnpkg.com/@kiroboio/fct-sdk/-/fct-sdk-0.5.31.tgz#a77006cb5611ff3743cc280a5f168da4a372ac58"
-  integrity sha512-trtl5R300J3w7rVwZ9u8wwD+3llofCAhMfDun58LacEcQA/x/3L+7tzig3GX7wcGvO8ek1Ht/aXf9YPHcG8HsQ==
+"@kiroboio/fct-sdk@^0.5.32":
+  version "0.5.32"
+  resolved "https://registry.yarnpkg.com/@kiroboio/fct-sdk/-/fct-sdk-0.5.32.tgz#51fa06e7365c9b77e821eedfaa56bc7b02e0778c"
+  integrity sha512-uu8cq08vDFh+qAbsW/rRFujslFh9uX9ZBO6iLD5uxAr4Rx+VVWEjilPOm2kj8zlEp3egkvISb/8bKBuZAl9Rzw==
   dependencies:
     "@kiroboio/fct-builder" "^1.0.5"
     "@kiroboio/fct-contracts" "^1.0.8"
-    "@kiroboio/fct-core" "^2.2.8"
-    "@kiroboio/fct-plugins" "^1.1.350"
+    "@kiroboio/fct-core" "^2.2.14"
+    "@kiroboio/fct-plugins" "^1.1.358"
     "@kiroboio/fct-service" "^3.1.0"
-    "@preact/signals-react" "^1.3.2"
-    abitype "^0.8.11"
+    "@preact/signals-react" "^1.3.6"
+    abitype "^0.9.8"
     ajv "^8.12.0"
     ajv-formats "^2.1.1"
     awesome-debounce-promise "^2.1.0"
@@ -2085,17 +2085,17 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
   integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
 
-"@preact/signals-core@^1.3.1":
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/@preact/signals-core/-/signals-core-1.3.1.tgz#7554563a6f3fc3a91d58ca103597ebe280f48e3b"
-  integrity sha512-DL+3kDssZ3UOMz9HufwSYE/gK0+TnT1jzegfF5rstgyPrnyfjz4BHAoxmzQA6Mkp4UlKe8qjsgl3v5a/obzNig==
+"@preact/signals-core@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@preact/signals-core/-/signals-core-1.4.0.tgz#ff67fca60f144437f3894ab60272eb57cf8cafaf"
+  integrity sha512-5iYoZBhELLIhUQceZI7sDTQWPb+xcVSn2qk8T/aNl/VMh+A4AiPX9YRSh4XO7fZ6pncrVxl1Iln82poVqYVbbw==
 
-"@preact/signals-react@^1.3.2":
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/@preact/signals-react/-/signals-react-1.3.3.tgz#943e7d94d2484068b7e07e18a6738412025ec1f3"
-  integrity sha512-Tbv+oWPcrWowAJp1U1eWFiFUJihulOAnL8g/hJ3fUsP0IcsKsj8U0OcIDrwemIPQe7+J/3FuudkZzted0MD/bA==
+"@preact/signals-react@^1.3.6":
+  version "1.3.6"
+  resolved "https://registry.yarnpkg.com/@preact/signals-react/-/signals-react-1.3.6.tgz#aa91b690669a1a7537df689cd0c69f9661f766e4"
+  integrity sha512-jr/4lhcRo5W3hfieCJGDPbxq3YjfZDvpmTcisJ+lRhjWvnoYrgMKBoTiLsFPACO8VIEATaIBZXYiGAV08YvnfQ==
   dependencies:
-    "@preact/signals-core" "^1.3.1"
+    "@preact/signals-core" "^1.4.0"
     use-sync-external-store "^1.2.0"
 
 "@rushstack/eslint-patch@^1.1.3":
@@ -3360,7 +3360,7 @@ JSONStream@^1.3.5:
     jsonparse "^1.2.0"
     through ">=2.2.7 <3"
 
-abitype@0.8.11, abitype@^0.8.11:
+abitype@0.8.11:
   version "0.8.11"
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.8.11.tgz#66e1cf2cbf46f48d0e57132d7c1c392447536cc1"
   integrity sha512-bM4v2dKvX08sZ9IU38IN5BKmN+ZkOSd2oI4a9f0ejHYZQYV6cDr7j+d95ga0z2XHG36Y4jzoG5Z7qDqxp7fi/A==
@@ -3374,6 +3374,11 @@ abitype@0.9.3:
   version "0.9.3"
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.9.3.tgz#294d25288ee683d72baf4e1fed757034e3c8c277"
   integrity sha512-dz4qCQLurx97FQhnb/EIYTk/ldQ+oafEDUqC0VVIeQS1Q48/YWt/9YNfMmp9SLFqN41ktxny3c8aYxHjmFIB/w==
+
+abitype@^0.9.8:
+  version "0.9.8"
+  resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.9.8.tgz#1f120b6b717459deafd213dfbf3a3dd1bf10ae8c"
+  integrity sha512-puLifILdm+8sjyss4S+fsUN09obiT1g2YW6CtcQF+QDzxR0euzgEB29MZujC6zMk2a6SVmtttq1fc6+YFA7WYQ==
 
 abort-controller@^3.0.0:
   version "3.0.0"
@@ -9367,10 +9372,10 @@ viem@^1.0.0:
     isomorphic-ws "5.0.0"
     ws "8.12.0"
 
-viem@^1.6.7:
-  version "1.6.7"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-1.6.7.tgz#2445ea47aae96f5bfc3b79ed08df20ce9530ca7a"
-  integrity sha512-w2OMJqKcQrzPQnmMFxe4ex+md8wSwfle6L3LvEi25CBvDKhkuljVrsWY19UzG05ssQhiZ+cdxU3YMBrX817Qiw==
+viem@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-1.7.0.tgz#9d6fbdb4c7db2ef31fe5344fb8fc3b9103ae3225"
+  integrity sha512-S4SclYe0Oca6TuPh2YPI3BzfC7a4UvN7TRDCWwpoVNnu9+4z2hqCZhW+6aF1yufgSwdezNsF14vztE/P4eMdBw==
   dependencies:
     "@adraffy/ens-normalize" "1.9.0"
     "@noble/curves" "1.1.0"
