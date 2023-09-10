@@ -1,23 +1,28 @@
-import { Button, Drawer, DrawerBody, DrawerFooter, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Input } from '@chakra-ui/react'
+import { Drawer, DrawerBody, DrawerFooter, DrawerOverlay, DrawerContent } from '@chakra-ui/react'
 import { useVault } from '@kiroboio/fct-sdk'
 import { useEffect, useState } from 'react'
-
 import { zeroAddress } from 'viem'
-import CreateVaultBox from './CreateVaultBox'
 
-export default function AcountMenu({ isOpen, onClose }) {
-  const { data: vault } = useVault()
+import CreateVaultBox from './CreateVaultBox'
+import AccountContent from './AccountContent'
+import InfoBox from './InfoBox'
+
+export default function AcountMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [hasVault, setHasVault] = useState(false)
+  const { data: vault } = useVault()
 
   useEffect(() => {
     setHasVault(vault.raw.address !== zeroAddress)
   }, [vault.raw.address])
+
   return (
     <Drawer size="sm" placement="right" isOpen={isOpen} onClose={onClose}>
       <DrawerOverlay backdropFilter="auto" backdropBlur="4px" />
-      <DrawerContent m={4} rounded="lg">
-        <DrawerCloseButton />
-        <DrawerBody>{!hasVault ? <CreateVaultBox /> : 'Yes'}</DrawerBody>
+      <DrawerContent m={4} py={4} rounded="lg">
+        <DrawerBody>{!hasVault ? <CreateVaultBox /> : <AccountContent />}</DrawerBody>
+        <DrawerFooter>
+          <InfoBox />
+        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   )

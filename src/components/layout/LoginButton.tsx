@@ -7,8 +7,9 @@ export function LoginButton() {
 
   const { data: network } = useNetwork()
   const { connectionState, status, login, logout } = useSession()
-  const loggedInLabel = status === 'loggingIn' ? 'Please wait...' : status === 'loggedIn' ? 'My account' : 'Login'
+  const loggedInLabel = status === 'loggingIn' ? 'Please wait...' : status === 'loggedIn' ? 'My account' : 'Login to Kirobo'
   const handleClick = () => {
+    console.log(connectionState)
     if (connectionState !== 'authorized' || status === 'loggingIn') {
       return
     }

@@ -4,8 +4,7 @@ import { LinkComponent } from './LinkComponent'
 import { ThemeSwitcher } from './ThemeSwitcher'
 import { ConnectKitButton } from 'connectkit'
 import Logo from './Logo'
-import LoginButton from '../LoginButton'
-import { useAccount } from 'wagmi'
+import { LoginButton } from './LoginButton'
 
 interface Props {
   className?: string
@@ -13,7 +12,6 @@ interface Props {
 
 export function Header(props: Props) {
   const className = props.className ?? ''
-  const { address } = useAccount()
 
   return (
     <Flex
@@ -41,7 +39,7 @@ export function Header(props: Props) {
 
       <Flex alignItems="center" gap={4}>
         <ConnectKitButton />
-        {address && <LoginButton />}
+        <LoginButton />
         <ThemeSwitcher />
       </Flex>
     </Flex>
