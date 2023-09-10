@@ -6,7 +6,7 @@ const signFCT = async (id: string) => {
   } catch (error) {
     console.error('signFCT Error', error)
   } finally {
-    console.log('signFCT state', service.fct.active.addSignature.state(id).value)
+    console.log('signFCT state', service.fct.active.addSignature.state(id))
   }
 }
 
