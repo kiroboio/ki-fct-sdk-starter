@@ -1,10 +1,11 @@
 import React from 'react'
-import { Flex, useColorModeValue, Spacer, Heading } from '@chakra-ui/react'
+import { Box, Flex, useColorModeValue, Spacer, Heading, Center } from '@chakra-ui/react'
 import { LinkComponent } from './LinkComponent'
 import { ThemeSwitcher } from './ThemeSwitcher'
 import { ConnectKitButton } from 'connectkit'
 import Logo from './Logo'
 import { LoginButton } from './LoginButton'
+import InfoBox from '../InfoBox'
 
 interface Props {
   className?: string
@@ -21,6 +22,7 @@ export function Header(props: Props) {
       py={5}
       alignItems="center"
       position="fixed"
+      justify="space-between"
       top={0}
       zIndex={1}
       w="full"
@@ -35,9 +37,8 @@ export function Header(props: Props) {
         </Heading>
       </LinkComponent>
 
-      <Spacer />
-
       <Flex alignItems="center" gap={4}>
+        <InfoBox />
         <ConnectKitButton />
         <LoginButton />
         <ThemeSwitcher />

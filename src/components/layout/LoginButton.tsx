@@ -22,7 +22,7 @@ export function LoginButton() {
 
   return connectionState === 'authorized' && network.raw.online === true ? (
     <>
-      <Button onClick={handleClick}>
+      <Button rounded="xl" onClick={handleClick}>
         <>{loggedInLabel}</>
       </Button>
       <AccountMenu isOpen={isOpen} onClose={onClose} />

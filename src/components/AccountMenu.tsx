@@ -1,4 +1,15 @@
-import { Drawer, DrawerBody, DrawerFooter, DrawerOverlay, DrawerContent } from '@chakra-ui/react'
+import {
+  Drawer,
+  DrawerBody,
+  DrawerFooter,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerHeader,
+  ButtonGroup,
+  Button,
+  SimpleGrid,
+  DrawerCloseButton,
+} from '@chakra-ui/react'
 import { useVault } from '@kiroboio/fct-sdk'
 import { useEffect, useState } from 'react'
 import { zeroAddress } from 'viem'
@@ -18,11 +29,18 @@ export default function AcountMenu({ isOpen, onClose }: { isOpen: boolean; onClo
   return (
     <Drawer size="sm" placement="right" isOpen={isOpen} onClose={onClose}>
       <DrawerOverlay backdropFilter="auto" backdropBlur="4px" />
-      <DrawerContent m={4} py={4} rounded="lg">
-        <DrawerBody>{!hasVault ? <CreateVaultBox /> : <AccountContent />}</DrawerBody>
-        <DrawerFooter>
-          <InfoBox />
-        </DrawerFooter>
+      <DrawerContent m={4} rounded="lg">
+        <DrawerCloseButton />
+        {!hasVault ? (
+          <CreateVaultBox />
+        ) : (
+          <>
+            <DrawerHeader>Account</DrawerHeader>
+            <DrawerBody>
+              <AccountContent />
+            </DrawerBody>
+          </>
+        )}
       </DrawerContent>
     </Drawer>
   )

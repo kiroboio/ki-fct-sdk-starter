@@ -1,5 +1,19 @@
 import { Icon } from '@iconify/react'
-import { ButtonGroup, HStack, Button, IconButton } from '@chakra-ui/react'
+import {
+  ButtonGroup,
+  HStack,
+  Button,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
+  PopoverFooter,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverAnchor,
+} from '@chakra-ui/react'
+
 import { service, useTokens, useFlowPower } from '@kiroboio/fct-sdk'
 
 export default function InfoBox() {
@@ -23,15 +37,48 @@ export default function InfoBox() {
   })
 
   return (
-    <ButtonGroup spacing={1} size="sm" w="full" justifyContent="space-between" colorScheme="telegram">
+    <ButtonGroup spacing={1} justifyContent="space-between" colorScheme="gray">
       <HStack>
-        <Button leftIcon={<Icon icon="streamline:money-safe-vault-saving-combo-payment-safe-money-combination-finance" />}>${vTotalUsd}</Button>
-        <Button leftIcon={<Icon icon="streamline:money-wallet-money-payment-finance-wallet" />}>${wTotalUsd}</Button>
-        <Button leftIcon={<Icon icon="streamline:image-flash-2-flash-power-connect-charge-electricity-lightning" />}>
-          {fuel.fmt.balance.native} ETH
-        </Button>
+        <Popover>
+          <PopoverTrigger>
+            <Button rounded="xl" leftIcon={<Icon icon="streamline:money-safe-vault-saving-combo-payment-safe-money-combination-finance" />}>
+              ${vTotalUsd}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <PopoverArrow />
+            <PopoverCloseButton />
+            <PopoverHeader>Add!</PopoverHeader>
+            <PopoverBody>Are you sure you want to have that milkshake?</PopoverBody>
+          </PopoverContent>
+        </Popover>
+        <Popover>
+          <PopoverTrigger>
+            <Button rounded="xl" leftIcon={<Icon icon="streamline:money-wallet-money-payment-finance-wallet" />}>
+              ${wTotalUsd}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <PopoverArrow />
+            <PopoverCloseButton />
+            <PopoverHeader>Confirmation!</PopoverHeader>
+            <PopoverBody>Are you sure you want to have that milkshake?</PopoverBody>
+          </PopoverContent>
+        </Popover>
+        <Popover>
+          <PopoverTrigger>
+            <Button rounded="xl" leftIcon={<Icon icon="streamline:image-flash-2-flash-power-connect-charge-electricity-lightning" />}>
+              {fuel.fmt.balance.native} ETH
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <PopoverArrow />
+            <PopoverCloseButton />
+            <PopoverHeader>Add Flow Power</PopoverHeader>
+            <PopoverBody>Are you sure you want to have that milkshake?</PopoverBody>
+          </PopoverContent>
+        </Popover>
       </HStack>
-      <IconButton aria-label="Settings" icon={<Icon icon="streamline:interface-setting-cog-work-loading-cog-gear-settings-machine" />} />
     </ButtonGroup>
   )
 }
