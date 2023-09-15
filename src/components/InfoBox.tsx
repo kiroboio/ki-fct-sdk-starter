@@ -1,4 +1,3 @@
-import { Icon } from '@iconify/react'
 import {
   ButtonGroup,
   HStack,
@@ -12,7 +11,23 @@ import {
   PopoverArrow,
   PopoverCloseButton,
   PopoverAnchor,
+  Card,
+  CardBody,
+  Divider,
+  FormControl,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
 } from '@chakra-ui/react'
+import { NumericFormat } from 'react-number-format'
+import { Icon } from '@iconify/react'
 
 import { service, useTokens, useFlowPower } from '@kiroboio/fct-sdk'
 
@@ -39,32 +54,12 @@ export default function InfoBox() {
   return (
     <ButtonGroup spacing={1} justifyContent="space-between" colorScheme="gray">
       <HStack>
-        <Popover>
-          <PopoverTrigger>
-            <Button rounded="xl" leftIcon={<Icon icon="streamline:money-safe-vault-saving-combo-payment-safe-money-combination-finance" />}>
-              ${vTotalUsd}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent>
-            <PopoverArrow />
-            <PopoverCloseButton />
-            <PopoverHeader>Add!</PopoverHeader>
-            <PopoverBody>Are you sure you want to have that milkshake?</PopoverBody>
-          </PopoverContent>
-        </Popover>
-        <Popover>
-          <PopoverTrigger>
-            <Button rounded="xl" leftIcon={<Icon icon="streamline:money-wallet-money-payment-finance-wallet" />}>
-              ${wTotalUsd}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent>
-            <PopoverArrow />
-            <PopoverCloseButton />
-            <PopoverHeader>Confirmation!</PopoverHeader>
-            <PopoverBody>Are you sure you want to have that milkshake?</PopoverBody>
-          </PopoverContent>
-        </Popover>
+        <Button rounded="xl" leftIcon={<Icon icon="streamline:money-safe-vault-saving-combo-payment-safe-money-combination-finance" />}>
+          ${vTotalUsd}
+        </Button>
+        <Button rounded="xl" leftIcon={<Icon icon="streamline:money-wallet-money-payment-finance-wallet" />}>
+          ${wTotalUsd}
+        </Button>
         <Popover>
           <PopoverTrigger>
             <Button rounded="xl" leftIcon={<Icon icon="streamline:image-flash-2-flash-power-connect-charge-electricity-lightning" />}>
@@ -74,8 +69,84 @@ export default function InfoBox() {
           <PopoverContent>
             <PopoverArrow />
             <PopoverCloseButton />
-            <PopoverHeader>Add Flow Power</PopoverHeader>
-            <PopoverBody>Are you sure you want to have that milkshake?</PopoverBody>
+            <PopoverHeader textAlign="center" fontWeight="bold">
+              Add Flow Power
+            </PopoverHeader>
+            <PopoverBody>
+              <Tabs isFitted>
+                <TabList>
+                  <Tab>Easy</Tab>
+                  <Tab>Custom</Tab>
+                </TabList>
+
+                <TabPanels>
+                  <TabPanel p={0}>
+                    <FormControl mt={10} mb={6}>
+                      <InputGroup size="lg">
+                        <InputLeftElement pointerEvents="none">
+                          <Icon icon={'solar:fire-square-bold'} width="24px" height="24px" color="#999" />
+                        </InputLeftElement>
+                        <NumericFormat pr="4.5rem" pl={10} placeholder="0.0" autoComplete="off" customInput={Input} thousandSeparator />
+                        <InputRightElement width="4.5rem">
+                          <Button h="1.75rem" size="sm">
+                            Max
+                          </Button>
+                        </InputRightElement>
+                      </InputGroup>
+                    </FormControl>
+                  </TabPanel>
+                  <TabPanel p={0}>
+                    <FormControl mt={10} mb={6}>
+                      <InputGroup size="lg">
+                        <InputLeftElement pointerEvents="none">
+                          <Icon icon={'fluent:brain-circuit-20-filled'} width="24px" height="24px" color="#999" />
+                        </InputLeftElement>
+                        <NumericFormat pr="4.5rem" pl={10} placeholder="0.0" autoComplete="off" customInput={Input} thousandSeparator />
+                        <InputRightElement width="4.5rem">
+                          <Button h="1.75rem" size="sm">
+                            Max
+                          </Button>
+                        </InputRightElement>
+                      </InputGroup>
+                      <InputGroup size="lg" my={4}>
+                        <InputLeftElement pointerEvents="none">
+                          <Icon icon={'fluent:wallet-32-filled'} width="24px" height="24px" color="#999" />
+                        </InputLeftElement>
+                        <NumericFormat pr="4.5rem" pl={10} placeholder="0.0" autoComplete="off" customInput={Input} thousandSeparator />
+                        <InputRightElement width="4.5rem">
+                          <Button h="1.75rem" size="sm">
+                            Max
+                          </Button>
+                        </InputRightElement>
+                      </InputGroup>
+                    </FormControl>
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
+
+              <Card variant="outline">
+                <CardBody>
+                  <FormControl fontSize="sm">
+                    <HStack justify="space-between">
+                      <Text color="gray.500">Smart Wallet:</Text>
+                      <Text as="strong">ETH</Text>
+                    </HStack>
+                    <HStack justify="space-between">
+                      <Text color="gray.500">Connected Wallet:</Text>
+                      <Text as="strong">ETH</Text>
+                    </HStack>
+                    <Divider my={4} />
+                    <HStack justify="space-between">
+                      <Text color="gray.500">Total Balance:</Text>
+                      <Text as="strong">ETH</Text>
+                    </HStack>
+                  </FormControl>
+                </CardBody>
+              </Card>
+              <Button mt={4} w="full" colorScheme="messenger">
+                Add Funds
+              </Button>
+            </PopoverBody>
           </PopoverContent>
         </Popover>
       </HStack>

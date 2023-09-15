@@ -19,12 +19,28 @@ import {
   AspectRatio,
   Heading,
   Image,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  useDisclosure,
+  ModalBody,
+  Box,
+  Button,
+  ButtonGroup,
+  Checkbox,
+  Divider,
+  FormControl,
+  Input,
+  ModalFooter,
+  ModalCloseButton,
 } from '@chakra-ui/react'
 
 import { forwardRef, memo } from 'react'
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
 import { Icon } from '@iconify/react'
 import { NFTsItemType, service, useNFTs, useTokens, useVault, useWallet } from '@kiroboio/fct-sdk'
+import { NumericFormat } from 'react-number-format'
 
 export default function AccountContent() {
   const vTokens = useTokens({ account: 'vault' })
@@ -34,7 +50,67 @@ export default function AccountContent() {
   const { data: wallet } = useWallet()
   const { data: vault } = useVault()
 
-  const NFT = ({ nft, account }: { nft: NFTsItemType; account: 'wallet' | 'vault' }) => {
+  const TransferModal = ({ isOpen, onClose }) => {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose} size="sm" isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalHeader textAlign="center">Transfer ETH</ModalHeader>
+          <ModalBody>
+            <Text>
+              From: <Text as="strong">Wallet</Text>
+            </Text>
+            <Text>
+              Balance: <Text as="strong">0.5 ETH</Text>
+            </Text>
+            <FormControl mt={4}>
+              <Stack spacing={5}>
+                <Stack spacing={2}>
+                  <NumericFormat
+                    variant="unstyled"
+                    placeholder="0.0"
+                    textAlign="center"
+                    fontSize="3xl"
+                    autoComplete="off"
+                    customInput={Input}
+                    thousandSeparator
+                  />
+                  <Divider />
+                  <NumericFormat
+                    prefix="$"
+                    variant="unstyled"
+                    placeholder="0.0"
+                    textAlign="center"
+                    fontSize="3xl"
+                    autoComplete="off"
+                    customInput={Input}
+                    thousandSeparator
+                  />
+                  <Box textAlign="center">
+                    <ButtonGroup>
+                      <Button size="sm">Max</Button>
+                    </ButtonGroup>
+                  </Box>
+                </Stack>
+                <Stack spacing={2}>
+                  <Checkbox>Move to your vault</Checkbox>
+                  <Input placeholder="Ethereum Address" />
+                </Stack>
+              </Stack>
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button w="full" colorScheme="blue">
+              Send
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    )
+  }
+
+  const NFT = ({ nft }: { nft: NFTsItemType }) => {
     const { name, symbol, iconUrl } = nft.fmt
     return (
       <Card variant="outline" shadow="sm" p={0} m={0}>
@@ -59,7 +135,9 @@ export default function AccountContent() {
 
   const Token = memo(
     forwardRef<HTMLDivElement, TokenPickerItemProps>(({ token, highlight, account, ...props }, ref) => {
+      const { isOpen, onOpen, onClose } = useDisclosure()
       const { symbol, name, balance, balanceUsd, logo } = token.fmt
+
       return (
         <Card ref={ref} {...props} variant="outline">
           <CardBody px={5}>
@@ -80,6 +158,8 @@ export default function AccountContent() {
                     ${balanceUsd}
                   </Text>
                 </Stack>
+                <IconButton size="sm" rounded="full" aria-label="Send" icon={<Icon icon="akar-icons:arrow-right" />} onClick={onOpen} />
+                <TransferModal isOpen={isOpen} onClose={onClose} />
               </HStack>
             </HStack>
           </CardBody>
@@ -105,14 +185,14 @@ export default function AccountContent() {
     wallet: (
       <>
         {wNfts.list.map((item) => (
-          <NFT nft={item} key={item.raw.id} account="wallet" />
+          <NFT nft={item} key={item.raw.id} />
         ))}
       </>
     ),
     vault: (
       <>
         {vNfts.list.map((item) => (
-          <NFT nft={item} key={item.raw.id} account="vault" />
+          <NFT nft={item} key={item.raw.id} />
         ))}
       </>
     ),
@@ -150,6 +230,8 @@ export default function AccountContent() {
         opacity={isSelected ? 1 : 0.35}
         borderWidth={3}
         cursor="pointer"
+        textAlign="center"
+        alignItems="center"
         {...tabProps}>
         <CardBody>
           <Text fontSize="md" fontWeight="bold">
@@ -191,7 +273,7 @@ export default function AccountContent() {
         </TabList>
         <TabPanels mt={6}>
           <TabPanel p={0} pt={4}>
-            <Tabs variant="soft-rounded" align="center">
+            <Tabs size="lg" variant="soft-rounded" isFitted>
               <TabList>
                 <Tab>
                   <HStack spacing={1}>
@@ -219,11 +301,21 @@ export default function AccountContent() {
                 <TabPanel p={0} pt={4}>
                   <HStack spacing={4}>{nfts.vault}</HStack>
                 </TabPanel>
+                <TabPanel p={0} pt={4}>
+                  <Tabs isFitted>
+                    <TabList>
+                      <Tab>Active</Tab>
+                      <Tab>History</Tab>
+                      <Tab>Draft</Tab>
+                      <Tab>Expired</Tab>
+                    </TabList>
+                  </Tabs>
+                </TabPanel>
               </TabPanels>
             </Tabs>
           </TabPanel>
           <TabPanel p={0} pt={4}>
-            <Tabs variant="soft-rounded" align="center">
+            <Tabs size="lg" variant="soft-rounded" isFitted>
               <TabList>
                 <Tab>
                   <HStack spacing={1}>
@@ -250,6 +342,16 @@ export default function AccountContent() {
                 </TabPanel>
                 <TabPanel p={0} pt={4}>
                   <HStack spacing={4}>{nfts.wallet}</HStack>
+                </TabPanel>
+                <TabPanel p={0} pt={4}>
+                  <Tabs isFitted>
+                    <TabList>
+                      <Tab>Active</Tab>
+                      <Tab>History</Tab>
+                      <Tab>Draft</Tab>
+                      <Tab>Expired</Tab>
+                    </TabList>
+                  </Tabs>
                 </TabPanel>
               </TabPanels>
             </Tabs>
