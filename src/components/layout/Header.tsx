@@ -3,6 +3,8 @@ import { Box, Flex, useColorModeValue, Spacer, Heading, Center } from '@chakra-u
 import { LinkComponent } from './LinkComponent'
 import { ThemeSwitcher } from './ThemeSwitcher'
 import { ConnectKitButton } from 'connectkit'
+import { useSession } from '@kiroboio/fct-sdk'
+
 import Logo from './Logo'
 import { LoginButton } from './LoginButton'
 import InfoBox from '../InfoBox'
@@ -13,7 +15,7 @@ interface Props {
 
 export function Header(props: Props) {
   const className = props.className ?? ''
-
+  const { status } = useSession()
   return (
     <Flex
       as="header"
@@ -38,7 +40,7 @@ export function Header(props: Props) {
       </LinkComponent>
 
       <Flex alignItems="center" gap={4}>
-        <InfoBox />
+        {status === 'loggedIn' && <InfoBox />}
         <ConnectKitButton />
         <LoginButton />
         <ThemeSwitcher />

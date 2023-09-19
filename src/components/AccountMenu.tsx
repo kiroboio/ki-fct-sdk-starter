@@ -27,7 +27,7 @@ export default function AcountMenu({ isOpen, onClose }: { isOpen: boolean; onClo
   }, [vault.raw.address])
 
   return (
-    <Drawer size="sm" placement="right" isOpen={isOpen} onClose={onClose}>
+    <Drawer size="md" placement="right" isOpen={isOpen} onClose={onClose}>
       <DrawerOverlay backdropFilter="auto" backdropBlur="4px" />
       <DrawerContent m={4} rounded="lg">
         <DrawerCloseButton />

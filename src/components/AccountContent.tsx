@@ -293,6 +293,12 @@ export default function AccountContent() {
                     <Text>Flows</Text>
                   </HStack>
                 </Tab>
+                <Tab>
+                  <HStack spacing={1}>
+                    <Icon icon="ic:round-history" width="20px" height="20px" />
+                    <Text>History</Text>
+                  </HStack>
+                </Tab>
               </TabList>
               <TabPanels>
                 <TabPanel p={0} pt={4}>
@@ -305,9 +311,16 @@ export default function AccountContent() {
                   <Tabs isFitted>
                     <TabList>
                       <Tab>Active</Tab>
-                      <Tab>History</Tab>
-                      <Tab>Draft</Tab>
+                      <Tab>Drafts</Tab>
                       <Tab>Expired</Tab>
+                    </TabList>
+                  </Tabs>
+                </TabPanel>
+                <TabPanel p={0} pt={4}>
+                  <Tabs isFitted>
+                    <TabList>
+                      <Tab>Flows</Tab>
+                      <Tab>Assets</Tab>
                     </TabList>
                   </Tabs>
                 </TabPanel>
@@ -335,6 +348,12 @@ export default function AccountContent() {
                     <Text>Flows</Text>
                   </HStack>
                 </Tab>
+                <Tab>
+                  <HStack spacing={1}>
+                    <Icon icon="ic:round-history" width="20px" height="20px" />
+                    <Text>History</Text>
+                  </HStack>
+                </Tab>
               </TabList>
               <TabPanels>
                 <TabPanel p={0} pt={4}>
@@ -347,9 +366,16 @@ export default function AccountContent() {
                   <Tabs isFitted>
                     <TabList>
                       <Tab>Active</Tab>
-                      <Tab>History</Tab>
-                      <Tab>Draft</Tab>
+                      <Tab>Drafts</Tab>
                       <Tab>Expired</Tab>
+                    </TabList>
+                  </Tabs>
+                </TabPanel>
+                <TabPanel p={0} pt={4}>
+                  <Tabs isFitted>
+                    <TabList>
+                      <Tab>Flows</Tab>
+                      <Tab>Assets</Tab>
                     </TabList>
                   </Tabs>
                 </TabPanel>

@@ -1839,10 +1839,10 @@
     uniqid "^5.4.0"
     web3-utils "^1.8.0"
 
-"@kiroboio/fct-sdk@^1.1.15":
-  version "1.1.15"
-  resolved "https://registry.yarnpkg.com/@kiroboio/fct-sdk/-/fct-sdk-1.1.15.tgz#1c23cb9716844e3d69ec58a1f972b7dfda8f5bed"
-  integrity sha512-Bfjd/sl0oPR2pnj6CBUiLHTyq5fGq2nDgs6Gw2c1vhIwUw/Yor3yalFEV027FHiW9eHa2fJ8OOSu7foxB4BfPA==
+"@kiroboio/fct-sdk@^1.1.36":
+  version "1.1.36"
+  resolved "https://registry.yarnpkg.com/@kiroboio/fct-sdk/-/fct-sdk-1.1.36.tgz#63025f21b89575bf555a6935ca78a9282a256027"
+  integrity sha512-n1FuGQGoqNp11/pBMSkThv5IWnlEL8S7TBLnLlCJUw/0AJyDYqi9DNMouDaJmuST4luW7QhOJzGBJ7EEEGsnSA==
   dependencies:
     "@kiroboio/fct-builder" "^1.0.5"
     "@kiroboio/fct-contracts" "^1.0.8"
@@ -1861,6 +1861,7 @@
     just-diff "^6.0.2"
     numeral "^2.0.6"
     shallow-equal "^3.1.0"
+    store2 "^2.14.2"
     utf-8-validate "^6.0.3"
     valtio "^1.11.2"
 
@@ -8867,6 +8868,11 @@ stdin-discarder@^0.1.0:
   integrity sha512-xhV7w8S+bUwlPTb4bAOUQhv8/cSS5offJuX8GQGq32ONF0ZtDWKfkdomM3HMRA+LhX6um/FZ0COqlwsjD53LeQ==
   dependencies:
     bl "^5.0.0"
+
+store2@^2.14.2:
+  version "2.14.2"
+  resolved "https://registry.yarnpkg.com/store2/-/store2-2.14.2.tgz#56138d200f9fe5f582ad63bc2704dbc0e4a45068"
+  integrity sha512-siT1RiqlfQnGqgT/YzXVUNsom9S0H1OX+dpdGN1xkyYATo4I6sep5NmsRD/40s3IIOvlCq6akxkqG82urIZW1w==
 
 stream-blackhole@^1.0.3:
   version "1.0.3"

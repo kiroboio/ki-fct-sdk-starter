@@ -7,10 +7,8 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverBody,
-  PopoverFooter,
   PopoverArrow,
   PopoverCloseButton,
-  PopoverAnchor,
   Card,
   CardBody,
   Divider,
@@ -43,10 +41,25 @@ export default function InfoBox() {
     decimals: 0,
     digits: 2,
   })
+  const wTotalEth = service.formatting.prebuild.formatValue({
+    service: 'tokens',
+    name: 'total',
+    value: wTokens.list.reduce((acc, cur) => acc + +cur.raw.balance, 0),
+    decimals: 2,
+    digits: 2,
+  })
+
   const vTotalUsd = service.formatting.prebuild.formatValue({
     service: 'tokens',
     name: 'total',
     value: vTokens.list.reduce((acc, cur) => acc + +cur.raw.balanceUsd, 0),
+    decimals: 0,
+    digits: 2,
+  })
+  const vTotalEth = service.formatting.prebuild.formatValue({
+    service: 'tokens',
+    name: 'total',
+    value: vTokens.list.reduce((acc, cur) => acc + +cur.raw.balance, 0),
     decimals: 0,
     digits: 2,
   })
@@ -129,7 +142,7 @@ export default function InfoBox() {
                   <FormControl fontSize="sm">
                     <HStack justify="space-between">
                       <Text color="gray.500">Smart Wallet:</Text>
-                      <Text as="strong">ETH</Text>
+                      <Text as="strong"> {wTotalEth} ETH</Text>
                     </HStack>
                     <HStack justify="space-between">
                       <Text color="gray.500">Connected Wallet:</Text>
