@@ -1,4 +1,3 @@
-//@ts-nocheck
 import {
   Tabs,
   TabList,
@@ -39,8 +38,10 @@ import {
 import { forwardRef, memo } from 'react'
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
 import { Icon } from '@iconify/react'
-import { NFTsItemType, service, useNFTs, useTokens, useVault, useWallet } from '@kiroboio/fct-sdk'
+import { NFTsItemType, service, useNFTs, useTokens, useVault, useWallet, useFlowHistory } from '@kiroboio/fct-sdk'
 import { NumericFormat } from 'react-number-format'
+import { FlowHistory } from './flows/FlowHistory'
+import { TXHistory } from './history/TXHistory'
 
 export default function AccountContent() {
   const vTokens = useTokens({ account: 'vault' })
@@ -307,21 +308,21 @@ export default function AccountContent() {
                 <TabPanel p={0} pt={4}>
                   <HStack spacing={4}>{nfts.vault}</HStack>
                 </TabPanel>
-                <TabPanel p={0} pt={4}>
-                  <Tabs isFitted>
-                    <TabList>
-                      <Tab>Active</Tab>
-                      <Tab>Drafts</Tab>
-                      <Tab>Expired</Tab>
-                    </TabList>
-                  </Tabs>
-                </TabPanel>
+                <TabPanel p={0} pt={4}></TabPanel>
                 <TabPanel p={0} pt={4}>
                   <Tabs isFitted>
                     <TabList>
                       <Tab>Flows</Tab>
                       <Tab>Assets</Tab>
                     </TabList>
+                    <TabPanels>
+                      <TabPanel>
+                        <FlowHistory />
+                      </TabPanel>
+                      <TabPanel>
+                        <TXHistory />
+                      </TabPanel>
+                    </TabPanels>
                   </Tabs>
                 </TabPanel>
               </TabPanels>
@@ -362,21 +363,21 @@ export default function AccountContent() {
                 <TabPanel p={0} pt={4}>
                   <HStack spacing={4}>{nfts.wallet}</HStack>
                 </TabPanel>
-                <TabPanel p={0} pt={4}>
-                  <Tabs isFitted>
-                    <TabList>
-                      <Tab>Active</Tab>
-                      <Tab>Drafts</Tab>
-                      <Tab>Expired</Tab>
-                    </TabList>
-                  </Tabs>
-                </TabPanel>
+                <TabPanel p={0} pt={4}></TabPanel>
                 <TabPanel p={0} pt={4}>
                   <Tabs isFitted>
                     <TabList>
                       <Tab>Flows</Tab>
                       <Tab>Assets</Tab>
                     </TabList>
+                    <TabPanels>
+                      <TabPanel>
+                        <FlowHistory />
+                      </TabPanel>
+                      <TabPanel>
+                        <TXHistory />
+                      </TabPanel>
+                    </TabPanels>
                   </Tabs>
                 </TabPanel>
               </TabPanels>
