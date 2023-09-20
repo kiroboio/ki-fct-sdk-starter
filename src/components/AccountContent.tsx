@@ -42,6 +42,7 @@ import { NFTsItemType, service, useNFTs, useTokens, useVault, useWallet, useFlow
 import { NumericFormat } from 'react-number-format'
 import { FlowHistory } from './flows/FlowHistory'
 import { TXHistory } from './history/TXHistory'
+import { ActiveFlows } from './flows/ActiveFlows'
 
 export default function AccountContent() {
   const vTokens = useTokens({ account: 'vault' })
@@ -323,7 +324,9 @@ export default function AccountContent() {
                 <TabPanel p={0} pt={4}>
                   <HStack spacing={4}>{nfts.vault}</HStack>
                 </TabPanel>
-                <TabPanel p={0} pt={4}></TabPanel>
+                <TabPanel p={0} pt={4}>
+                  <ActiveFlows />
+                </TabPanel>
                 <TabPanel p={0} pt={4}>
                   <Tabs isFitted>
                     <TabList>
@@ -378,7 +381,9 @@ export default function AccountContent() {
                 <TabPanel p={0} pt={4}>
                   <HStack spacing={4}>{nfts.wallet}</HStack>
                 </TabPanel>
-                <TabPanel p={0} pt={4}></TabPanel>
+                <TabPanel p={0} pt={4}>
+                  <ActiveFlows />
+                </TabPanel>
                 <TabPanel p={0} pt={4}>
                   <Tabs isFitted>
                     <TabList>

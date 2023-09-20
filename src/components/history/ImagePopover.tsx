@@ -37,7 +37,7 @@ export const ImagePopover = ({ src, href, title, label }: ImagePopoverProps) => 
         <PopoverHeader>{title}</PopoverHeader>
         <PopoverBody>
           <Link href={href} isExternal>
-            <Image rounded="xl" src={src} boxSize="200px" />
+            <Image rounded="xl" src={src} boxSize="200px" alt={title} />
           </Link>
         </PopoverBody>
       </PopoverContent>
