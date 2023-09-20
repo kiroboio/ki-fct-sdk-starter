@@ -1,4 +1,3 @@
-//@ts-nocheck
 import {
   Tabs,
   TabList,
@@ -52,7 +51,7 @@ export default function AccountContent() {
   const { data: wallet } = useWallet()
   const { data: vault } = useVault()
 
-  const TransferModal = ({ isOpen, onClose }) => {
+  const TransferModal = ({ isOpen, onClose }: { isOpen: any; onClose: any }) => {
     return (
       <Modal isOpen={isOpen} onClose={onClose} size="sm" isCentered>
         <ModalOverlay />
@@ -216,12 +215,20 @@ export default function AccountContent() {
     digits: 2,
   })
 
+  interface CustomTabProps {
+    fmtAddress: string
+    rawAddress: string
+    icon: string
+    balance: string
+    children: React.ReactNode
+  }
+
   // eslint-disable-next-line react/display-name
-  const CustomTab = forwardRef((props, ref) => {
+  const CustomTab = forwardRef<HTMLDivElement, CustomTabProps>((props, ref) => {
     const tabProps = useTab({ ...props, ref })
     const isSelected = !!tabProps['aria-selected']
 
-    const { fmtAddress, rawAddress, icon, balance, children } = tabProps
+    const { fmtAddress, rawAddress, icon, balance, children } = props
     const { onCopy, hasCopied } = useClipboard(rawAddress)
 
     return (
@@ -260,6 +267,13 @@ export default function AccountContent() {
     highlight?: boolean
     account: 'vault' | 'wallet'
     token: ReturnType<typeof useTokens>['list']['0']
+  }
+
+  interface MyComponentProps {
+    fmtAddress: string
+    rawAddress: string
+    icon: string
+    balance: string
   }
 
   return (
