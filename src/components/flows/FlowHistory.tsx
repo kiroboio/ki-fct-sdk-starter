@@ -1,12 +1,12 @@
 import type { StackProps } from '@chakra-ui/react'
 import { Box, Stack, Text, Center } from '@chakra-ui/react'
-import { useFlowHistory } from '@kiroboio/fct-sdk'
+import { useFlowHistoryList } from '@kiroboio/fct-sdk'
 import type { FC } from 'react'
 
 import { FlowHistoryRow } from './FlowHistoryRow'
 
 export const FlowHistory: FC<StackProps> = () => {
-  const flowHistory = useFlowHistory()
+  const flowHistory = useFlowHistoryList()
   const { isLoading, isSuccess, isIdle, error } = flowHistory
 
   if (error) console.error('FlowHistory error', error)

@@ -1,12 +1,12 @@
 import type { StackProps } from '@chakra-ui/react'
 import { Box, Stack, Text, Table, Thead, Tbody, Tr, Th, TableContainer } from '@chakra-ui/react'
-import { useTransfers } from '@kiroboio/fct-sdk'
+import { useTransferList } from '@kiroboio/fct-sdk'
 import type { FC } from 'react'
 
 import { TXHistoryRow } from './TXHistoryRow'
 
 export const TXHistory: FC<StackProps> = () => {
-  const txHistory = useTransfers({ account: 'vault' })
+  const txHistory = useTransferList({ account: 'vault' })
   const { isLoading, isSuccess, isIdle, error } = txHistory
 
   if (error) console.error('TxHistory error', error)

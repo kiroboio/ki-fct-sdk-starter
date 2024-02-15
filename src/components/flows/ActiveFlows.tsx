@@ -1,12 +1,12 @@
 import type { StackProps } from '@chakra-ui/react'
 import { Box, Stack, Text, Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer } from '@chakra-ui/react'
-import { useActiveFlows } from '@kiroboio/fct-sdk'
+import { useActiveFlowList } from '@kiroboio/fct-sdk'
 import type { FC } from 'react'
 
 import { ActiveFlowsRow } from './ActiveFlowsRow'
 
 export const ActiveFlows: FC<StackProps> = (props) => {
-  const activeFlows = useActiveFlows()
+  const activeFlows = useActiveFlowList()
   const { isLoading, isSuccess, isIdle, error } = activeFlows
 
   if (error) console.error('ActiveFlows error', error)

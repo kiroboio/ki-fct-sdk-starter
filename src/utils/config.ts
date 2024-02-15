@@ -1,5 +1,5 @@
 import { ThemingProps } from '@chakra-ui/react'
-import { mainnet, goerli, sepolia, polygon, optimism, arbitrum } from '@wagmi/chains'
+import { mainnet, goerli, sepolia, arbitrum } from 'wagmi/chains'
 
 export const KI_KEY = 'dev'
 export const KI_SECRET = 'sdk'
@@ -17,7 +17,7 @@ export const THEME_CONFIG = {
 export const SOCIAL_TWITTER = 'kirobo_io'
 export const SOCIAL_GITHUB = 'kiroboio/ki-fct-sdk-starter'
 
-export const ETH_CHAINS = [mainnet, goerli, sepolia, polygon, optimism, arbitrum]
+export const ETH_CHAINS = [mainnet, goerli, sepolia, arbitrum]
 
 export const SERVER_SESSION_SETTINGS = {
   cookieName: SITE_NAME,

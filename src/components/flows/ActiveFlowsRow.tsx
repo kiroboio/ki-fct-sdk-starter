@@ -1,5 +1,5 @@
 import { Box, Divider, HStack, Icon, Stack, Text, Tooltip, useClipboard, Tr, Td } from '@chakra-ui/react'
-import { type useActiveFlows } from '@kiroboio/fct-sdk'
+import { type useActiveFlowList } from '@kiroboio/fct-sdk'
 import { CheckCircle, Copy, Info, RefreshCw } from 'react-feather'
 
 import { shortenAddress } from '../../utils/address'
@@ -28,7 +28,7 @@ export const getChillTimeDisplay = (num: number) => {
 
 // TODO: For Tal: fix ActiveFlowsItemType
 // export const ActiveFlowsRow = ({ item }: { item: ActiveFlowsItemType }) => {
-export const ActiveFlowsRow = ({ item }: { item: ReturnType<typeof useActiveFlows>['list']['0'] }) => {
+export const ActiveFlowsRow = ({ item }: { item: ReturnType<typeof useActiveFlowList>['list']['0'] }) => {
   const name = item.raw.data?.typedData?.message?.meta?.name
   const { createdAt, valid_from, expires_at, gas_price_limit } = item.fmt
 

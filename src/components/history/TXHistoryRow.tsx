@@ -1,5 +1,5 @@
 import { Box, Divider, HStack, Icon, Link, Stack, Text, Tooltip, useClipboard, Tr, Td } from '@chakra-ui/react'
-import type { TransfersItemType } from '@kiroboio/fct-sdk'
+import type { TransferItemType } from '@kiroboio/fct-sdk'
 import { useVault } from '@kiroboio/fct-sdk'
 import { ArrowDownLeft, ArrowUpRight, CheckCircle, Copy, ExternalLink } from 'react-feather'
 
@@ -8,7 +8,7 @@ import { shortenAddress } from '../../utils/address'
 
 import { ImagePopover } from './ImagePopover'
 
-export const TXHistoryRow = ({ item }: { item: TransfersItemType }) => {
+export const TXHistoryRow = ({ item }: { item: TransferItemType }) => {
   const vault = useVault()
   const { txLink } = useBlockchainLink()
 

@@ -38,17 +38,17 @@ import {
 import { forwardRef, memo } from 'react'
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
 import { Icon } from '@iconify/react'
-import { NFTsItemType, service, useNFTs, useTokens, useVault, useWallet, useFlowHistory } from '@kiroboio/fct-sdk'
+import { NFTItemType, service, useNFTList, useTokenList, useVault, useWallet } from '@kiroboio/fct-sdk'
 import { NumericFormat } from 'react-number-format'
 import { FlowHistory } from './flows/FlowHistory'
 import { TXHistory } from './history/TXHistory'
 import { ActiveFlows } from './flows/ActiveFlows'
 
 export default function AccountContent() {
-  const vTokens = useTokens({ account: 'vault' })
-  const wTokens = useTokens({ account: 'wallet' })
-  const wNfts = useNFTs({ account: 'wallet' })
-  const vNfts = useNFTs({ account: 'vault' })
+  const vTokens = useTokenList({ account: 'vault' })
+  const wTokens = useTokenList({ account: 'wallet' })
+  const wNfts = useNFTList({ account: 'wallet' })
+  const vNfts = useNFTList({ account: 'vault' })
   const { data: wallet } = useWallet()
   const { data: vault } = useVault()
 
@@ -112,7 +112,7 @@ export default function AccountContent() {
     )
   }
 
-  const NFT = ({ nft }: { nft: NFTsItemType }) => {
+  const NFT = ({ nft }: { nft: NFTItemType }) => {
     const { name, symbol, iconUrl } = nft.fmt
     return (
       <Card variant="outline" shadow="sm" p={0} m={0}>
@@ -267,7 +267,7 @@ export default function AccountContent() {
   interface TokenPickerItemProps extends StackProps {
     highlight?: boolean
     account: 'vault' | 'wallet'
-    token: ReturnType<typeof useTokens>['list']['0']
+    token: ReturnType<typeof useTokenList>['list']['0']
   }
 
   interface MyComponentProps {

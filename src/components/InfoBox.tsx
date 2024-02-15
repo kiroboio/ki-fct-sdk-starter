@@ -27,12 +27,12 @@ import {
 import { NumericFormat } from 'react-number-format'
 import { Icon } from '@iconify/react'
 
-import { service, useTokens, useFlowPower } from '@kiroboio/fct-sdk'
+import { service, useTokenList, useFlowPower } from '@kiroboio/fct-sdk'
 
 export default function InfoBox() {
   const fuel = useFlowPower()
-  const vTokens = useTokens({ account: 'vault' })
-  const wTokens = useTokens({ account: 'wallet' })
+  const vTokens = useTokenList({ account: 'vault' })
+  const wTokens = useTokenList({ account: 'wallet' })
 
   const wTotalUsd = service.formatting.prebuild.formatValue({
     service: 'tokens',
