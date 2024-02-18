@@ -19,10 +19,10 @@ dependencies:
     version: 11.11.0(@emotion/react@11.11.3)(@types/react@18.2.14)(react@18.2.0)
   '@kiroboio/fct-core':
     specifier: ^3.6.8
-    version: 3.6.9(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(typescript@5.1.6)(utf-8-validate@6.0.3)
+    version: 3.6.9(hardhat@2.20.1)(typescript@5.1.6)
   '@kiroboio/fct-sdk':
-    specifier: 1.4.18
-    version: 1.4.18(@types/react@18.2.14)(hardhat@2.20.1)(socket.io@2.5.0)(typescript@5.1.6)
+    specifier: 1.4.19
+    version: 1.4.19(@types/react@18.2.14)(hardhat@2.20.1)(socket.io@2.5.0)(typescript@5.1.6)
   '@kiroboio/fct-service':
     specifier: ^3.1.0
     version: 3.1.0(bufferutil@4.0.8)(socket.io@2.5.0)(utf-8-validate@6.0.3)
@@ -2578,7 +2578,7 @@ packages:
   /@kiroboio/fct-core@1.12.6(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(typescript@5.1.6)(utf-8-validate@6.0.3):
     resolution: {integrity: sha512-1nJVC2snPWRunQW/xpWd0iBKb60lfnRhDBx28q47JBeuDXgezUYROuDrdH5cOr3vUNqt8HqwPxb7PN96eDhtGQ==}
     dependencies:
-      '@kiroboio/fct-plugins': 1.1.588(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(typescript@5.1.6)(utf-8-validate@6.0.3)
+      '@kiroboio/fct-plugins': 1.1.589(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(typescript@5.1.6)(utf-8-validate@6.0.3)
       '@metamask/eth-sig-util': 5.1.0
       ethers: 5.7.2(bufferutil@4.0.8)(utf-8-validate@6.0.3)
       graphlib: 2.1.8
@@ -2593,10 +2593,10 @@ packages:
       - zod
     dev: false
 
-  /@kiroboio/fct-core@3.6.9(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(typescript@5.1.6)(utf-8-validate@6.0.3):
-    resolution: {integrity: sha512-iIagbrRqtWWYRpxpFaExaTQWLwi0fsjEg1EqgHZqViAyOJCDJg6AAGioabOCbIUVs8k4BtnpPstwB1/m/o4DXQ==}
+  /@kiroboio/fct-core@3.6.10(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(typescript@5.1.6)(utf-8-validate@6.0.3):
+    resolution: {integrity: sha512-c6m9J5L+D9r1UToqNj54Nl8RllOkRGNKpJ70xCSlWlNWCZ1GoVv0J3oB6WC6GMZTkRbL6rg3iju7OS3Wv+8OZQ==}
     dependencies:
-      '@kiroboio/fct-plugins': 1.1.588(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(typescript@5.1.6)(utf-8-validate@6.0.3)
+      '@kiroboio/fct-plugins': 1.1.589(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(typescript@5.1.6)(utf-8-validate@6.0.3)
       '@metamask/eth-sig-util': 5.1.0
       ethers: 5.7.2(bufferutil@4.0.8)(utf-8-validate@6.0.3)
       graphlib: 2.1.8
@@ -2611,7 +2611,25 @@ packages:
       - zod
     dev: false
 
-  /@kiroboio/fct-plugins@1.1.588(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(typescript@5.1.6)(utf-8-validate@6.0.3):
+  /@kiroboio/fct-core@3.6.9(hardhat@2.20.1)(typescript@5.1.6):
+    resolution: {integrity: sha512-iIagbrRqtWWYRpxpFaExaTQWLwi0fsjEg1EqgHZqViAyOJCDJg6AAGioabOCbIUVs8k4BtnpPstwB1/m/o4DXQ==}
+    dependencies:
+      '@kiroboio/fct-plugins': 1.1.588(hardhat@2.20.1)(typescript@5.1.6)
+      '@metamask/eth-sig-util': 5.1.0
+      ethers: 5.7.2(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+      graphlib: 2.1.8
+      node-cache: 5.1.2
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - encoding
+      - hardhat
+      - typescript
+      - utf-8-validate
+      - zod
+    dev: false
+
+  /@kiroboio/fct-plugins@1.1.588(hardhat@2.20.1)(typescript@5.1.6):
     resolution: {integrity: sha512-uecXRFeof91HTKpjgFYz7SX++QP9On9BczgvokSlUFXgTMwZp1P4VyJ6uqvjY8O+zWR9xjEMZYTdTVcEC3boJA==}
     dependencies:
       '@babel/runtime': 7.23.9
@@ -2649,13 +2667,51 @@ packages:
       - zod
     dev: false
 
-  /@kiroboio/fct-sdk@1.4.18(@types/react@18.2.14)(hardhat@2.20.1)(socket.io@2.5.0)(typescript@5.1.6):
-    resolution: {integrity: sha512-oB8H27QkQ8dWq+ZoXV1RbT9O9MLVcm8/AIGDTuHrp3jDRerdYuKcQemrUEh0qm3/sZbGhmwN6y5Bs8Ez5efg6Q==}
+  /@kiroboio/fct-plugins@1.1.589(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(typescript@5.1.6)(utf-8-validate@6.0.3):
+    resolution: {integrity: sha512-1ilALsUquo1EzqASQp3F0kmHCxy9jE580SXG9atRYkN2CgSJHaDSOrSZOZVpgcTX9oNBx+MrKzm4+7xS/tRXMg==}
+    dependencies:
+      '@babel/runtime': 7.23.9
+      '@sushiswap/sdk': 5.0.0-canary.116(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@6.0.3)
+      '@uniswap/router-sdk': 1.8.0(hardhat@2.20.1)
+      '@uniswap/sdk-core': 3.2.6
+      '@uniswap/smart-order-router': 2.10.2(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(jsbi@3.2.5)(utf-8-validate@6.0.3)
+      '@uniswap/token-lists': 1.0.0-beta.33
+      '@uniswap/v2-core': 1.0.1
+      '@uniswap/v2-periphery': 1.1.0-beta.0
+      '@uniswap/v2-sdk': 4.1.0
+      '@uniswap/v3-core': 1.0.0
+      '@uniswap/v3-periphery': 1.0.0
+      '@uniswap/v3-sdk': 3.8.2
+      axios: 1.6.7
+      bignumber.js: 9.1.2
+      decimal.js: 10.4.3
+      deepmerge-ts: 4.3.0
+      dotenv: 16.4.4
+      ethers: 5.7.2(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+      js-big-decimal: 1.4.1
+      jsbi: 3.2.5
+      lodash: 4.17.21
+      simple-sushiswap-sdk: 1.0.2(bufferutil@4.0.8)(utf-8-validate@6.0.3)
+      uniqid: 5.4.0
+      viem: 1.1.4(bufferutil@4.0.8)(typescript@5.1.6)(utf-8-validate@6.0.3)
+      web3-utils: 1.10.4
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - encoding
+      - hardhat
+      - typescript
+      - utf-8-validate
+      - zod
+    dev: false
+
+  /@kiroboio/fct-sdk@1.4.19(@types/react@18.2.14)(hardhat@2.20.1)(socket.io@2.5.0)(typescript@5.1.6):
+    resolution: {integrity: sha512-myd7bhsEzS8cBe+4CD/u3mj7pBhkDS4yOxjXwNSTyUW19x/DgRZniT1Q5UpjLtb5HjZpkcS2S0idJbvNVexxyA==}
     engines: {node: '>=12'}
     dependencies:
       '@kiroboio/fct-builder': 1.0.5(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(typescript@5.1.6)(utf-8-validate@6.0.3)
       '@kiroboio/fct-contracts': 1.0.8
-      '@kiroboio/fct-core': 3.6.9(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(typescript@5.1.6)(utf-8-validate@6.0.3)
+      '@kiroboio/fct-core': 3.6.10(bufferutil@4.0.8)(encoding@0.1.13)(hardhat@2.20.1)(typescript@5.1.6)(utf-8-validate@6.0.3)
       '@kiroboio/fct-service': 3.1.0(bufferutil@4.0.8)(socket.io@2.5.0)(utf-8-validate@6.0.3)
       abitype: 0.9.10(typescript@5.1.6)
       ajv: 8.12.0
