@@ -43,6 +43,7 @@ import { NumericFormat } from 'react-number-format'
 import { FlowHistory } from './flows/FlowHistory'
 import { TXHistory } from './history/TXHistory'
 import { ActiveFlows } from './flows/ActiveFlows'
+import { LimitOrder } from './flows/LimitOrder'
 
 export default function AccountContent() {
   const vTokens = useTokenList({ account: 'vault' })
@@ -289,7 +290,7 @@ export default function AccountContent() {
           </CustomTab>
         </TabList>
         <TabPanels mt={6}>
-          <TabPanel p={0} pt={4}>
+          {/* <TabPanel p={0} pt={4}>
             <Tabs size="lg" variant="soft-rounded" isFitted>
               <TabList>
                 <Tab>
@@ -345,7 +346,7 @@ export default function AccountContent() {
                 </TabPanel>
               </TabPanels>
             </Tabs>
-          </TabPanel>
+          </TabPanel> */}
           <TabPanel p={0} pt={4}>
             <Tabs size="lg" variant="soft-rounded" isFitted>
               <TabList>
@@ -359,6 +360,12 @@ export default function AccountContent() {
                   <HStack spacing={1}>
                     <Icon icon="ri:nft-fill" width="20px" height="20px" />
                     <Text>NFTs</Text>
+                  </HStack>
+                </Tab>
+                <Tab>
+                  <HStack spacing={1}>
+                    <Icon icon="clarity:flow-chart-solid" width="20px" height="20px" />
+                    <Text>Limit Order</Text>
                   </HStack>
                 </Tab>
                 <Tab>
@@ -380,6 +387,9 @@ export default function AccountContent() {
                 </TabPanel>
                 <TabPanel p={0} pt={4}>
                   <HStack spacing={4}>{nfts.wallet}</HStack>
+                </TabPanel>
+                <TabPanel p={0} pt={4}>
+                 <LimitOrder />
                 </TabPanel>
                 <TabPanel p={0} pt={4}>
                   <ActiveFlows />
