@@ -1,8 +1,7 @@
-//@ts-nocheck
-import { SetStateAction, useRef, useState } from 'react'
+import { SetStateAction, useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { CheckCircleIcon } from '@chakra-ui/icons'
-import { FiChevronDown } from 'react-icons/fi'
+import { FiChevronDown, } from 'react-icons/fi'
 import { IoSwapVerticalOutline } from 'react-icons/io5'
 import { IoSearch } from 'react-icons/io5'
 import {
@@ -43,7 +42,7 @@ import {
     ModalContent,
     ModalHeader,
     ModalOverlay,
-    StackDivider,
+    Image,
     Alert,
     AlertDescription,
     AlertTitle,
@@ -52,45 +51,50 @@ import {
     LinkOverlay,
     Switch,
     InputLeftElement,
+    Spinner,
 } from '@chakra-ui/react'
 
-import { useNetwork } from '@kiroboio/fct-sdk'
+import { service, useNetwork, useProviders } from '@kiroboio/fct-sdk'
 
 import TradingViewWidget from '../../components/TradingView'
+import { ChainId, FCT_UNISWAP, Options, Utility, Utils } from '@kiroboio/fct-core'
+import { etherToWei, weiToEther } from '~/utils/number'
 
-const currencyOptions = [
-    { name: 'Uniswap', symbol: 'UNI' },
-    { name: 'USD Coin', symbol: 'USDC' },
-    { name: 'Dai Stablecoin', symbol: 'DAI' },
-    { name: 'Chainlink', symbol: 'LINK' },
-    { name: 'Wrapped BTC', symbol: 'WBTC' },
-    { name: 'AAVE', symbol: 'AAVE' },
-    { name: 'Polygon', symbol: 'MATIC' },
-    { name: 'Compound', symbol: 'COMP' },
-    { name: 'Maker', symbol: 'MKR' },
-    { name: 'Ethereum', symbol: 'ETH' },
-    { name: 'The Graph', symbol: 'GRT' },
-    { name: 'SushiSwap', symbol: 'SUSHI' },
-    { name: 'yearn.finance', symbol: 'YFI' },
-    { name: 'Balancer', symbol: 'BAL' },
-    { name: 'Synthetix', symbol: 'SNX' },
-    { name: 'Ren', symbol: 'REN' },
-    { name: 'Loopring', symbol: 'LRC' },
-]
 
+//const currencyOptions = Utils.getSupportedTokens
+// const currencyOptions = [
+//     { name: 'Uniswap', symbol: 'UNI' },
+//     { name: 'USD Coin', symbol: 'USDC' },
+//     { name: 'Dai Stablecoin', symbol: 'DAI' },
+//     { name: 'Chainlink', symbol: 'LINK' },
+//     { name: 'Wrapped BTC', symbol: 'WBTC' },
+//     { name: 'AAVE', symbol: 'AAVE' },
+//     { name: 'Polygon', symbol: 'MATIC' },
+//     { name: 'Compound', symbol: 'COMP' },
+//     { name: 'Maker', symbol: 'MKR' },
+//     { name: 'Ethereum', symbol: 'ETH' },
+//     { name: 'The Graph', symbol: 'GRT' },
+//     { name: 'SushiSwap', symbol: 'SUSHI' },
+//     { name: 'yearn.finance', symbol: 'YFI' },
+//     { name: 'Balancer', symbol: 'BAL' },
+//     { name: 'Synthetix', symbol: 'SNX' },
+//     { name: 'Ren', symbol: 'REN' },
+//     { name: 'Loopring', symbol: 'LRC' },
+// ]
+
+type TokenType = ReturnType<typeof Utils.getSupportedTokens>[number]
 interface CurrencyOptionProps {
-    symbol: string
-    name: string
+    token: TokenType,
     isSelected?: boolean
-    onSelect: (symbol: string) => void
+    onSelect: (token: TokenType) => void
 }
 
 interface TokenOptionProps {
-    token: string
-    withButtons?: boolean
-    balance?: number
-    convertion?: number
-    onClick: any
+    onTokenSelect: (t: TokenType) => void
+    onAmountChange: (a: string) => void
+    isLoading?: boolean
+    token?: TokenType,
+    amount?: string,
 }
 
 interface OrderHistoryProps {
@@ -106,25 +110,25 @@ type OrderProps = {
     created_at: string
 }
 
-const CurrencyOption: React.FC<CurrencyOptionProps> = ({ symbol, name, isSelected, onSelect }) => (
+const CurrencyOption: React.FC<CurrencyOptionProps> = ({ token, isSelected, onSelect }) => (
     <LinkBox py={1} _hover={{ background: useColorModeValue('gray.100', 'gray.900') }}>
         <LinkOverlay
             href="#"
             onClick={() => {
-                isSelected ? undefined : onSelect(symbol)
+                onSelect(token)
             }}>
             <HStack px={6} py={1} spacing={3} justifyContent="space-between">
                 <HStack>
-                    <Icon icon={`cryptocurrency-color:${symbol.toLowerCase()}`} width={28} />
+                    <Image rounded="md" src={token.logoURI} alt={token.symbol} boxSize="5" />
                     <Stack spacing={0}>
                         <HStack>
                             <Text fontSize="sm" fontWeight="bold">
-                                {symbol}
+                                {token.symbol}
                             </Text>
                             {isSelected && <CheckCircleIcon ml="auto" color="green.500" />}
                         </HStack>
                         <Text fontSize="xs" color="gray.500">
-                            {name}
+                            {token.name}
                         </Text>
                     </Stack>
                 </HStack>
@@ -141,21 +145,19 @@ const CurrencyOption: React.FC<CurrencyOptionProps> = ({ symbol, name, isSelecte
     </LinkBox>
 )
 
-const TokenOption: React.FC<TokenOptionProps> = ({ token, withButtons = false, balance = 0, convertion = 0.0, onClick }) => {
+const TokenOption: React.FC<TokenOptionProps> = ({ token, amount, onTokenSelect, onAmountChange, isLoading }) => {
+    if (!token) return null
     return (
         <>
             <Stack spacing={1}>
                 <HStack justify="space-between">
                     <Button
                         variant="ghost"
-                        leftIcon={<Icon icon={`cryptocurrency-color:${token.toLowerCase()}`} width={20} />}
+                        leftIcon={<Image rounded="md" src={token.logoURI} alt={token.symbol} boxSize="5" />}
                         rightIcon={<FiChevronDown />}
-                        onClick={onClick}>
-                        {token}
+                        onClick={() => onTokenSelect(token)}>
+                        {token.symbol}
                     </Button>
-                    <Text fontSize="xs" color="gray.500" pr={5}>
-                        Balance: {balance}
-                    </Text>
                 </HStack>
                 <FormControl>
                     <FormLabel
@@ -170,18 +172,9 @@ const TokenOption: React.FC<TokenOptionProps> = ({ token, withButtons = false, b
                             outlineWidth: 3,
                             outlineStyle: 'solid',
                         }}>
-                        <NumberInput defaultValue={0.0} inputMode="decimal" pattern="^[0-9]*[.,]?[0-9]*$" variant="unstyled" size="lg">
-                            <NumberInputField textAlign="right" pe={0} />
+                        <NumberInput defaultValue={0.0} inputMode="decimal" pattern="^[0-9]*[.,]?[0-9]*$" variant="unstyled" size="lg" textAlign="right" value={amount} onChange={onAmountChange}>
+                            { isLoading ? <Spinner boxSize="12px" thickness="1px"/> : <NumberInputField  pe={0} textAlign="right" />}
                         </NumberInput>
-                        <FormHelperText textAlign="right">~{convertion} USD</FormHelperText>
-                        {withButtons && (
-                            <SimpleGrid columns={4} spacing={2} mt={4}>
-                                <Button size="xs">25%</Button>
-                                <Button size="xs">50%</Button>
-                                <Button size="xs">75%</Button>
-                                <Button size="xs">100%</Button>
-                            </SimpleGrid>
-                        )}
                     </FormLabel>
                 </FormControl>
             </Stack>
@@ -240,19 +233,25 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ orders }) => (
 )
 
 export const LimitOrder = () => {
-    const [fromToken, setFromToken] = useState('UNI')
-    const [toToken, setToToken] = useState('USDC')
-    const [currentToken, setCurrentToken] = useState('')
+
+
     const [showGraph, setShowGraph] = useState(true)
-    const [isToCurrencyModalOpen, setIsToCurrencyModalOpen] = useState(false)
+    const [currencyModalType, setCurrencyModalType] = useState<'from' | 'to' | null>(null)
     const [searchText, setSearchText] = useState('')
 
-    const filteredTokens = currencyOptions.filter((token) => token.name.toLowerCase().includes(searchText.toLowerCase()))
-
     const { data: networkData } = useNetwork();
+    const chainId = networkData.fmt.chainId as ChainId
+    const supportedTokens = Utils.getSupportedTokens({ chainId }).filter((token) => Boolean(token.logoURI) && token.type === 'DEFAULT')
 
-    const isNetworkSupported = networkData.raw.chainId > 0;
+    const filteredTokens = supportedTokens.filter((token) => token.symbol?.toLowerCase().includes(searchText.toLowerCase()))
 
+    const [fromToken, setFromToken] = useState<TokenType | undefined>(supportedTokens.find((token) => token.symbol === 'WETH'))
+    const [toToken, setToToken] = useState<TokenType | undefined>(supportedTokens.find((token) => token.symbol === 'UNI'))
+
+    const [fromAmount, setFromAmount] = useState<string | undefined>()
+    const [toAmount, setToAmount] = useState<string | undefined>()
+
+    const [limitPrice, setLimitPrice] = useState<string | undefined>()
     const {
         gasPrice: {
             fastest: { maxFeePerGas: maxFeePerGasFmt },
@@ -261,14 +260,79 @@ export const LimitOrder = () => {
 
     const gasPrice = (Number(maxFeePerGasFmt) / 1e9).toFixed(2) + ' Gwei'
 
-    const handleToCurrencySelect = (symbol: SetStateAction<string>) => {
-        if (currentToken == fromToken) {
-            setFromToken(symbol)
-        } else {
-            setToToken(symbol)
+    const { uniswap } = useProviders({ id: 'limit_order' });
+    const uniswapService = {
+        create: async (params: any) => {
+            const res = await uniswap.execute(params, { multiMode: 'execute-last' });
+            return res.results;
+        },
+        reset: () => {
+            uniswap.reset();
+        },
+    };
+
+    const getUniswapParams = async ({ amountIn, amountOut, isExactIn }: { amountIn?: string, amountOut?: string, isExactIn: 'true' | 'false' }) => {
+        if (!amountIn && !amountOut) return
+
+        console.log({ fromToken, toToken })
+        const simulateSwap = new FCT_UNISWAP.actions.SwapNoSlippageProtection({ chainId, provider: service.providers.smartRpc(), initParams: { addressIn: fromToken?.address, addressOut: toToken?.address, amountIn: amountIn || undefined, amountOut: amountOut || undefined, isExactIn } })
+        const values = await simulateSwap.calculateValuesOnUserInput?.get({ service: uniswapService })
+
+        console.log({ values })
+
+        return values
+    }
+    useEffect(() => {
+        const setUniswapValuesAsync = async () => {
+            if (!fromToken?.address) return
+            if (!toToken?.address) return
+            if (!fromAmount) return
+            const res = await getUniswapParams({ amountIn: etherToWei(fromAmount, fromToken?.decimals), isExactIn: 'true' })
+
+            if (!res || !res.params.amountOut) return
+            setToAmount(weiToEther(res.params.amountOut as string, toToken.decimals))
         }
 
-        setIsToCurrencyModalOpen(false)
+        setUniswapValuesAsync()
+    }, [toToken?.address, fromToken?.address, fromAmount])
+
+    useEffect(() => {
+        const setUniswapValuesAsync = async () => {
+            if (!fromToken?.address) return
+            if (!toToken?.address) return
+            const res = await getUniswapParams({ amountIn: etherToWei('1', fromToken?.decimals), isExactIn: 'true' })
+
+            if (!res || !res.params.amountOut) return
+            setLimitPrice(weiToEther(res.params.amountOut as string, toToken.decimals))
+        }
+
+        setUniswapValuesAsync()
+    }, [toToken?.address, fromToken?.address])
+
+    // useEffect(() => {
+    //     const setUniswapValuesAsync = async () => {
+    //         console.log({ inputs: { chainId, initParams: { addressIn: toToken?.address, addressOut: fromToken?.address, amountIn: fromAmount, isExactIn: 'true' } } })
+    //         if (!fromToken?.address) return
+    //         if (!toToken?.address) return
+    //         if (!toAmount) return
+
+
+    //         const res = await getUniswapParams({ amountOut: toAmount, isExactIn: 'false' })
+    //         if (!res || !res.params.amountIn) return
+    //         setFromAmount(weiToEther(res.params.amountIn as string, toToken.decimals))
+    //     }
+
+    //     setUniswapValuesAsync()
+    // }, [toAmount])
+
+    const handleToCurrencySelect = (token: TokenType) => {
+        if (currencyModalType === 'from') {
+            setFromToken(token)
+        } else {
+            setToToken(token)
+        }
+
+        setCurrencyModalType(null)
     }
 
     const switchTokens = () => {
@@ -293,21 +357,23 @@ export const LimitOrder = () => {
                                 <Divider />
                                 <TokenOption
                                     token={fromToken}
-                                    onClick={() => {
-                                        setIsToCurrencyModalOpen(true)
-                                        setCurrentToken(fromToken)
+                                    onTokenSelect={() => {
+                                        setCurrencyModalType('from')
                                     }}
-                                    withButtons
+                                    onAmountChange={setFromAmount}
+                                    amount={fromAmount}
                                 />
                                 <Flex justifyContent="center">
                                     <IconButton colorScheme="blue" rounded="full" icon={<IoSwapVerticalOutline />} aria-label={''} onClick={switchTokens} />
                                 </Flex>
                                 <TokenOption
                                     token={toToken}
-                                    onClick={() => {
-                                        setIsToCurrencyModalOpen(true)
-                                        setCurrentToken(toToken)
+                                    onTokenSelect={() => {
+                                        setCurrencyModalType('to')
                                     }}
+                                    onAmountChange={setToAmount}
+                                    amount={toAmount}
+                                    isLoading={uniswap.state.isRunning}
                                 />
                                 <FormControl>
                                     <FormLabel textTransform="uppercase" fontSize="sm">
@@ -315,11 +381,11 @@ export const LimitOrder = () => {
                                     </FormLabel>
                                     <InputGroup size="lg">
                                         <InputLeftAddon rounded="lg" fontSize="sm" fontWeight="bold">
-                                            1 {fromToken} =
+                                            1 {fromToken?.symbol} =
                                         </InputLeftAddon>
-                                        <Input value="1872.6273" />
+                                        <Input value={limitPrice}  onChange={(e) => setLimitPrice(e.target.value)}/>
                                         <InputRightAddon rounded="lg" fontSize="sm" fontWeight="bold">
-                                            {toToken}
+                                            {toToken?.symbol}
                                         </InputRightAddon>
                                     </InputGroup>
                                     <FormHelperText textAlign="right" mt={3}>
@@ -338,7 +404,7 @@ export const LimitOrder = () => {
                             </FormLabel>
                             <Switch colorScheme="messenger" ml={-2} size="sm" defaultChecked={true} onChange={(e) => setShowGraph(e.target.checked)} />
                         </FormControl>
-                        {showGraph && <TradingViewWidget from={fromToken} to={toToken} />}
+                        {showGraph && <TradingViewWidget from={fromToken?.symbol.toLowerCase()} to={toToken?.symbol.toLowerCase()} />}
                     </Show>
                     <Box mt={14}>
                         <Heading textAlign="left" fontSize="2xl" mb={5}>
@@ -348,7 +414,7 @@ export const LimitOrder = () => {
                     </Box>
                 </Box>
             </Flex>
-            <Modal size="xs" isOpen={isToCurrencyModalOpen} onClose={() => setIsToCurrencyModalOpen(false)}>
+            <Modal size="xs" isOpen={Boolean(currencyModalType)} onClose={() => setCurrencyModalType(null)}>
                 <ModalOverlay backdropFilter="auto" backdropBlur="2px" />
                 <ModalContent rounded="2xl" p={0}>
                     <ModalHeader textAlign="center">
@@ -372,13 +438,12 @@ export const LimitOrder = () => {
                     <ModalBody pt={0} px={0} pb={4} maxH="400px" overflowY="auto">
                         <Stack spacing={0}>
                             {filteredTokens.length > 0 ? (
-                                filteredTokens.map(({ symbol, name }) => (
+                                filteredTokens.map((token) => (
                                     <CurrencyOption
-                                        key={symbol}
-                                        symbol={symbol}
-                                        name={name}
+                                        key={token.address}
+                                        token={token}
                                         onSelect={handleToCurrencySelect}
-                                        isSelected={symbol == fromToken || symbol == toToken}
+                                        isSelected={token.value === fromToken?.value || token.value === toToken?.value}
                                     />
                                 ))
                             ) : (

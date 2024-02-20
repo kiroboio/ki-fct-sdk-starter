@@ -27,7 +27,7 @@ export enum Flow {
     OK_STOP_FAIL_STOP = "OK_STOP_FAIL_STOP"
 }
 
-const createLimitOrder = async (params: LimitOrderParams) => {
+export const createLimitOrder = async (params: LimitOrderParams) => {
     //   if (isRunning()) {
     //     throw new Error('running')
     //   }
@@ -98,6 +98,7 @@ const createLimitOrder = async (params: LimitOrderParams) => {
 
     const requiredApprovals = swapPlugin.getRequiredApprovals()
     console.log({ requiredApprovals })
+    
     const approvalsPlugin = createApprovalsPlugin({ requiredApprovals, chainId })
     if (approvalsPlugin) {
         calls.push({
@@ -140,7 +141,7 @@ const createLimitOrder = async (params: LimitOrderParams) => {
     return {
         fct: fct.exportFCT(),
         map: fct.exportMap(),
-        draft: 'lol',
+        draft: [],
     };
 
     //return { params: { data: fct.exportFCT(), autoSign: params.autoSign, id: 'limit-order' } } // , signatures: [], sign: true })
