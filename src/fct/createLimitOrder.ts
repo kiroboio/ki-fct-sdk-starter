@@ -1,10 +1,12 @@
 import { core, service, plugins } from '@kiroboio/fct-sdk'
-import { FCT_UNISWAP, SWAP_WITHOUT_SLIPPAGE_METHOD, createApprovalsPlugin, type IPlugin } from '@kiroboio/fct-core';
+import { FCT_UNISWAP, SWAP_WITHOUT_SLIPPAGE_METHOD, createApprovalsPlugin, type IPlugin, ChainId } from '@kiroboio/fct-core';
 
 type LimitOrderParams = {
-    tokenIn: { address: string; amount: string }
-    tokenOut: { address: string; amount: string }
-    netId: string
+    tokenIn: { address?: string; amount?: string }
+    tokenOut: { address?: string; amount?: string }
+    limit: string
+    path: string[]
+    chainId: ChainId
     name: string
     autoSign?: 'early' | 'late'
 }
@@ -32,6 +34,7 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
     //     throw new Error('running')
     //   }
 
+    console.log({ params })
     const getFlowOptions = ({ nextNodeId }: { nextNodeId?: string }) => {
         return {
             flow: nextNodeId ? Flow.OK_CONT_FAIL_CONT : Flow.OK_STOP_FAIL_REVERT,
@@ -39,7 +42,7 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
             jumpOnFail: undefined,
         }
     }
-    const chainId = params.netId === 'goerli' ? '5' : '1'
+    const chainId = params.chainId
 
     const calls: {
         nodeId: string,
@@ -57,7 +60,6 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
     const WALLET = service.wallet.data.raw.address
     const VAULT = service.vault.data.raw.address
     const AMOUNT_IN = params.tokenIn.amount
-    const TOKEN_IN = params.tokenIn.address
 
     // Transfer tokens from wallet to vault
     calls.push({
@@ -66,6 +68,7 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
         plugin: new plugins.ERC20.actions.TransferFrom({
             chainId,
             initParams: {
+                to: params.tokenIn.address,
                 methodParams: {
                     from: WALLET,
                     to: VAULT,
@@ -77,14 +80,15 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
     })
 
 
-    const tokenOut = params.tokenOut
-    const TOKEN_OUT = tokenOut.address
-    const AMOUNT_OUT = tokenOut.amount
-    const PATH = [TOKEN_IN, tokenOut.address]
 
+    const PATH = params.path
     const swapPlugin = new FCT_UNISWAP.actions.SwapToNoSlippageProtection({
         chainId,
         initParams: {
+            amountIn: AMOUNT_IN,
+            addressIn: params.tokenIn.address,
+            addressOut: params.tokenOut.address,
+            amountOut: '0',
             methodParams: {
                 to: WALLET,
                 amount: AMOUNT_IN,
@@ -98,7 +102,7 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
 
     const requiredApprovals = swapPlugin.getRequiredApprovals()
     console.log({ requiredApprovals })
-    
+
     const approvalsPlugin = createApprovalsPlugin({ requiredApprovals, chainId })
     if (approvalsPlugin) {
         calls.push({
@@ -125,7 +129,10 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
             initParams: {
                 methodParams: {
                     amount1: swapPlugin.output.params.amountOut.getOutputVariable('swap'),
-                    amount2: AMOUNT_OUT,
+                    amount2: params.limit,
+                    decimals1: '0',
+                    decimals2: '0',
+                    decimalsOut: '0',
                 },
             },
         }),
@@ -133,6 +140,7 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
     })
 
 
+    console.log({ calls })
     await fct.createMultiple(calls)
 
 
@@ -147,8 +155,11 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
     //return { params: { data: fct.exportFCT(), autoSign: params.autoSign, id: 'limit-order' } } // , signatures: [], sign: true })
 }
 
-const publishLimitOrder = async (params: LimitOrderParams) => {
+export const publishLimitOrder = async (params: LimitOrderParams) => {
     const payload = await createLimitOrder(params)
 
-    await active.publish.execute('limit-order', { payload }) // , signatures: [], sign: true })
+    console.log({ payload })
+    const res = await active.publish.execute('limit-order', { payload, autoSign: 'early', }) // , signatures: [], sign: true })
+
+    console.log({ res })
 }

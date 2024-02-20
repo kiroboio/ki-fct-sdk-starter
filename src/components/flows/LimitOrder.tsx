@@ -1,4 +1,4 @@
-import { SetStateAction, useEffect, useState } from 'react'
+import {  useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { FiChevronDown, } from 'react-icons/fi'
@@ -19,16 +19,7 @@ import {
     Flex,
     Card,
     CardBody,
-    SimpleGrid,
     Heading,
-    Table,
-    TableCaption,
-    TableContainer,
-    Tbody,
-    Td,
-    Th,
-    Thead,
-    Tr,
     useColorModeValue,
     Input,
     Divider,
@@ -43,10 +34,6 @@ import {
     ModalHeader,
     ModalOverlay,
     Image,
-    Alert,
-    AlertDescription,
-    AlertTitle,
-    AlertIcon,
     LinkBox,
     LinkOverlay,
     Switch,
@@ -57,9 +44,10 @@ import {
 import { service, useNetwork, useProviders } from '@kiroboio/fct-sdk'
 
 import TradingViewWidget from '../../components/TradingView'
-import { ChainId, FCT_UNISWAP, Options, Utility, Utils } from '@kiroboio/fct-core'
+import { ChainId, FCT_UNISWAP, Utils } from '@kiroboio/fct-core'
 import { etherToWei, weiToEther } from '~/utils/number'
-
+import { publishLimitOrder } from '~/fct/createLimitOrder'
+import BigNumber from 'bignumber.js';
 
 //const currencyOptions = Utils.getSupportedTokens
 // const currencyOptions = [
@@ -95,20 +83,9 @@ interface TokenOptionProps {
     isLoading?: boolean
     token?: TokenType,
     amount?: string,
+    isDisabled?: boolean,
 }
 
-interface OrderHistoryProps {
-    orders?: OrderProps[]
-}
-
-type OrderProps = {
-    network: string
-    pay: number
-    receive: number
-    rate: number
-    expires_at: string
-    created_at: string
-}
 
 const CurrencyOption: React.FC<CurrencyOptionProps> = ({ token, isSelected, onSelect }) => (
     <LinkBox py={1} _hover={{ background: useColorModeValue('gray.100', 'gray.900') }}>
@@ -145,7 +122,7 @@ const CurrencyOption: React.FC<CurrencyOptionProps> = ({ token, isSelected, onSe
     </LinkBox>
 )
 
-const TokenOption: React.FC<TokenOptionProps> = ({ token, amount, onTokenSelect, onAmountChange, isLoading }) => {
+const TokenOption: React.FC<TokenOptionProps> = ({ token, amount, onTokenSelect, onAmountChange, isLoading, isDisabled }) => {
     if (!token) return null
     return (
         <>
@@ -172,8 +149,8 @@ const TokenOption: React.FC<TokenOptionProps> = ({ token, amount, onTokenSelect,
                             outlineWidth: 3,
                             outlineStyle: 'solid',
                         }}>
-                        <NumberInput defaultValue={0.0} inputMode="decimal" pattern="^[0-9]*[.,]?[0-9]*$" variant="unstyled" size="lg" textAlign="right" value={amount} onChange={onAmountChange}>
-                            { isLoading ? <Spinner boxSize="12px" thickness="1px"/> : <NumberInputField  pe={0} textAlign="right" />}
+                        <NumberInput isDisabled={isDisabled} defaultValue={0.0} inputMode="decimal" pattern="^[0-9]*[.,]?[0-9]*$" variant="unstyled" size="lg" textAlign="right" value={amount} onChange={onAmountChange}>
+                            {isLoading ? <Spinner boxSize="12px" thickness="1px" /> : <NumberInputField pe={0} textAlign="right" />}
                         </NumberInput>
                     </FormLabel>
                 </FormControl>
@@ -182,55 +159,7 @@ const TokenOption: React.FC<TokenOptionProps> = ({ token, amount, onTokenSelect,
     )
 }
 
-const OrderHistory: React.FC<OrderHistoryProps> = ({ orders }) => (
-    <Card rounded="2xl">
-        <CardBody>
-            <TableContainer>
-                <Table variant="simple">
-                    <TableCaption fontSize="sm" color="gray.500">
-                        *If the tokens in your wallet are less than the number of pending orders, the order will fail
-                    </TableCaption>
-                    <Thead>
-                        <Tr>
-                            <Th>All Chains</Th>
-                            <Th isNumeric>Pay</Th>
-                            <Th isNumeric>Receive</Th>
-                            <Th isNumeric>Rate</Th>
-                            <Th>Expiration date</Th>
-                            <Th>Creation date</Th>
-                        </Tr>
-                    </Thead>
-                    <Tbody>
-                        {orders &&
-                            orders.map((order, index) => (
-                                <Tr key={index}>
-                                    <Td>{order.network}</Td>
-                                    <Td isNumeric>{order.pay}</Td>
-                                    <Td isNumeric>{order.receive}</Td>
-                                    <Td isNumeric>{order.rate}</Td>
-                                    <Td>{order.expires_at}</Td>
-                                    <Td>{order.created_at}</Td>
-                                </Tr>
-                            ))}
-                        {!orders && (
-                            <Tr>
-                                <Td colSpan={6} textAlign="center">
-                                    <Alert status="info" rounded="lg" flexDirection="column" alignItems="center" justifyContent="center" textAlign="center" p={6}>
-                                        <AlertIcon boxSize="28px" mr={0} />
-                                        <AlertTitle mt={4} mb={1} fontSize="lg">
-                                            No orders found
-                                        </AlertTitle>
-                                        <AlertDescription>Log in to your wallet to create a new order.</AlertDescription>
-                                    </Alert>
-                                </Td>
-                            </Tr>
-                        )}
-                    </Tbody>
-                </Table>
-            </TableContainer>
-        </CardBody>
-    </Card>
-)
+
 
 export const LimitOrder = () => {
 
@@ -252,6 +181,7 @@ export const LimitOrder = () => {
     const [toAmount, setToAmount] = useState<string | undefined>()
 
     const [limitPrice, setLimitPrice] = useState<string | undefined>()
+    const [path, setPath] = useState<string[] | undefined>()
     const {
         gasPrice: {
             fastest: { maxFeePerGas: maxFeePerGasFmt },
@@ -260,26 +190,30 @@ export const LimitOrder = () => {
 
     const gasPrice = (Number(maxFeePerGasFmt) / 1e9).toFixed(2) + ' Gwei'
 
-    const { uniswap } = useProviders({ id: 'limit_order' });
-    const uniswapService = {
-        create: async (params: any) => {
-            const res = await uniswap.execute(params, { multiMode: 'execute-last' });
-            return res.results;
-        },
-        reset: () => {
-            uniswap.reset();
-        },
-    };
+    const { uniswap: swap } = useProviders({ id: 'swap' });
+    const { uniswap: limitPriceCalculation } = useProviders({ id: 'limit_price' });
 
-    const getUniswapParams = async ({ amountIn, amountOut, isExactIn }: { amountIn?: string, amountOut?: string, isExactIn: 'true' | 'false' }) => {
+
+
+    const getUniswapParams = async ({ amountIn, amountOut, isExactIn, type }: { isExactIn: 'true' | 'false', type: 'swap' | 'limit_price', amountIn?: string, amountOut?: string }) => {
         if (!amountIn && !amountOut) return
-
-        console.log({ fromToken, toToken })
         const simulateSwap = new FCT_UNISWAP.actions.SwapNoSlippageProtection({ chainId, provider: service.providers.smartRpc(), initParams: { addressIn: fromToken?.address, addressOut: toToken?.address, amountIn: amountIn || undefined, amountOut: amountOut || undefined, isExactIn } })
+
+        const uniswapProvider = type === 'swap' ? swap : limitPriceCalculation
+        const uniswapService = {
+            create: async (params: any) => {
+                const res = await uniswapProvider.execute(params, { multiMode: 'execute-last' });
+                return res.results;
+            },
+            reset: () => {
+                uniswapProvider.reset();
+            },
+        };
         const values = await simulateSwap.calculateValuesOnUserInput?.get({ service: uniswapService })
 
         console.log({ values })
 
+        //if(values?.error === "")
         return values
     }
     useEffect(() => {
@@ -287,10 +221,15 @@ export const LimitOrder = () => {
             if (!fromToken?.address) return
             if (!toToken?.address) return
             if (!fromAmount) return
-            const res = await getUniswapParams({ amountIn: etherToWei(fromAmount, fromToken?.decimals), isExactIn: 'true' })
+            const res = await getUniswapParams({ amountIn: etherToWei(fromAmount, fromToken?.decimals), isExactIn: 'true', type: 'swap' })
 
-            if (!res || !res.params.amountOut) return
+            if (!res || !res.params.amountOut) {
+                setToAmount('0')
+                setPath(undefined)
+                return
+            }
             setToAmount(weiToEther(res.params.amountOut as string, toToken.decimals))
+            setPath(res.params.methodParams?.path)
         }
 
         setUniswapValuesAsync()
@@ -300,7 +239,7 @@ export const LimitOrder = () => {
         const setUniswapValuesAsync = async () => {
             if (!fromToken?.address) return
             if (!toToken?.address) return
-            const res = await getUniswapParams({ amountIn: etherToWei('1', fromToken?.decimals), isExactIn: 'true' })
+            const res = await getUniswapParams({ amountIn: etherToWei('1', fromToken?.decimals), isExactIn: 'true', type: 'limit_price' })
 
             if (!res || !res.params.amountOut) return
             setLimitPrice(weiToEther(res.params.amountOut as string, toToken.decimals))
@@ -308,22 +247,6 @@ export const LimitOrder = () => {
 
         setUniswapValuesAsync()
     }, [toToken?.address, fromToken?.address])
-
-    // useEffect(() => {
-    //     const setUniswapValuesAsync = async () => {
-    //         console.log({ inputs: { chainId, initParams: { addressIn: toToken?.address, addressOut: fromToken?.address, amountIn: fromAmount, isExactIn: 'true' } } })
-    //         if (!fromToken?.address) return
-    //         if (!toToken?.address) return
-    //         if (!toAmount) return
-
-
-    //         const res = await getUniswapParams({ amountOut: toAmount, isExactIn: 'false' })
-    //         if (!res || !res.params.amountIn) return
-    //         setFromAmount(weiToEther(res.params.amountIn as string, toToken.decimals))
-    //     }
-
-    //     setUniswapValuesAsync()
-    // }, [toAmount])
 
     const handleToCurrencySelect = (token: TokenType) => {
         if (currencyModalType === 'from') {
@@ -373,7 +296,8 @@ export const LimitOrder = () => {
                                     }}
                                     onAmountChange={setToAmount}
                                     amount={toAmount}
-                                    isLoading={uniswap.state.isRunning}
+                                    isLoading={swap.state.isRunning}
+                                    isDisabled
                                 />
                                 <FormControl>
                                     <FormLabel textTransform="uppercase" fontSize="sm">
@@ -383,7 +307,7 @@ export const LimitOrder = () => {
                                         <InputLeftAddon rounded="lg" fontSize="sm" fontWeight="bold">
                                             1 {fromToken?.symbol} =
                                         </InputLeftAddon>
-                                        <Input value={limitPrice}  onChange={(e) => setLimitPrice(e.target.value)}/>
+                                        <Input value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} />
                                         <InputRightAddon rounded="lg" fontSize="sm" fontWeight="bold">
                                             {toToken?.symbol}
                                         </InputRightAddon>
@@ -391,6 +315,28 @@ export const LimitOrder = () => {
                                     <FormHelperText textAlign="right" mt={3}>
                                         <strong>Gas Price:</strong> <Text>{gasPrice}</Text>
                                     </FormHelperText>
+                                    <Button
+                                        padding="1"
+                                        variant="solid"
+                                        width="full"
+                                        isDisabled={!Boolean(path)}
+                                        //colorScheme="blue.500"
+                                        onClick={() => {
+                                            if (!path) return
+                                            if (!fromAmount) return
+                                            if (!limitPrice) return
+
+                                            publishLimitOrder({
+                                                limit: etherToWei(new BigNumber(limitPrice).multipliedBy(fromAmount).toString(), toToken?.decimals),
+                                                tokenIn: { address: fromToken?.address, amount: etherToWei(fromAmount, fromToken?.decimals) },
+                                                tokenOut: { address: toToken?.address, amount: '0' },
+                                                path,
+                                                chainId,
+                                                name: 'limit_order'
+                                            })
+                                        }}>
+                                        {"Publish Fct"}
+                                    </Button>
                                 </FormControl>
                             </Stack>
                         </CardBody>
@@ -406,12 +352,6 @@ export const LimitOrder = () => {
                         </FormControl>
                         {showGraph && <TradingViewWidget from={fromToken?.symbol.toLowerCase()} to={toToken?.symbol.toLowerCase()} />}
                     </Show>
-                    <Box mt={14}>
-                        <Heading textAlign="left" fontSize="2xl" mb={5}>
-                            Order History
-                        </Heading>
-                        <OrderHistory />
-                    </Box>
                 </Box>
             </Flex>
             <Modal size="xs" isOpen={Boolean(currencyModalType)} onClose={() => setCurrencyModalType(null)}>
