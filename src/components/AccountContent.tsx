@@ -307,7 +307,6 @@ export default function AccountContent() {
                 </Tab>
                 <Tab>
                   <HStack spacing={1}>
-                    <Icon icon="clarity:flow-chart-solid" width="20px" height="20px" />
                     <Text>Limit Order</Text>
                   </HStack>
                 </Tab>
@@ -373,7 +372,6 @@ export default function AccountContent() {
                 </Tab>
                 <Tab>
                   <HStack spacing={1}>
-                    <Icon icon="clarity:flow-chart-solid" width="20px" height="20px" />
                     <Text>Limit Order</Text>
                   </HStack>
                 </Tab>
