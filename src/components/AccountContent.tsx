@@ -332,6 +332,9 @@ export default function AccountContent() {
                   <HStack spacing={4}>{nfts.vault}</HStack>
                 </TabPanel>
                 <TabPanel p={0} pt={4}>
+                  <LimitOrder />
+                </TabPanel>
+                <TabPanel p={0} pt={4}>
                   <ActiveFlows />
                 </TabPanel>
                 <TabPanel p={0} pt={4}>
@@ -395,7 +398,7 @@ export default function AccountContent() {
                   <HStack spacing={4}>{nfts.wallet}</HStack>
                 </TabPanel>
                 <TabPanel p={0} pt={4}>
-                 <LimitOrder />
+                  <LimitOrder />
                 </TabPanel>
                 <TabPanel p={0} pt={4}>
                   <ActiveFlows />
