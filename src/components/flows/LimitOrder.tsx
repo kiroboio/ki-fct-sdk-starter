@@ -46,7 +46,7 @@ import { service, useActiveFlowActions, useNetwork, useProviders } from '@kirobo
 import TradingViewWidget from '../../components/TradingView'
 import { ChainId, FCT_UNISWAP, Utils } from '@kiroboio/fct-core'
 import { etherToWei, weiToEther } from '~/utils/number'
-import { createLimitOrder, publishLimitOrder } from '~/fct/createLimitOrder'
+import { createLimitOrder } from '~/fct/createLimitOrder'
 import BigNumber from 'bignumber.js';
 
 //const currencyOptions = Utils.getSupportedTokens

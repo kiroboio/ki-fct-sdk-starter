@@ -12,12 +12,6 @@ type LimitOrderParams = {
 }
 
 const active = service.fct.active
-
-//const refs: Record<string, RefObject<unknown>> = {}
-
-//const isRunning = () => active.publish.state
-
-
 export enum Flow {
     OK_CONT_FAIL_REVERT = "OK_CONT_FAIL_REVERT",
     OK_CONT_FAIL_STOP = "OK_CONT_FAIL_STOP",
@@ -30,14 +24,10 @@ export enum Flow {
 }
 
 export const createLimitOrder = async (params: LimitOrderParams) => {
-    //   if (isRunning()) {
-    //     throw new Error('running')
-    //   }
-
     console.log({ params })
     const getFlowOptions = ({ nextNodeId }: { nextNodeId?: string }) => {
         return {
-            flow: nextNodeId ? Flow.OK_CONT_FAIL_CONT : Flow.OK_STOP_FAIL_REVERT,
+            flow: nextNodeId ? Flow.OK_CONT_FAIL_REVERT : Flow.OK_STOP_FAIL_REVERT,
             jumpOnSuccess: nextNodeId,
             jumpOnFail: undefined,
         }
@@ -55,32 +45,12 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
     fct.setOptions({
         name: params.name,
         maxGasPrice: service.network.data.raw.gasPrice.fast.maxFeePerGas,
+        domain: 'flow@kiroboflow.io',
     })
 
     const WALLET = service.wallet.data.raw.address
     const VAULT = service.vault.data.raw.address
     const AMOUNT_IN = params.tokenIn.amount
-
-    // Transfer tokens from wallet to vault
-    calls.push({
-        from: VAULT,
-        nodeId: 'transferFrom',
-        plugin: new plugins.ERC20.actions.TransferFrom({
-            chainId,
-            initParams: {
-                to: params.tokenIn.address,
-                methodParams: {
-                    from: WALLET,
-                    to: VAULT,
-                    amount: AMOUNT_IN,
-                },
-            },
-        }),
-        options: getFlowOptions({ nextNodeId: 'approve' })
-    })
-
-
-
     const PATH = params.path
     const swapPlugin = new FCT_UNISWAP.actions.SwapToNoSlippageProtection({
         chainId,
@@ -100,10 +70,8 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
         vaultAddress: VAULT,
     })
 
-    const requiredApprovals = swapPlugin.getRequiredApprovals()
-    console.log({ requiredApprovals })
-
-    const approvalsPlugin = createApprovalsPlugin({ requiredApprovals, chainId })
+    const swapRequiredApprovals = swapPlugin.getRequiredApprovals()
+    const approvalsPlugin = createApprovalsPlugin({ requiredApprovals: swapRequiredApprovals, chainId })
     if (approvalsPlugin) {
         calls.push({
             from: VAULT,
@@ -112,6 +80,7 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
             options: getFlowOptions({ nextNodeId: 'swap' })
         })
     }
+
     // Swap tokens on UniswapV2 and send to wallet
     calls.push({
         from: VAULT,
