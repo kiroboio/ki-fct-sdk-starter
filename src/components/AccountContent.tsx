@@ -43,6 +43,7 @@ import { NumericFormat } from 'react-number-format'
 import { FlowHistory } from './flows/FlowHistory'
 import { TXHistory } from './history/TXHistory'
 import { ActiveFlows } from './flows/ActiveFlows'
+import { LimitOrder } from './flows/LimitOrder'
 
 export default function AccountContent() {
   const vTokens = useTokenList({ account: 'vault' })
@@ -306,6 +307,11 @@ export default function AccountContent() {
                 </Tab>
                 <Tab>
                   <HStack spacing={1}>
+                    <Text>Limit Order</Text>
+                  </HStack>
+                </Tab>
+                <Tab>
+                  <HStack spacing={1}>
                     <Icon icon="clarity:flow-chart-solid" width="20px" height="20px" />
                     <Text>Flows</Text>
                   </HStack>
@@ -323,6 +329,9 @@ export default function AccountContent() {
                 </TabPanel>
                 <TabPanel p={0} pt={4}>
                   <HStack spacing={4}>{nfts.vault}</HStack>
+                </TabPanel>
+                <TabPanel p={0} pt={4}>
+                  <LimitOrder />
                 </TabPanel>
                 <TabPanel p={0} pt={4}>
                   <ActiveFlows />
@@ -363,6 +372,11 @@ export default function AccountContent() {
                 </Tab>
                 <Tab>
                   <HStack spacing={1}>
+                    <Text>Limit Order</Text>
+                  </HStack>
+                </Tab>
+                <Tab>
+                  <HStack spacing={1}>
                     <Icon icon="clarity:flow-chart-solid" width="20px" height="20px" />
                     <Text>Flows</Text>
                   </HStack>
@@ -380,6 +394,9 @@ export default function AccountContent() {
                 </TabPanel>
                 <TabPanel p={0} pt={4}>
                   <HStack spacing={4}>{nfts.wallet}</HStack>
+                </TabPanel>
+                <TabPanel p={0} pt={4}>
+                  <LimitOrder />
                 </TabPanel>
                 <TabPanel p={0} pt={4}>
                   <ActiveFlows />
