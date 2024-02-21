@@ -5,11 +5,11 @@ import { BiLinkExternal } from 'react-icons/bi';
 import { shortenAddress } from '../../utils/address'
 import { useBlockchainLink } from '~/hooks/useBlockchainLink'
 import Link from 'next/link'
-import { WarningAlert } from '../WarningAlert';
-import { ExternalWalletMissingAlert } from '../ExternalWalletMissingAlert';
-import { FCTMissingAlert } from '../FctMissingAlert';
-import { WalletMissingAlert } from '../WalletMissingAlert';
-import { FCTPauseButton } from '../FCTPauseButton';
+import { WarningAlert } from '../alerts/WarningAlert';
+import { ExternalWalletMissingAlert } from '../alerts/ExternalWalletMissingAlert';
+import { FCTMissingAlert } from '../alerts/FctMissingAlert';
+import { WalletMissingAlert } from '../alerts/WalletMissingAlert';
+import { FCTPauseButton } from '../pauseButton';
 
 const SECOND = 1
 const MINUTE = 60
@@ -106,9 +106,6 @@ export const ActiveFlowsRow = ({ item }: { item: ReturnType<typeof useActiveFlow
     item.raw.pause.some(
       (el) => el.blocked === true && el.address === vaultAddress
     );
-
-  // const isBlocked = isRegularPaused || isVirtualPaused;
-  const isSelfBlocked = isSelfRegularPaused || isSelfVirtualPaused;
 
   const confirmations = Math.max(
     1,

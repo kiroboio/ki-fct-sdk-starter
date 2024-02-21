@@ -52,7 +52,7 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
     const VAULT = service.vault.data.raw.address
     const AMOUNT_IN = params.tokenIn.amount
     const PATH = params.path
-    const swapPlugin = new FCT_UNISWAP.actions.SwapToNoSlippageProtection({
+    const swapPlugin = new FCT_UNISWAP.actions.SwapNoSlippageProtection({
         chainId,
         initParams: {
             amountIn: AMOUNT_IN,
@@ -60,7 +60,6 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
             addressOut: params.tokenOut.address,
             amountOut: '0',
             methodParams: {
-                to: WALLET,
                 amount: AMOUNT_IN,
                 method: SWAP_WITHOUT_SLIPPAGE_METHOD.swapExactTokensForTokens,
                 path: PATH,
