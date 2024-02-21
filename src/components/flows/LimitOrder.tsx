@@ -1,4 +1,4 @@
-import {  useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { FiChevronDown, } from 'react-icons/fi'
@@ -41,12 +41,12 @@ import {
     Spinner,
 } from '@chakra-ui/react'
 
-import { service, useNetwork, useProviders } from '@kiroboio/fct-sdk'
+import { service, useActiveFlowActions, useNetwork, useProviders } from '@kiroboio/fct-sdk'
 
 import TradingViewWidget from '../../components/TradingView'
 import { ChainId, FCT_UNISWAP, Utils } from '@kiroboio/fct-core'
 import { etherToWei, weiToEther } from '~/utils/number'
-import { publishLimitOrder } from '~/fct/createLimitOrder'
+import { createLimitOrder, publishLimitOrder } from '~/fct/createLimitOrder'
 import BigNumber from 'bignumber.js';
 
 //const currencyOptions = Utils.getSupportedTokens
@@ -160,28 +160,30 @@ const TokenOption: React.FC<TokenOptionProps> = ({ token, amount, onTokenSelect,
 }
 
 
+const tokens = {
+    '1': Utils.getSupportedTokens({ chainId: '1' }).filter((token) => Boolean(token.logoURI) && token.type === 'DEFAULT'),
+    '5': Utils.getSupportedTokens({ chainId: '5' }).filter((token) => Boolean(token.logoURI) && token.type === 'DEFAULT'),
+}
 
 export const LimitOrder = () => {
-
-
     const [showGraph, setShowGraph] = useState(true)
     const [currencyModalType, setCurrencyModalType] = useState<'from' | 'to' | null>(null)
     const [searchText, setSearchText] = useState('')
 
     const { data: networkData } = useNetwork();
     const chainId = networkData.fmt.chainId as ChainId
-    const supportedTokens = Utils.getSupportedTokens({ chainId }).filter((token) => Boolean(token.logoURI) && token.type === 'DEFAULT')
 
-    const filteredTokens = supportedTokens.filter((token) => token.symbol?.toLowerCase().includes(searchText.toLowerCase()))
-
+    const supportedTokens = tokens[chainId as '1' | '5'] || []
     const [fromToken, setFromToken] = useState<TokenType | undefined>(supportedTokens.find((token) => token.symbol === 'WETH'))
     const [toToken, setToToken] = useState<TokenType | undefined>(supportedTokens.find((token) => token.symbol === 'UNI'))
-
+    
     const [fromAmount, setFromAmount] = useState<string | undefined>()
     const [toAmount, setToAmount] = useState<string | undefined>()
-
+    
     const [limitPrice, setLimitPrice] = useState<string | undefined>()
     const [path, setPath] = useState<string[] | undefined>()
+    
+    const filteredTokens = supportedTokens.filter((token) => token.symbol?.toLowerCase().includes(searchText.toLowerCase()))
     const {
         gasPrice: {
             fastest: { maxFeePerGas: maxFeePerGasFmt },
@@ -193,7 +195,7 @@ export const LimitOrder = () => {
     const { uniswap: swap } = useProviders({ id: 'swap' });
     const { uniswap: limitPriceCalculation } = useProviders({ id: 'limit_price' });
 
-
+    const { publish: publishFlow } = useActiveFlowActions({ id: '' });
 
     const getUniswapParams = async ({ amountIn, amountOut, isExactIn, type }: { isExactIn: 'true' | 'false', type: 'swap' | 'limit_price', amountIn?: string, amountOut?: string }) => {
         if (!amountIn && !amountOut) return
@@ -212,8 +214,6 @@ export const LimitOrder = () => {
         const values = await simulateSwap.calculateValuesOnUserInput?.get({ service: uniswapService })
 
         console.log({ values })
-
-        //if(values?.error === "")
         return values
     }
     useEffect(() => {
@@ -321,12 +321,12 @@ export const LimitOrder = () => {
                                         width="full"
                                         isDisabled={!Boolean(path)}
                                         //colorScheme="blue.500"
-                                        onClick={() => {
+                                        onClick={async() => {
                                             if (!path) return
                                             if (!fromAmount) return
                                             if (!limitPrice) return
 
-                                            publishLimitOrder({
+                                            const fct = await createLimitOrder({
                                                 limit: etherToWei(new BigNumber(limitPrice).multipliedBy(fromAmount).toString(), toToken?.decimals),
                                                 tokenIn: { address: fromToken?.address, amount: etherToWei(fromAmount, fromToken?.decimals) },
                                                 tokenOut: { address: toToken?.address, amount: '0' },
@@ -334,6 +334,10 @@ export const LimitOrder = () => {
                                                 chainId,
                                                 name: 'limit_order'
                                             })
+
+                                            const res = await publishFlow.execute({ payload: fct, autoSign: 'early' })
+
+                                            console.log({ res })
                                         }}>
                                         {"Publish Fct"}
                                     </Button>
