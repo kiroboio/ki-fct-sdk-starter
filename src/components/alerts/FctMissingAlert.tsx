@@ -1,4 +1,4 @@
-import { Alert, Icon, Link, Spinner } from '@chakra-ui/react';
+import { Text, HStack, Icon, Link, Spinner } from '@chakra-ui/react';
 import { AlertCircle } from 'react-feather';
 
 import {
@@ -90,15 +90,13 @@ export const FCTMissingAlert = ({
   const approveRunning = onchain.state.isRunning;
 
   return (
-    <Alert
-      ml="25px"
-      width={['400px', '400px', '400px', '400px', '950px']}
-      status="warning"
-      mb="10px"
-    >
-      {/* <AlertIcon /> */}
+    <HStack
+    width="full"
+    p="4"
+    backgroundColor="gray.800"
+  >
       <Icon as={AlertCircle} color="yellow.500" boxSize="22px" mr="10px" />
-      Flow requires vault approvals
+      <Text>Flow requires vault approvals</Text>
       {!approveRunning ? (
         // eslint-disable-next-line jsx-a11y/anchor-is-valid
         <Link onClick={handleClick} color="blue.500" ml="1">
@@ -107,6 +105,6 @@ export const FCTMissingAlert = ({
       ) : (
         <Spinner size="sm" color="blue.500" ml="1" />
       )}
-    </Alert>
+    </HStack>
   );
 };

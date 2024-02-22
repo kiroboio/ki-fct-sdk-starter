@@ -1,5 +1,5 @@
 import { core, service, plugins } from '@kiroboio/fct-sdk'
-import { FCT_UNISWAP, SWAP_WITHOUT_SLIPPAGE_METHOD, createApprovalsPlugin, type IPlugin, ChainId } from '@kiroboio/fct-core';
+import { FCT_UNISWAP, SWAP_WITHOUT_SLIPPAGE_METHOD, createApprovalsPlugin, type IPlugin, ChainId, ERC20 } from '@kiroboio/fct-core';
 
 type LimitOrderParams = {
     tokenIn: { address?: string; amount?: string }
@@ -24,7 +24,6 @@ export enum Flow {
 }
 
 export const createLimitOrder = async (params: LimitOrderParams) => {
-    console.log({ params })
     const getFlowOptions = ({ nextNodeId }: { nextNodeId?: string }) => {
         return {
             flow: nextNodeId ? Flow.OK_CONT_FAIL_REVERT : Flow.OK_STOP_FAIL_REVERT,
@@ -48,11 +47,21 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
         domain: 'flow@kiroboflow.io',
     })
 
+
     const WALLET = service.wallet.data.raw.address
     const VAULT = service.vault.data.raw.address
     const AMOUNT_IN = params.tokenIn.amount
+    calls.push({
+        from: VAULT,
+        nodeId: 'transferFrom',
+        plugin: new ERC20.actions.TransferFrom({ chainId, initParams: { to: params.tokenIn.address, methodParams: { from: WALLET, to: VAULT, amount: AMOUNT_IN } } }),
+        options: getFlowOptions({ nextNodeId: 'approve' })
+    })
+
+
+
     const PATH = params.path
-    const swapPlugin = new FCT_UNISWAP.actions.SwapNoSlippageProtection({
+    const swapPlugin = new FCT_UNISWAP.actions.SwapToNoSlippageProtection({
         chainId,
         initParams: {
             amountIn: AMOUNT_IN,
@@ -61,6 +70,7 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
             amountOut: '0',
             methodParams: {
                 amount: AMOUNT_IN,
+                to: WALLET,
                 method: SWAP_WITHOUT_SLIPPAGE_METHOD.swapExactTokensForTokens,
                 path: PATH,
             },
@@ -110,8 +120,6 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
 
     console.log({ calls })
     await fct.createMultiple(calls)
-
-
     console.log({ fct: fct.exportFCT() });
 
     return {
@@ -125,7 +133,6 @@ export const createLimitOrder = async (params: LimitOrderParams) => {
 
 export const publishLimitOrder = async (params: LimitOrderParams) => {
     const payload = await createLimitOrder(params)
-
     console.log({ payload })
     const res = await active.publish.execute('limit-order', { payload, autoSign: 'early', }) // , signatures: [], sign: true })
 
