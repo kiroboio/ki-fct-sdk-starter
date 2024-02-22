@@ -1,4 +1,4 @@
-import { HStack, Icon, Text, Tooltip, useClipboard, Tr, Td, VStack, IconButton } from '@chakra-ui/react'
+import { HStack, Icon, Text, Tooltip, useClipboard, Tr, Td, VStack, IconButton, Modal, ModalContent, ModalOverlay, ModalBody } from '@chakra-ui/react'
 import { type useActiveFlowList, useNetwork, useVault, useWallet } from '@kiroboio/fct-sdk'
 import { CheckCircle, Copy, Info, Activity, Pause, Play } from 'react-feather'
 import { BiLinkExternal } from 'react-icons/bi';
@@ -10,6 +10,7 @@ import { ExternalWalletMissingAlert } from '../alerts/ExternalWalletMissingAlert
 import { FCTMissingAlert } from '../alerts/FctMissingAlert';
 import { WalletMissingAlert } from '../alerts/WalletMissingAlert';
 import { FCTPauseButton } from '../pauseButton';
+import { useState } from 'react';
 
 const SECOND = 1
 const MINUTE = 60
@@ -73,6 +74,8 @@ export const ActiveFlowsRow = ({ item }: { item: ReturnType<typeof useActiveFlow
       raw: { address: walletAddress },
     },
   } = useWallet();
+
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
   const isGasIssue = item?.raw?.health?.gasPrice === false;
 
   const paused =
@@ -162,7 +165,6 @@ export const ActiveFlowsRow = ({ item }: { item: ReturnType<typeof useActiveFlow
     </Tooltip>
   );
 
-
   const renderStatus = () => {
     let visStatus:
       | 'Error'
@@ -214,38 +216,13 @@ export const ActiveFlowsRow = ({ item }: { item: ReturnType<typeof useActiveFlow
       case 'Warning':
         return (
           <HStack>
-            <Tooltip
-              label={(
-                <VStack>
-                  {isGasIssue && <WarningAlert message="Network gas price too high" />}
-                  {item.raw.error?.type === 2 && (
-                    <WarningAlert message="App conditions not fulfilled yet" />
-                  )}
-                  {!isStarted && (
-                    <WarningAlert message="The appointed time has not yet arrived" />
-                  )}
-                  {isExpired && <WarningAlert message="Expired" />}
-                  {stage !== 'executing' && neededExternalApprovals && (
-                    <ExternalWalletMissingAlert fctId={id} />
-                  )}
-                  {stage !== 'executing' && neededVaultApprovals.length > 0 && (
-                    <FCTMissingAlert missing={neededVaultApprovals} fctId={id} />
-                  )}
-                  {stage !== 'executing' &&
-                    neededWalletApprovals.map((approval) => (
-                      <WalletMissingAlert key={approval.token} missing={approval} />
-                    ))}
-                </VStack>
-              )}
-              aria-label="A tooltip"
-            >
-              <Icon
-                as={Activity}
-                boxSize="16px"
-                color="yellow.500"
-                cursor="pointer"
-              />
-            </Tooltip>
+            <Icon
+              as={Activity}
+              onClick={() => setIsAlertModalOpen(true)}
+              boxSize="16px"
+              color="yellow.500"
+              cursor="pointer"
+            />
             <Text textTransform="capitalize" as="span">
               Pending
             </Text>
@@ -320,41 +297,70 @@ export const ActiveFlowsRow = ({ item }: { item: ReturnType<typeof useActiveFlow
     }
   }
   return (
-    <Tr>
-      <Td>{name}</Td>
-      <Td>
-        <Text as="span">
-          <Tooltip placement="bottom-start" label="Copy ID" aria-label="A tooltip">
-            <HStack
-              onClick={() => {
-                onCopy()
-              }}
-              cursor="pointer"
-              spacing="0"
-              gap="11px">
-              <Text fontSize="16px" fontWeight="500">
-                {shortenAddress(item.raw.id, 3)}
-              </Text>
-              <Icon as={hasCopied ? CheckCircle : Copy} color={hasCopied ? 'green.500' : 'unset'} boxSize="16px" />
-            </HStack>
-          </Tooltip>
-        </Text>
-      </Td>
-      <Td></Td>
-      <Td>
-        {renderStatus()}
-      </Td>
-      <Td>
-        <Tooltip label={`Valid between: ${valid_from} - ${expires_at}`} aria-label="A tooltip">
-          <Text>
-            {createdAt}
-            <Icon ml="3px" boxSize="14px">
-              <Info />
-            </Icon>
+    <>
+      <Modal isOpen={isAlertModalOpen} onClose={() => setIsAlertModalOpen(false)}>
+        <ModalOverlay bg="whiteAlpha.200" backdropFilter="blur(4px)" />
+        <ModalContent rounded="32px" color="white" bg="#0F151A" p="40px">
+          <ModalBody p="0" mt="20px">
+            <VStack>
+              {isGasIssue && <WarningAlert message="Network gas price too high" />}
+              {item.raw.error?.type === 2 && (
+                <WarningAlert message="App conditions not fulfilled yet" />
+              )}
+              {!isStarted && (
+                <WarningAlert message="The appointed time has not yet arrived" />
+              )}
+              {isExpired && <WarningAlert message="Expired" />}
+              {stage !== 'executing' && neededExternalApprovals && (
+                <ExternalWalletMissingAlert fctId={id} />
+              )}
+              {stage !== 'executing' && neededVaultApprovals.length > 0 && (
+                <FCTMissingAlert missing={neededVaultApprovals} fctId={id} />
+              )}
+              {stage !== 'executing' &&
+                neededWalletApprovals.map((approval) => (
+                  <WalletMissingAlert key={approval.token} missing={approval} />
+                ))}
+            </VStack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+      <Tr>
+        <Td>{name}</Td>
+        <Td>
+          <Text as="span">
+            <Tooltip placement="bottom-start" label="Copy ID" aria-label="A tooltip">
+              <HStack
+                onClick={() => {
+                  onCopy()
+                }}
+                cursor="pointer"
+                spacing="0"
+                gap="11px">
+                <Text fontSize="16px" fontWeight="500">
+                  {shortenAddress(item.raw.id, 3)}
+                </Text>
+                <Icon as={hasCopied ? CheckCircle : Copy} color={hasCopied ? 'green.500' : 'unset'} boxSize="16px" />
+              </HStack>
+            </Tooltip>
           </Text>
-        </Tooltip>
-      </Td>
-      <Td>{gas_price_limit}</Td>
-    </Tr>
+        </Td>
+        <Td></Td>
+        <Td>
+          {renderStatus()}
+        </Td>
+        <Td>
+          <Tooltip label={`Valid between: ${valid_from} - ${expires_at}`} aria-label="A tooltip">
+            <Text>
+              {createdAt}
+              <Icon ml="3px" boxSize="14px">
+                <Info />
+              </Icon>
+            </Text>
+          </Tooltip>
+        </Td>
+        <Td>{gas_price_limit}</Td>
+      </Tr>
+    </>
   )
 }

@@ -39,9 +39,10 @@ import {
     Switch,
     InputLeftElement,
     Spinner,
+    VStack,
 } from '@chakra-ui/react'
 
-import { service, useActiveFlowActions, useNetwork, useProviders } from '@kiroboio/fct-sdk'
+import { service, useActiveFlowActions, useNetwork, useProviders, useTokenList } from '@kiroboio/fct-sdk'
 
 import TradingViewWidget from '../../components/TradingView'
 import { ChainId, FCT_UNISWAP, Utils } from '@kiroboio/fct-core'
@@ -176,13 +177,13 @@ export const LimitOrder = () => {
     const supportedTokens = tokens[chainId as '1' | '5'] || []
     const [fromToken, setFromToken] = useState<TokenType | undefined>(supportedTokens.find((token) => token.symbol === 'WETH'))
     const [toToken, setToToken] = useState<TokenType | undefined>(supportedTokens.find((token) => token.symbol === 'UNI'))
-    
+
     const [fromAmount, setFromAmount] = useState<string | undefined>()
     const [toAmount, setToAmount] = useState<string | undefined>()
-    
+
     const [limitPrice, setLimitPrice] = useState<string | undefined>()
     const [path, setPath] = useState<string[] | undefined>()
-    
+
     const filteredTokens = supportedTokens.filter((token) => token.symbol?.toLowerCase().includes(searchText.toLowerCase()))
     const {
         gasPrice: {
@@ -196,6 +197,7 @@ export const LimitOrder = () => {
     const { uniswap: limitPriceCalculation } = useProviders({ id: 'limit_price' });
 
     const { publish: publishFlow } = useActiveFlowActions({ id: '' });
+
 
     const getUniswapParams = async ({ amountIn, amountOut, isExactIn, type }: { isExactIn: 'true' | 'false', type: 'swap' | 'limit_price', amountIn?: string, amountOut?: string }) => {
         if (!amountIn && !amountOut) return
@@ -212,8 +214,6 @@ export const LimitOrder = () => {
             },
         };
         const values = await simulateSwap.calculateValuesOnUserInput?.get({ service: uniswapService })
-
-        console.log({ values })
         return values
     }
     useEffect(() => {
@@ -239,8 +239,8 @@ export const LimitOrder = () => {
         const setUniswapValuesAsync = async () => {
             if (!fromToken?.address) return
             if (!toToken?.address) return
-            const res = await getUniswapParams({ amountIn: etherToWei('1', fromToken?.decimals), isExactIn: 'true', type: 'limit_price' })
 
+            const res = await getUniswapParams({ amountIn: etherToWei('1', fromToken?.decimals), isExactIn: 'true', type: 'limit_price' })
             if (!res || !res.params.amountOut) return
             setLimitPrice(weiToEther(res.params.amountOut as string, toToken.decimals))
         }
@@ -259,9 +259,8 @@ export const LimitOrder = () => {
     }
 
     const switchTokens = () => {
-        let temp = fromToken
-        setFromToken(toToken)
-        setToToken(temp)
+        setFromToken(() => toToken)
+        setToToken(() => fromToken)
     }
 
     return (
@@ -307,7 +306,11 @@ export const LimitOrder = () => {
                                         <InputLeftAddon rounded="lg" fontSize="sm" fontWeight="bold">
                                             1 {fromToken?.symbol} =
                                         </InputLeftAddon>
-                                        <Input value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} />
+                                        <NumberInput value={limitPrice} onChange={setLimitPrice} w="full" borderRadius={0}>
+                                            <VStack h="full" textAlign="right" alignItems="center" justifyContent="center">
+                                                {limitPriceCalculation.state.isRunning ? <Spinner alignSelf="center" boxSize="12px" thickness="1px" /> : <NumberInputField />}
+                                            </VStack>
+                                        </NumberInput>
                                         <InputRightAddon rounded="lg" fontSize="sm" fontWeight="bold">
                                             {toToken?.symbol}
                                         </InputRightAddon>
@@ -321,7 +324,7 @@ export const LimitOrder = () => {
                                         width="full"
                                         isDisabled={!Boolean(path)}
                                         //colorScheme="blue.500"
-                                        onClick={async() => {
+                                        onClick={async () => {
                                             if (!path) return
                                             if (!fromAmount) return
                                             if (!limitPrice) return
@@ -336,8 +339,6 @@ export const LimitOrder = () => {
                                             })
 
                                             const res = await publishFlow.execute({ payload: fct, autoSign: 'early' })
-
-                                            console.log({ res })
                                         }}>
                                         {"Publish Fct"}
                                     </Button>
