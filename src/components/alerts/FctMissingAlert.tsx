@@ -1,28 +1,14 @@
-import { Text, HStack, Icon, Link, Spinner } from '@chakra-ui/react';
-import { AlertCircle } from 'react-feather';
+import { Text, HStack, Icon, Link, Spinner } from '@chakra-ui/react'
+import { AlertCircle } from 'react-feather'
 
-import {
-  BigIntOr0,
-  platform,
-  useWalletActions,
-  type ActiveFlowItemType,
-} from '@kiroboio/fct-sdk';
+import { BigIntOr0, platform, useWalletActions, type ActiveFlowItemType } from '@kiroboio/fct-sdk'
 
-type FCTActiveMissingType = Exclude<
-  ActiveFlowItemType['raw']['needed']['approvals'],
-  undefined
->;
+type FCTActiveMissingType = Exclude<ActiveFlowItemType['raw']['needed']['approvals'], undefined>
 
-export const FCTMissingAlert = ({
-  missing,
-  fctId,
-}: {
-  missing: FCTActiveMissingType;
-  fctId: string;
-}) => {
+export const FCTMissingAlert = ({ missing, fctId }: { missing: FCTActiveMissingType; fctId: string }) => {
   const { onchain, onchainVaultParams, onchainVaultParam } = useWalletActions({
     id: fctId,
-  });
+  })
 
   const generateCall = (missing: FCTActiveMissingType['0']) => {
     if (missing.protocol === 'ERC20') {
@@ -35,7 +21,7 @@ export const FCTMissingAlert = ({
           spender: missing.spender as `0x${string}`,
           amount: BigIntOr0(`0x${'f'.repeat(64)}`), // BigIntOr0(missing.amount),
         },
-      });
+      })
     }
     if (missing.protocol === 'ERC721') {
       if (missing.method === 'approve' && missing.tokenId) {
@@ -48,7 +34,7 @@ export const FCTMissingAlert = ({
             to: missing.spender as `0x${string}`,
             tokenId: BigIntOr0(missing.tokenId),
           },
-        });
+        })
       }
       if (missing.method === 'setApprovalForAll') {
         return onchainVaultParam({
@@ -60,7 +46,7 @@ export const FCTMissingAlert = ({
             operator: missing.spender as `0x${string}`,
             approved: true,
           },
-        });
+        })
       }
     } else if (missing.protocol === 'ERC1155') {
       return onchainVaultParam({
@@ -72,29 +58,25 @@ export const FCTMissingAlert = ({
           operator: missing.spender as `0x${string}`,
           approved: true,
         },
-      });
+      })
     }
-    return null;
-  };
+    return null
+  }
 
   const handleClick = (e: any) => {
-    e.preventDefault();
-    const calls = missing.map((m) => generateCall(m)).filter((x) => x);
-    console.log('missing', missing);
-    console.log('calls', calls);
+    e.preventDefault()
+    const calls = missing.map((m) => generateCall(m)).filter((x) => x)
+    console.log('missing', missing)
+    console.log('calls', calls)
     if (calls.length) {
-      onchain.execute(onchainVaultParams(calls as any));
+      onchain.execute(onchainVaultParams(calls as any))
     }
-  };
+  }
 
-  const approveRunning = onchain.state.isRunning;
+  const approveRunning = onchain.state.isRunning
 
   return (
-    <HStack
-    width="full"
-    p="4"
-    backgroundColor="gray.800"
-  >
+    <HStack width="full" p="4" backgroundColor="gray.800">
       <Icon as={AlertCircle} color="yellow.500" boxSize="22px" mr="10px" />
       <Text>Flow requires vault approvals</Text>
       {!approveRunning ? (
@@ -106,5 +88,5 @@ export const FCTMissingAlert = ({
         <Spinner size="sm" color="blue.500" ml="1" />
       )}
     </HStack>
-  );
-};
+  )
+}

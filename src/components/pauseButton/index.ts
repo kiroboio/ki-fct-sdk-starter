@@ -1,1 +1,1 @@
-export * from "./FCTPauseButton"
+export * from './FCTPauseButton'

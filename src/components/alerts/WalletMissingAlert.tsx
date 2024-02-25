@@ -1,32 +1,20 @@
-import { Text, HStack, Icon, Link, Spinner } from '@chakra-ui/react';
-import { AlertCircle, ExternalLink } from 'react-feather';
+import { Text, HStack, Icon, Link, Spinner } from '@chakra-ui/react'
+import { AlertCircle, ExternalLink } from 'react-feather'
 // import { mixpanelAnalytics } from 'src/kirobo/utils/mixpanelAnalytics';
 
-import {
-  platform,
-  useWalletActions,
-  type ActiveFlowItemType,
-  BigIntOr0,
-} from '@kiroboio/fct-sdk';
-import { useBlockchainLink } from '~/hooks/useBlockchainLink';
+import { platform, useWalletActions, type ActiveFlowItemType, BigIntOr0 } from '@kiroboio/fct-sdk'
+import { useBlockchainLink } from '~/hooks/useBlockchainLink'
 
-type WalletMissingType = Exclude<
-  ActiveFlowItemType['raw']['needed']['approvals'],
-  undefined
->['0'];
+type WalletMissingType = Exclude<ActiveFlowItemType['raw']['needed']['approvals'], undefined>['0']
 
-export const WalletMissingAlert = ({
-  missing,
-}: {
-  missing: WalletMissingType;
-}) => {
-  const { tokenLink } = useBlockchainLink();
-  const { onchain, onchainParams } = useWalletActions({ id: missing.token });
+export const WalletMissingAlert = ({ missing }: { missing: WalletMissingType }) => {
+  const { tokenLink } = useBlockchainLink()
+  const { onchain, onchainParams } = useWalletActions({ id: missing.token })
 
-  const tokenSymbol = missing.metadata?.symbol || 'N/A';
+  const tokenSymbol = missing.metadata?.symbol || 'N/A'
 
   const handleClick = (e: any) => {
-    e.preventDefault();
+    e.preventDefault()
     if (missing.protocol === 'ERC20') {
       onchain.execute(
         onchainParams({
@@ -38,7 +26,7 @@ export const WalletMissingAlert = ({
             amount: BigIntOr0(`0x${'f'.repeat(64)}`), // BigIntOr0(missing.amount),
           },
         })
-      );
+      )
     } else if (missing.protocol === 'ERC721') {
       if (missing.method === 'approve' && missing.tokenId) {
         onchain.execute(
@@ -51,7 +39,7 @@ export const WalletMissingAlert = ({
               tokenId: BigIntOr0(missing.tokenId),
             },
           })
-        );
+        )
       } else if (missing.method === 'setApprovalForAll') {
         onchain.execute(
           onchainParams({
@@ -63,7 +51,7 @@ export const WalletMissingAlert = ({
               approved: true,
             },
           })
-        );
+        )
       }
     } else if (missing.protocol === 'ERC1155') {
       onchain.execute(
@@ -76,33 +64,19 @@ export const WalletMissingAlert = ({
             approved: true,
           },
         })
-      );
+      )
     }
-  };
+  }
 
-  const approveRunning = onchain.state.isRunning;
+  const approveRunning = onchain.state.isRunning
 
   return (
-    <HStack
-      width="full"
-      p="4"
-      backgroundColor="gray.800"
-    >
+    <HStack width="full" p="4" backgroundColor="gray.800">
       {/* <AlertIcon /> */}
       <Icon as={AlertCircle} color="yellow.500" boxSize="22px" mr="10px" />
-      <Link
-        style={{ textDecoration: 'none' }}
-        href={`${tokenLink}/${missing.token}`}
-        isExternal
-      >
+      <Link style={{ textDecoration: 'none' }} href={`${tokenLink}/${missing.token}`} isExternal>
         {tokenSymbol}
-        <Icon
-          boxSize="14px"
-          as={ExternalLink}
-          marginLeft="2px"
-          marginRight="4px"
-          marginBottom="2px"
-        />
+        <Icon boxSize="14px" as={ExternalLink} marginLeft="2px" marginRight="4px" marginBottom="2px" />
       </Link>
       <Text>Token approval is required from your linked wallet</Text>
       {!approveRunning ? (
@@ -114,5 +88,5 @@ export const WalletMissingAlert = ({
         <Spinner size="sm" color="blue.500" ml="1" />
       )}
     </HStack>
-  );
-};
+  )
+}
